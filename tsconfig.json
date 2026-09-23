@@ -115,6 +115,13 @@
     "include": [
         "resources/js/**/*.ts",
         "resources/js/**/*.d.ts",
-        "resources/js/**/*.tsx"
+        "resources/js/**/*.tsx",
+        ".ladle/**/*.ts",
+        ".ladle/**/*.tsx",
+        "tests/js/**/*.ts",
+        "tests/js/**/*.tsx",
+        "tests/e2e/**/*.ts",
+        "vitest.config.ts",
+        "playwright.config.ts"
     ]
 }

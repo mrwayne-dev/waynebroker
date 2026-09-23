@@ -9,14 +9,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // Gotham: brass is the only primary, and its hover is the specified
+        // --accent-brass-hot rather than an opacity step — a translucent
+        // brass over a dark surface reads as muddy, not lighter.
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+          "bg-primary text-primary-foreground hover:bg-accent-brass-hot",
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "bg-destructive text-ink-primary hover:bg-destructive/90 focus-visible:ring-destructive/20",
+        // bg-transparent, not bg-background: an outline button sitting on a
+        // carbon card would otherwise punch a void-coloured hole in it.
         outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
