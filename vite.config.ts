@@ -4,7 +4,7 @@ import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
-import { bunny } from 'laravel-vite-plugin/fonts';
+import { google } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
@@ -12,9 +12,17 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
+            // Plan Section 15.2: two families, no third. Inter carries
+            // display and body; JetBrains Mono carries every number so
+            // tabular figures line up in tables and tickers.
+            // 700 on Inter exists for the one reserved gesture — hero
+            // display type at very large size.
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
+                google('Inter', {
+                    weights: [400, 500, 600, 700],
+                }),
+                google('JetBrains Mono', {
+                    weights: [400, 500],
                 }),
             ],
         }),

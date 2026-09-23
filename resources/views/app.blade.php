@@ -1,32 +1,21 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+{{-- .dark is unconditional: Gotham is dark-only (plan Section 15.1), and the
+     starter kit's `dark:` variant styles only apply when the class is present.
+     Deriving it from the visitor's OS preference, as the starter did, left a
+     light-mode visitor with Gotham surfaces but light-mode variant styles.
+     The appearance switcher in Settings is inert while this is hard-coded. --}}
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- Inline script to detect system dark mode preference and apply it immediately --}}
-        <script>
-            (function() {
-                const appearance = '{{ $appearance ?? "system" }}';
-
-                if (appearance === 'system') {
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                    if (prefersDark) {
-                        document.documentElement.classList.add('dark');
-                    }
-                }
-            })();
-        </script>
-
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Paints the void before any stylesheet loads, so there is no white
+             flash on a cold cache. Hard-coded rather than tokenised because a
+             CSS custom property is not available this early. Keep in step with
+             --surface-void in resources/css/gotham.css. --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
-            }
-
-            html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #0B1220;
             }
         </style>
 
