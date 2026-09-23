@@ -36,3 +36,23 @@ jobs:
 
       - name: Run CI Checks
         run: composer ci:check
+
+  # Intentionally does nothing yet: populated when hosting audit is done.
+  #
+  # The target is a shared cPanel/LiteSpeed account on a different physical
+  # host from Maveren's (plan A5, R4). Until that host is audited we do not
+  # know whether SSH is available, which PHP version it runs, or where the
+  # docroot points, and every one of those changes the shape of this job.
+  #
+  # When it is written, the Maveren deploy hazards it must not reproduce are
+  # named in docs/architecture.md: H-6 (deploy re-applying a live
+  # deposit-address SQL file) and M-11 (secrets rsynced into the docroot).
+  # The release is built from a clean checkout with explicit includes — never
+  # from a working tree.
+  deploy:
+    runs-on: ubuntu-latest
+    needs: ci
+    if: false
+    steps:
+      - name: Placeholder
+        run: echo "Deploy pipeline is not configured yet."
