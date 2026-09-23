@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<?xml encoding="UTF-8"><html lang="es" data-theme="dark" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="Invest a lump sum with Maveren Capital, choose weekly or monthly payouts, and get your principal back in full at maturity.">
+  <meta name="author" content="Maveren Capital">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="csrf-token" content="fca004d10df2224809482b1c06a139a41127accea142f303985583170c6c293f">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#16232A">
+  <link rel="canonical" href="https://maverencapital.com/">
+
+  <title>Genera riqueza en piloto automático | Maveren Capital</title>
+
+  <!-- Theme: applied before paint so there is no flash of the wrong palette.
+       Must stay INLINE and stay ahead of the stylesheets. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('mvc-theme');
+        document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+      } catch (e) { /* private mode - keep the dark default */ }
+    })();
+  </script>
+
+  <!-- Fonts (self-hosted: Switzer brand face) -->
+  <link rel="preload" href="/assets/fonts/Switzer-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Switzer-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Switzer-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/font.css?v=1787868523">
+
+  <!-- Phosphor icons (self-hosted) -->
+  <link rel="stylesheet" href="/assets/fonts/phosphor.css?v=1785388596">
+
+  <!-- Stylesheets - legacy first, design system overrides last -->
+  <link rel="stylesheet" href="/assets/css/main.css?v=1787868770">
+  <link rel="stylesheet" href="/assets/css/responsive.css?v=1787868837">
+  <link rel="stylesheet" href="/assets/css/mvc-design.css?v=1787869748">
+  <link rel="stylesheet" href="/assets/css/translate.css?v=1787871707">
+  <script src="/assets/js/theme.js?v=1787869682" defer></script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32">
+  <link rel="shortcut icon" href="/assets/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Maveren Capital">
+  <link rel="manifest" href="/assets/favicon/site.webmanifest">
+
+    <script src="/assets/js/smartsupp.js?v=1785606872" defer></script>
+    <script src="/assets/js/translate.js?v=1787872813" defer></script>
+</head>
+<body class="mvc-redesign">
+
+<nav class="navbar" data-navbar>
+  <div class="container">
+    <div class="navbar__inner">
+            <a href="/" class="navbar__brand" aria-label="Maveren Capital Home">
+        <img class="navbar__logo navbar__logo--light" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+        <img class="navbar__logo navbar__logo--dark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+        <span class="navbar__wordmark">Maveren Capital</span>
+      </a>
+
+      <ul class="navbar__links" id="navbar-links">
+        <li><a href="/plans" class="navbar__link">Planes</a></li>
+        <li><a href="/platform" class="navbar__link">Plataforma</a></li>
+        <li><a href="/solutions" class="navbar__link">Soluciones</a></li>
+        <li><a href="/about" class="navbar__link">Acerca de</a></li>
+        <li><a href="/contact" class="navbar__link">Contacto</a></li>
+        <li class="navbar__links-cta"><a href="/login" class="btn btn--primary">Iniciar sesión</a></li>
+      </ul>
+
+      <div class="navbar__actions">
+                <button class="mvc-lang-trigger" data-lang-open type="button" aria-label="Cambiar idioma" aria-haspopup="dialog">
+          <i class="ph ph-translate" aria-hidden="true"></i>
+          <span class="mvc-lang-trigger__code">ES</span>
+        </button>
+        <button class="theme-toggle" data-theme-toggle type="button" aria-label="Cambiar a tema claro" aria-pressed="false">
+          <i class="ph ph-sun"></i>
+        </button>
+        <a href="/login" class="btn btn--nav navbar__cta">Iniciar sesión</a>
+
+        <button class="navbar__toggle" type="button" data-nav-toggler aria-label="Abrir menú" aria-expanded="false" aria-controls="navbar-links">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- =================== HERO =================== -->
+<section class="hero" id="hero">
+  <div class="hero__bg" aria-hidden="true">
+    <picture>
+      <source type="image/avif" srcset="/assets/images/home-hero.avif">
+      <source type="image/webp" srcset="/assets/images/home-hero.webp">
+      <img src="/assets/images/home-hero.webp" alt="" width="1800" height="1080" loading="eager" fetchpriority="high">
+    </source></source></picture>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__content">
+      <p class="eyebrow">
+        <span class="eyebrow__icon">
+          <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+        </span>
+        SEGREGACIÓN DE LOS FONDOS DE LOS CLIENTES
+      </p>
+
+      <h1 class="hero__title">Genera riqueza en piloto automático.</h1>
+
+      <p class="hero__subtitle">
+        Invierte una suma global, elige cobros semanales o mensuales y observa cómo llegan a tu billetera a tiempo. Su director vuelve en su totalidad al final del plazo.
+      </p>
+
+      <div class="hero__cta-row">
+        <a href="/platform" class="btn btn--primary">Ver cómo funciona</a>
+        <a href="/register" class="btn btn--ghost">Abrir una cuenta</a>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- =================== SMARTER INVESTING =================== -->
+<section class="section section--white" id="smarter-investing">
+  <div class="container">
+    <div class="grid-2" style="gap: var(--space-10); align-items: center;">
+      <div class="section-header section-header--wide">
+        <p class="eyebrow">
+          <span class="eyebrow__icon">
+            <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+          </span>
+          La Plataforma
+        </p>
+        <h2 class="section-header__title">Inversión más inteligente.</h2>
+        <p class="section-header__body">
+          Maveren Capital ofrece a los ahorradores cotidianos un programa de ingresos fijo y predecible sobre el capital que se comprometen por un plazo determinado. Una billetera, una declaración. Financie el monedero, elija un plan y cobre.
+        </p>
+        <div class="section-header__cta">
+          <a href="/platform" class="btn btn--primary">Ver cómo funciona</a>
+        </div>
+      </div>
+
+      <div>
+        <img src="../../assets/images/smarter.webp" width="1200" height="900" alt="Ilustración de plataforma de inversión moderna" loading="lazy" style="border-radius: var(--radius-card); width: 100%;">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== ONE WALLET =================== -->
+<section class="section section--warm">
+  <div class="container">
+    <div class="section-header section-header--center" style="margin-bottom: var(--space-10);">
+      <p class="eyebrow">
+        <span class="eyebrow__icon">
+          <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+        </span>
+        Arquitectura
+      </p>
+      <h2 class="section-header__title">Una billetera. Todas las formas de hacerla crecer.</h2>
+      <p class="section-header__body">
+        Maveren Capital es una plataforma única con planes semanales y mensuales: ahorro a plazo fijo, inversión semanal automatizada, capital fraccionado, coinversiones en infraestructura y una capa de recompensas de lealtad. Financie la billetera una vez; dirija el capital a donde su estrategia lo necesite a continuación.
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Ahorros a plazo fijo, por encima de la calle principal</h3>
+        <p class="card-feature__desc">Fijar una tarifa en el momento de la inscripción. Los cobros se acreditan automáticamente en cada periodo y el principal se libera en la fecha de vencimiento.</p>
+      </article>
+
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Equidad fraccionaria con cobros programados</h3>
+        <p class="card-feature__desc">Posiciones propias que no pudiste alcanzar enteras. Distribuciones semanales, mensuales o trimestrales, liquidadas en su billetera.</p>
+      </article>
+
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 1 9 9"></path><path d="M3 12l4-4M3 12l4 4"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Contribuciones semanales automatizadas</h3>
+        <p class="card-feature__desc">Establece una estrategia, financia semanalmente, pausa o cancela cuando quieras. No hay penalización por salida anticipada en los programas activos.</p>
+      </article>
+
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"></path><path d="M9 12l2 2 4-4"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Segregados y reconciliados.</h3>
+        <p class="card-feature__desc">Los fondos de los clientes se encuentran en cuentas segregadas, nunca se mezclan con los fondos operativos de la empresa y se concilian de forma regular.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- =================== HOW IT WORKS (weekly vs monthly) =================== -->
+<section class="section section--white">
+  <div class="container">
+    <div class="section-header" style="margin-bottom: var(--space-10);">
+      <p class="eyebrow">
+        <span class="eyebrow__icon">
+          <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+        </span>
+        Cómo funciona
+      </p>
+      <h2 class="section-header__title">Dos ritmos. Una cartera.</h2>
+      <p class="section-header__body">
+        Inviertes una suma global una vez. A partir de ahí, es simplemente una cuestión de cómo
+        a menudo quieres que te paguen: cada semana o cada mes. Ambos devuelven
+        su principal en su totalidad al final del plazo.
+      </p>
+      <div class="section-header__cta">
+        <a href="/plans" class="btn btn--primary">Compara todos los planes</a>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Weekly -->
+      <a href="/plans#plans" class="card-image" aria-label="Planes semanales, un cobro cada semana">
+        <div class="card-image__media">
+          <picture>
+            <source type="image/avif" srcset="/assets/images/weekly.avif">
+            <source type="image/webp" srcset="/assets/images/weekly.webp">
+            <img src="/assets/images/weekly.webp" alt="" width="1800" height="1080" loading="lazy">
+          </source></source></picture>
+        </div>
+        <div class="card-image__body">
+          <span class="card-image__icon">
+            <i class="ph ph-calendar-dots" aria-hidden="true"></i>
+          </span>
+          <h3 class="card-image__title">Planes semanales</h3>
+          <p class="card-image__desc">
+            Un cobro llega a su billetera cada semana, durante trece semanas o
+            veintiséis. La forma más corta de convertir el capital en ingresos regulares,
+            y la más fácil para empezar.
+          </p>
+        </div>
+      </a>
+
+      <!-- Monthly -->
+      <a href="/plans#plans" class="card-image" aria-label="Plan mensual, un cobro cada mes">
+        <div class="card-image__media">
+          <picture>
+            <source type="image/avif" srcset="/assets/images/monthly.avif">
+            <source type="image/webp" srcset="/assets/images/monthly.webp">
+            <img src="/assets/images/monthly.webp" alt="" width="1800" height="1080" loading="lazy">
+          </source></source></picture>
+        </div>
+        <div class="card-image__body">
+          <span class="card-image__icon">
+            <i class="ph ph-calendar-check" aria-hidden="true"></i>
+          </span>
+          <h3 class="card-image__title">Plan mensual</h3>
+          <p class="card-image__desc">
+            Un pago más grande en la misma fecha cada mes durante un año completo. El
+            la tasa más alta que publicamos, a cambio del compromiso a más largo plazo,
+            y fácil de planificar durante todo el año.
+          </p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== VISION 1 - Democratise Yield =================== -->
+<section class="section section--warm" id="vision">
+  <div class="container">
+    <div class="testimonial">
+      <div>
+        <p class="eyebrow" style="margin-bottom: var(--space-5);">
+          <span class="eyebrow__icon">
+            <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+          </span>
+          Visión
+        </p>
+        <p class="testimonial__quote">Democratizamos el rendimiento. Una tarifa publicada y un horario real, disponible desde $ 250.</p>
+      </div>
+      <div>
+        <p style="font-size: var(--text-body); line-height: var(--lh-body); color: var(--color-ink-muted);">
+          Durante décadas, los mejores rendimientos, los mejores términos y los informes más limpios se han reservado para clientes con saldos de siete cifras. Creamos Maveren Capital para aplanar eso: una tarifa fija y publicada y un calendario de cobros claro, disponible desde $ 250 en adelante, con los mismos informes que esperaríamos nosotros mismos.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== VISION 2 - Beat Idle Cash =================== -->
+<section class="section section--white">
+  <div class="container">
+    <div class="testimonial">
+      <div>
+        <p class="eyebrow" style="margin-bottom: var(--space-5);">
+          <span class="eyebrow__icon">
+            <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+          </span>
+          Visión
+        </p>
+        <p class="testimonial__quote">Superamos el efectivo ocioso. Lo que está sentado todavía funciona en el momento en que aterriza.</p>
+      </div>
+      <div>
+        <p style="font-size: var(--text-body); line-height: var(--lh-body); color: var(--color-ink-muted);">
+          El efectivo inactivo es un impuesto lento. La inflación, la deriva de la cuenta bancaria y el coste de oportunidad de "lo resolveré más tarde" cuestan a los hogares estadounidenses miles de dólares cada año. Maveren Capital convierte el excedente del día de pago, un bono no gastado o un desbordamiento del fondo de emergencia en una posición generadora de rendimiento en el momento en que llega a su billetera, con la opción de retirar o reequilibrar en su horario, no en el del banco.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== STATS =================== -->
+<section class="section section--warm">
+  <div class="container">
+    <div class="section-header" style="margin-bottom: var(--space-10);">
+      <p class="eyebrow">
+        <span class="eyebrow__icon">
+          <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+        </span>
+        Nuestros números
+      </p>
+      <h2 class="section-header__title">Construido para el capital real. Medido en confianza.</h2>
+      <p class="section-header__body">
+        Maveren Capital fue construido para personas reales que despliegan capital real. Estas cifras reflejan lo que nuestros miembros han construido en la plataforma y la confianza que nos ha permitido seguir construyendo.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <article class="card-stat">
+        <span class="card-stat__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="9" cy="8" r="4"></circle><path d="M2 22a7 7 0 0 1 14 0M17 11a3 3 0 1 0 0-6M22 22a5 5 0 0 0-7-5"></path>
+          </svg>
+        </span>
+        <p class="card-stat__desc">Inversores que asignan activamente</p>
+        <p class="card-stat__value"><span data-count="12000">0</span>+</p>
+      </article>
+
+      <article class="card-stat">
+        <span class="card-stat__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path>
+          </svg>
+        </span>
+        <p class="card-stat__desc">Cobros del ROI liquidados a tiempo</p>
+        <p class="card-stat__value"><span data-count="6800">0</span>+</p>
+      </article>
+
+      <article class="card-stat">
+        <span class="card-stat__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"></path>
+          </svg>
+        </span>
+        <p class="card-stat__desc">Días de pista de auditoría limpia</p>
+        <p class="card-stat__value"><span data-count="320">0</span></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- =================== WHY MVC =================== -->
+<section class="section section--white">
+  <div class="container">
+    <div class="section-header" style="margin-bottom: var(--space-10);">
+      <p class="eyebrow">
+        <span class="eyebrow__icon">
+          <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+        </span>
+        Por qué Maveren Capital
+      </p>
+      <h2 class="section-header__title">Sin reinvención. Solo menos fricción.</h2>
+      <p class="section-header__body">
+        No reinventamos la inversión. Eliminamos el marcado, la fragmentación y la letra pequeña, luego devolvemos la diferencia a las personas que ponen la capital.
+      </p>
+      <div class="section-header__cta">
+        <a href="/contact" class="btn btn--primary">Inicia una conversación</a>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="3" y="6" width="18" height="14" rx="2"></rect><path d="M7 6V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Una cartera</h3>
+        <p class="card-feature__desc">Un producto, un saldo, una declaración. No hay que rebotar entre aplicaciones para ver lo que está haciendo tu capital.</p>
+      </article>
+
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M12 1v22M5 5h10a4 4 0 0 1 0 8H7a4 4 0 0 0 0 8h12"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Precios honestos</h3>
+        <p class="card-feature__desc">La tarifa cotizada es la tarifa pagada. Sin juegos de spread, sin margen oculto, sin notas al pie de "headline rate" que descubra al vencimiento.</p>
+      </article>
+
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M9 13h6M9 17h4"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Libro mayor de grado de auditoría</h3>
+        <p class="card-feature__desc">Cada transacción tiene una referencia. Cada referencia se concilia con su banco. Exporte seis meses de actividad en un solo clic para su contador.</p>
+      </article>
+
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Mínimos accesibles</h3>
+        <p class="card-feature__desc">Comienza desde $ 250 en un plan semanal y aumenta con el tiempo. Los mínimos que bloquean a los inversores minoristas en otros lugares no existen aquí.</p>
+      </article>
+
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"></path><path d="M9 12l2 2 4-4"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Salvaguardia</h3>
+        <p class="card-feature__desc">Los fondos de los clientes se mantienen en cuentas segregadas, nunca se mezclan con los fondos operativos de la empresa y se concilian de forma regular.</p>
+      </article>
+
+      <article class="card-feature">
+        <span class="card-feature__icon">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M3 12h4l3-9 4 18 3-9h4"></path>
+          </svg>
+        </span>
+        <h3 class="card-feature__title">Composición por defecto</h3>
+        <p class="card-feature__desc">El ROI se reinvierte en la estrategia elegida, a menos que usted nos indique lo contrario. Cuanto antes empieces, más te agradecerá tu yo futuro.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TESTIMONIAL =================== -->
+<section class="section section--warm">
+  <div class="container">
+    <div class="testimonial">
+      <h2 class="testimonial__quote">
+        Había estado aparcando mi superávit salarial en un ahorro del 0,5% durante años. Abrir un plan semanal me llevó diez minutos, y ahora un cobro llega a mi billetera todos los viernes, con una fecha de vencimiento que puedo ver en el panel de control.
+      </h2>
+      <div>
+        <p class="eyebrow" style="margin-bottom: var(--space-4);">
+          <span class="eyebrow__icon">
+            <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+          </span>
+          Historia del miembro
+        </p>
+        <div class="testimonial__attribution">
+          <img src="../../assets/images/avatar/default.png" width="2000" height="2000" alt="" class="testimonial__portrait" loading="lazy">
+          <div>
+            <p class="testimonial__name">Sarah Johnson</p>
+            <p class="testimonial__role">Miembro semanal del plan, Maveren Capital</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FAQ =================== -->
+<section class="section section--warm">
+  <div class="container">
+    <div class="section-header section-header--center" style="margin-bottom: var(--space-10);">
+      <p class="eyebrow">
+        <span class="eyebrow__icon">
+          <svg viewbox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+        </span>
+        FAQs
+      </p>
+      <h2 class="section-header__title">Preguntas frecuentes</h2>
+      <p class="section-header__body">Respuestas rápidas a las preguntas que los miembros hacen con más frecuencia.</p>
+      <div class="section-header__cta">
+        <a href="/contact" class="btn btn--primary">¡Póngase en contacto con nuestro personal!</a>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Qué es Maveren Capital?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          Maveren Capital es una plataforma de inversión construida en torno a un solo producto: invierte una suma global en un plan que devuelve un porcentaje fijo de su capital a su billetera, ya sea semanal o mensualmente, y devuelve su capital en su totalidad al final del plazo. Un monedero, un extracto, un horario.
+        </div>
+      </details>
+
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Está mi dinero a salvo con Maveren Capital?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          Los fondos de los clientes se mantienen en cuentas segregadas, nunca se mezclan con los fondos operativos de la empresa y se concilian de forma regular. Su capital está en riesgo: las tasas no están garantizadas y revelamos el peor de los casos antes de cada asignación.
+        </div>
+      </details>
+
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Están seguros mis datos personales?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          Sí. Utilizamos cifrado AES-256 de extremo a extremo, autenticación multifactor y controles de seguridad probados por CREST revisados trimestralmente. La plataforma sigue la práctica reconocida de protección de datos de EE. UU., con un Oficial de Protección de Datos nombrado y un Aviso de Privacidad transparente.
+        </div>
+      </details>
+
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Cuál es el mínimo para empezar?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          Los mínimos varían según el plan. Los planes semanales comienzan en $ 250, los planes mensuales en $ 500. Nuestro plan mensual más largo tiene un mínimo de $ 25,000, lo que refleja su plazo y tarifa. Cada mínimo se muestra en el plan antes de que te comprometas.
+        </div>
+      </details>
+
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Puedo retirar mi dinero en cualquier momento?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          El saldo de tu monedero está disponible a pedido y todos los cobros se pueden retirar en el momento en que llegan. El capital comprometido con un plan se bloquea durante el plazo y se libera en su totalidad en la fecha de vencimiento.
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+            <a href="/" class="footer__brand" aria-label="Maveren Capital Home">
+                <img class="footer__logo footer__logo--light" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+        <img class="footer__logo footer__logo--dark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+        <span class="footer__wordmark">Maveren Capital</span>
+      </a>
+      <h2 style="margin: var(--space-2) 0;">Su riqueza, simplificada en un solo lugar.</h2>
+      <p style="color: var(--color-ink-muted); max-width: 560px;">
+        Abre una cuenta en minutos. Financie el monedero. Implemente planes semanales y mensuales, y deje que Maveren Capital se encargue de la capitalización, los informes y las protecciones.
+      </p>
+      <a href="/register" class="btn btn--primary">Inicia una conversación</a>
+    </div>
+
+    <nav class="footer__nav" aria-label="Footer">
+      <a href="/plans">Planes</a><span class="footer__sep">·</span>
+      <a href="/platform">Plataforma</a><span class="footer__sep">·</span>
+      <a href="/solutions">Soluciones</a><span class="footer__sep">·</span>
+      <a href="/about">Acerca de</a><span class="footer__sep">·</span>
+      <a href="/contact">Contacto</a><span class="footer__sep">·</span>
+      <a href="/login">Iniciar sesión</a>
+    </nav>
+
+        <div class="footer__credits">
+      <span>© 2026 Maveren Capital LLC. Todos los derechos reservados.</span>
+    </div>
+  </div>
+</footer>
+
+<noscript>
+  Powered by <a href="https://www.smartsupp.com" target="_blank" rel="noopener noreferrer">Smartsupp</a>
+</noscript>
+
+
+
+  <!-- Scripts -->
+  <script src="/assets/js/main.js?v=1787868523" defer></script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Maveren Capital",
+  "url": "https://maverencapital.com",
+  "logo": "https://maverencapital.com/assets/favicon/android-chrome-512x512.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/maverenholdings",
+    "https://twitter.com/maverenholdings",
+    "https://instagram.com/maverenholdings"
+  ]
+}
+</script>
+
+
+
+</body>
+</html>

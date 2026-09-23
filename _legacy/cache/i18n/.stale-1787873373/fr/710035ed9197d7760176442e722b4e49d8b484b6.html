@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<?xml encoding="UTF-8"><html lang="fr" data-theme="dark" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Your Maveren Capital dashboard: wallet, positions, and payout schedule.">
+    <meta name="author" content="Maveren Capital">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="5781c7621d3180b3e37f8eae26fe8866ab447b2529ef7e751748d1993618b998">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#16232A">
+    <title>Portefeuille | Maveren Capital</title>
+
+    <!-- Theme: applied before paint so there is no flash of the wrong palette.
+         Must stay INLINE and stay ahead of the stylesheets. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('mvc-theme');
+          document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+        } catch (e) { /* private mode - keep the dark default */ }
+      })();
+    </script>
+
+    <!-- Critical CSS -->
+        <link rel="stylesheet" href="/assets/css/bootstrap.css?v=1760620542">
+    <link rel="stylesheet" href="/assets/css/dashboard.css?v=1787868799">
+
+    <!-- Fonts (self-hosted: Switzer brand face).
+         font.css sits immediately after the preloads on purpose: it holds the
+         @font-face rules, and until it parses the browser has no reason to use
+         the bytes it just fetched. Behind animation/bootstrap-select it landed
+         late enough for the "preloaded but not used" warning to fire. -->
+    <link rel="preload" href="/assets/fonts/Switzer-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/Switzer-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/Switzer-600.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/assets/fonts/font.css?v=1787868523">
+
+    <!-- Phosphor icons (self-hosted) -->
+    <link rel="stylesheet" href="/assets/fonts/phosphor.css?v=1785388596">
+
+    <!-- Non-critical CSS -->
+    <link rel="stylesheet" href="/assets/css/animation.min.css?v=1760620498">
+    <link rel="stylesheet" href="/assets/css/animation.css?v=1785146041">
+    <link rel="stylesheet" href="/assets/css/bootstrap-select.min.css?v=1760620576">
+
+    <!-- MVC design re-skin (loads last to win the cascade) -->
+    <link rel="stylesheet" href="/assets/css/mvc-dashboard.css?v=1787870810">
+    <link rel="stylesheet" href="/assets/css/translate.css?v=1787871707">
+
+    <script src="/assets/js/theme.js?v=1787869682" defer></script>
+    <script src="/assets/js/dock.js?v=1787868523" defer></script>
+
+    <noscript>
+        <link rel="stylesheet" href="/assets/css/bootstrap.css?v=1760620542">
+        <link rel="stylesheet" href="/assets/css/dashboard.css?v=1787868799">
+        <link rel="stylesheet" href="/assets/css/mvc-dashboard.css?v=1787870810">
+    </noscript>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-title" content="Maveren Capital">
+    <link rel="manifest" href="/assets/favicon/site.webmanifest">
+
+        <script src="/assets/js/smartsupp.js?v=1785606872" defer></script>
+        <script src="/assets/js/translate.js?v=1787872813" defer></script>
+</head>
+
+<body class="counter-scroll mvc-dash">
+
+    <!-- #wrapper -->
+    <div id="wrapper">
+        <!-- #page -->
+        <div id="page" class="">
+            <!-- layout-wrap -->
+            <div class="layout-wrap loader-off">
+                <!-- preload -->
+                <div id="preload" class="preload-container">
+                    <div class="preloading">
+                        <span></span>
+                    </div>
+                </div>
+                <!-- /preload -->
+                <!-- section-menu-left -->
+                <div class="section-menu-left">
+    <div class="box-logo">
+                <a href="/dashboard" id="site-logo-inner" class="mvc-brand" aria-label="Tableau de bord Maveren Capital">
+            <img id="logo_header" class="mvc-brand__mark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+            <span class="mvc-brand__name">Maveren Capital</span>
+        </a>
+        <div class="button-show-hide">
+            <i class="ph ph-caret-left"></i>
+        </div>
+    </div>
+    <div class="section-menu-left-wrap">
+        <div class="center">
+            <div class="center-item">
+                <div class="center-heading f14-regular text-Gray menu-heading mb-12">Navigation</div>
+            </div>
+            <div class="center-item">
+                <ul class="">
+                    <li class="menu-item">
+                        <a href="/dashboard" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-squares-four"></i></div>
+                            <div class="text">Dashboard</div>
+                        </a>
+                    </li>
+                    <li class="menu-item active">
+                        <a href="/dashboard.wallet" class="menu-item-button active">
+                            <div class="icon"><i class="ph ph-wallet"></i></div>
+                            <div class="text">Wallet</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/dashboard.transactions" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-receipt"></i></div>
+                            <div class="text">Transactions</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/dashboard.invest" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-chart-line-up"></i></div>
+                            <div class="text">Invest</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/dashboard.profile" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-user-circle"></i></div>
+                            <div class="text">Profile</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/dashboard.kyc" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-shield-check"></i></div>
+                            <div class="text">Verification</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+                <nav class="mvc-dock" aria-label="Primary">
+    <a href="/dashboard" class="mvc-dock__item">
+        <i class="ph ph-squares-four" aria-hidden="true"></i>
+        <span>Home</span>
+    </a>
+    <a href="/dashboard.wallet" class="mvc-dock__item is-active" aria-current="page">
+        <i class="ph ph-wallet" aria-hidden="true"></i>
+        <span>Wallet</span>
+    </a>
+    <a href="/dashboard.invest" class="mvc-dock__item">
+        <i class="ph ph-chart-line-up" aria-hidden="true"></i>
+        <span>Invest</span>
+    </a>
+    <a href="/dashboard.transactions" class="mvc-dock__item">
+        <i class="ph ph-receipt" aria-hidden="true"></i>
+        <span>Activity</span>
+    </a>
+    <a href="/dashboard.profile" class="mvc-dock__item">
+        <i class="ph ph-user-circle" aria-hidden="true"></i>
+        <span>Profile</span>
+    </a>
+</nav>
+                <!-- section-content-right -->
+                <div class="section-content-right">
+                    <!-- header-dashboard -->
+                    <div class="header-dashboard">
+    <div class="wrap">
+        <div class="header-left">
+                        <a href="/dashboard" class="mvc-topbar-logo" aria-label="Maveren Capital">
+                <img class="mvc-topbar-logo__dark" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+                <img class="mvc-topbar-logo__light" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+                <span class="mvc-topbar-logo__name">Maveren Capital</span>
+            </a>
+            <div class="button-show-hide"><i class="ph ph-list"></i></div>
+            <h6>Wallet</h6>
+        </div>
+        <div class="header-grid">
+            <button class="mvc-lang-trigger" data-lang-open type="button" aria-label="Changer de langue" aria-haspopup="dialog">
+                <i class="ph ph-translate" aria-hidden="true"></i>
+                <span class="mvc-lang-trigger__code">EN</span>
+            </button>
+            <button class="theme-toggle" data-theme-toggle type="button" aria-label="Passer au thème clair" aria-pressed="false">
+                <i class="ph ph-sun"></i>
+            </button>
+            <div class="line1"></div>
+            <div class="popup-wrap user type-header">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="header-user wg-user">
+                            <span class="image"><img id="topbar-avatar" src="/assets/images/avatar/default.png" alt="" data-fallback-src="/assets/images/avatar/default.png"></span>
+                            <span class="content flex flex-column">
+                                <span class="label-02 text-Black name" id="topbar-username">Test Member</span>
+                                <span class="f14-regular text-Gray">User</span>
+                            </span>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton3">
+                        <li><a href="/dashboard.profile" class="user-item"><div class="body-title-2">Profile</div></a></li>
+                        <li><a href="/dashboard.transactions" class="user-item"><div class="body-title-2">Transactions</div></a></li>
+                        <li><a href="#" id="logout-btn" class="user-item" data-logout-url="/dashboard.logout"><div class="body-title-2">Log out</div></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                    <!-- main-content -->
+                    <div class="main-content">
+                        <!-- main-content-wrap -->
+                        <div class="main-content-inner">
+                            <!-- main-content-wrap -->
+                            <div class="main-content-wrap">
+                                <div class="tf-container">
+
+                                                                        <div class="mvc-kyc-banner mvc-kyc-banner--pending mb-24">
+                                        <i class="ph ph-hourglass-medium"></i>
+                                        <div class="mvc-kyc-banner__body">
+                                            <div class="f14-bold mb-4">
+                                                                                                    Votre vérification d'identité est en cours de révision
+                                                                                            </div>
+                                            <div class="f12-regular">
+                                                                                                    Les dépôts et les investissements ne sont pas affectés. Les retraits s'ouvrent dès qu'ils sont approuvés.
+                                                                                            </div>
+                                        </div>
+                                                                            </div>
+                                    
+                                    <!-- ============================================================
+                                         ROW 1 · PORTFOLIO SUMMARY (hero) + LIFETIME ACTIVITY
+                                         ============================================================ -->
+                                    <div class="row mb-32">
+                                        <!-- Hero balance -->
+                                        <div class="col-lg-8 col-md-12 mb-24">
+                                            <div class="wallet-card wallet-main wallet-hero" data-balance-card>
+                                                <div class="wallet-hero-top">
+                                                    <div class="title-box flex items-center gap-2">
+                                                        <i class="ph ph-wallet"></i>
+                                                        <span class="f12-medium text-White">Solde total (USD)</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="box-status bg-Green f12-medium flex items-center gap-2">
+                                                            <i class="ph ph-shield-check"></i> Active
+                                                        </span>
+                                                        <button type="button" class="wallet-hero-eye" data-balance-toggle aria-pressed="false" aria-label="Hide balance" title="Hide balance">
+                                                            <i class="ph ph-eye" aria-hidden="true"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="wallet-hero-balance">
+                                                    <h2 class="counter text-White">$<span id="total-balance">0.00</span></h2>
+                                                    <div class="wallet-hero-change f14-regular">
+                                                        <i class="ph ph-trend-up"></i>
+                                                        +$<span id="total-earnings">0.00</span> &lt;bpt i="1" type="bold"&gt;{}&lt;/bpt&gt;Total cumulatif&lt;ept i="1"&gt;{}&lt;/ept&gt;
+                                                    </div>
+                                                </div>
+
+                                                <button type="button" class="wallet-hero-ref" data-copy-text="MVC-MAIN-0001" title="Copier la référence du portefeuille">
+                                                    <i class="ph ph-copy" aria-hidden="true"></i>
+                                                    <span>MVC-MAIN-0001</span>
+                                                </button>
+
+                                                <div class="wallet-hero-substats">
+                                                    <div class="wallet-substat">
+                                                        <div class="f12-regular">Investis dans tous les produits</div>
+                                                        <div class="f14-bold text-White">$<span id="wallet-total-invested">0.00</span></div>
+                                                    </div>
+                                                    <div class="wallet-substat">
+                                                        <div class="f12-regular">Retraits en attente</div>
+                                                        <div class="f14-bold text-White">$<span id="pending-withdrawals">0.00</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Quick actions. Replaces the two inline deposit/withdraw
+                                                 form panels; both now open as modals. -->
+                                            <div class="wg-box wallet-actions mt-24">
+                                                <button type="button" class="wallet-action" data-open-modal="#deposit-modal">
+                                                    <span class="wallet-action__icon"><i class="ph ph-arrow-down"></i></span>
+                                                    <span class="wallet-action__label">Deposit</span>
+                                                </button>
+                                                <button type="button" class="wallet-action" data-open-modal="#withdraw-start-modal">
+                                                    <span class="wallet-action__icon"><i class="ph ph-arrow-up"></i></span>
+                                                    <span class="wallet-action__label">Withdraw</span>
+                                                </button>
+                                                <a href="/dashboard.invest" class="wallet-action">
+                                                    <span class="wallet-action__icon"><i class="ph ph-chart-line-up"></i></span>
+                                                    <span class="wallet-action__label">Invest</span>
+                                                </a>
+                                                <a href="/dashboard.transactions" class="wallet-action">
+                                                    <span class="wallet-action__icon"><i class="ph ph-clock-counter-clockwise"></i></span>
+                                                    <span class="wallet-action__label">History</span>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <!-- Lifetime activity -->
+                                        <div class="col-lg-4 col-md-12 mb-24">
+                                            <div class="wg-box wallet-lifetime h-full">
+                                                <div class="title mb-16">
+                                                    <div class="label-01 text-Primary">Activité à vie</div>
+                                                </div>
+                                                <ul class="wallet-stat-list">
+                                                    <li>
+                                                        <span class="wallet-stat-label f14-regular text-Gray">
+                                                            <i class="ph ph-arrow-down"></i> Total déposé
+                                                        </span>
+                                                        <span class="f14-bold text-Primary">$<span id="total-deposited">0.00</span></span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="wallet-stat-label f14-regular text-Gray">
+                                                            <i class="ph ph-arrow-up"></i> Total retiré
+                                                        </span>
+                                                        <span class="f14-bold text-Primary">$<span id="total-withdrawn">0.00</span></span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="wallet-stat-label f14-regular text-Gray">
+                                                            <i class="ph ph-trend-up"></i> Total des revenus
+                                                        </span>
+                                                        <span class="f14-bold text-Green">$<span id="wallet-total-earnings">0.00</span></span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ============================================================
+                                         ROW 2 · PORTFOLIO ALLOCATION (where your money is)
+                                         ============================================================ -->
+                                    <div class="row mb-32">
+                                        <div class="col-12">
+                                            <div class="wg-box">
+                                                <div class="title mb-16 flex justify-between items-center">
+                                                    <div class="label-01 text-Primary">Réalisations</div>
+                                                    <a href="/dashboard.invest" class="view-all f12-regular text-Primary">
+                                                        Manage <i class="ph ph-caret-right ml-2"></i>
+                                                    </a>
+                                                </div>
+                                                <ul class="wallet-alloc-list">
+                                                    <li class="wallet-alloc-item">
+                                                        <a href="/dashboard.invest">
+                                                            <span class="wallet-alloc-icon"><i class="ph ph-calendar-dots"></i></span>
+                                                            <span class="wallet-alloc-meta">
+                                                                <span class="f14-bold text-Primary">Weekly plans</span>
+                                                                <span class="f12-regular text-Gray">Un versement chaque semaine</span>
+                                                            </span>
+                                                            <span class="wallet-alloc-value f14-bold text-Primary">$<span id="weekly-invested">0.00</span></span>
+                                                            <i class="ph ph-caret-right wallet-alloc-arrow"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li class="wallet-alloc-item">
+                                                        <a href="/dashboard.invest">
+                                                            <span class="wallet-alloc-icon"><i class="ph ph-calendar-check"></i></span>
+                                                            <span class="wallet-alloc-meta">
+                                                                <span class="f14-bold text-Primary">Monthly plans</span>
+                                                                <span class="f12-regular text-Gray">Un versement par mois</span>
+                                                            </span>
+                                                            <span class="wallet-alloc-value f14-bold text-Primary">$<span id="monthly-invested">0.00</span></span>
+                                                            <i class="ph ph-caret-right wallet-alloc-arrow"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li class="wallet-alloc-item">
+                                                        <a href="/dashboard.invest">
+                                                            <span class="wallet-alloc-icon"><i class="ph ph-trend-up"></i></span>
+                                                            <span class="wallet-alloc-meta">
+                                                                <span class="f14-bold text-Primary">Next payout</span>
+                                                                <span class="f12-regular text-Gray">due <span id="next-payout-date">—</span></span>
+                                                            </span>
+                                                            <span class="wallet-alloc-value f14-bold text-Primary">$<span id="next-payout-amount">0.00</span></span>
+                                                            <i class="ph ph-caret-right wallet-alloc-arrow"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li class="wallet-alloc-item">
+                                                        <a href="/dashboard.invest">
+                                                            <span class="wallet-alloc-icon"><i class="ph ph-chart-line-up"></i></span>
+                                                            <span class="wallet-alloc-meta">
+                                                                <span class="f14-bold text-Primary">Total Investi</span>
+                                                                <span class="f12-regular text-Gray">Capital actuellement déployé</span>
+                                                            </span>
+                                                            <span class="wallet-alloc-value f14-bold text-Primary">$<span id="total-investments">0.00</span></span>
+                                                            <i class="ph ph-caret-right wallet-alloc-arrow"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ============================================================
+                                         ROW 3 · AWAITING YOUR TRANSFER
+                                         The read-only address list that used to sit here is gone:
+                                         the addresses are now shown inside the deposit flow, where
+                                         they are actionable, rather than as reference copy.
+                                         This card is the way back to a deposit already started -
+                                         revealed only when one exists, the same pattern the address
+                                         list used.
+                                         ============================================================ -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="wg-box mb-32" id="pending-deposits-box" hidden>
+                                                <div class="title mb-16 flex justify-between items-center">
+                                                    <div class="label-01 text-Primary">En attente de votre transfert</div>
+                                                    <span class="f12-regular text-Gray">Crédité une fois que nous avons confirmé la réception</span>
+                                                </div>
+                                                <div class="content">
+                                                    <ul class="mvc-address-list" id="pending-deposits-list"></ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ============================================================
+                                         ROW 4 · WALLET ACTIVITY
+                                         Same .mvc-table markup and the same renderer as
+                                         /dashboard.transactions - previously this was a bespoke
+                                         <ul> with its own field names and colour rules, so the
+                                         two views of one dataset disagreed with each other.
+                                         ============================================================ -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="wg-box">
+                                                <div class="title mb-16 flex justify-between items-center">
+                                                    <div class="label-01 text-Primary">Activité du portefeuille</div>
+                                                    <div class="view-all">
+                                                        <a href="/dashboard.transactions" class="f12-regular text-Primary">
+                                                            View All
+                                                            <i class="ph ph-caret-right ml-2"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="content">
+                                                    <div class="mvc-scroll-table">
+                                                        <table class="mvc-table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>ID de transaction</th>
+                                                                    <th>Date</th>
+                                                                    <th>Type</th>
+                                                                    <th>Amount (USD)</th>
+                                                                    <th>Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="wallet-activity">
+                                                                <tr><td class="mvc-empty" colspan="5">Chargement de l’activité…</td></tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /main-content-wrap -->
+                        </div>
+                        <!-- /main-content-wrap -->
+                        
+                    </div>
+                    <!-- /main-content -->
+                </div>
+                <!-- /section-content-right -->
+            </div>
+            <!-- /layout-wrap -->
+        </div>
+        <!-- /#page -->
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Loader -->
+    <div id="loader" class="hidden">
+        <div class="line-loader">
+            <div></div><div></div><div></div><div></div><div></div>
+        </div>
+    </div>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+<!-- ============================================================
+     DEPOSIT MODAL
+     Holds the fields that used to sit in the inline deposit panel.
+     The IDs are unchanged, so bindDepositForm() in dashboard.js works
+     against it without modification.
+     ============================================================ -->
+<div id="deposit-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" data-modal>
+  <div class="modal-overlay" data-modal-close></div>
+  <div class="modal-content" tabindex="-1" aria-labelledby="deposit-modal-title">
+    <header class="modal-header">
+      <h2 id="deposit-modal-title">Deposit Funds</h2>
+      <button class="modal-close" type="button" aria-label="Close modal" data-modal-close>×</button>
+    </header>
+    <div class="modal-body">
+      <form id="deposit-form">
+        <div class="mvc-field">
+          <div class="mvc-field__top">
+            <label class="mvc-field__label" for="deposit-amount">Montant a deposer:</label>
+            <span class="mvc-field__hint" id="deposit-min-hint">Minimum <strong>$1</strong></span>
+          </div>
+          <div class="mvc-field__row">
+            <input class="mvc-field__input" type="number" placeholder="0.00" min="1" step="0.01" id="deposit-amount" inputmode="decimal">
+            <span class="mvc-field__chip"><i class="ph ph-currency-dollar"></i> USD</span>
+          </div>
+        </div>
+
+                <div class="mvc-field">
+          <div class="mvc-field__top">
+            <span class="mvc-field__label">Mode de paiement</span>
+          </div>
+          <div class="mvc-segment" id="deposit-method-segment" role="radiogroup" aria-label="Mode de paiement">
+            <button type="button" class="mvc-segment__btn is-active" data-method="secure_exchange" role="radio" aria-checked="true">
+              <i class="ph ph-lightning"></i> Crypto checkout
+            </button>
+            <button type="button" class="mvc-segment__btn" data-method="deposit_address" role="radio" aria-checked="false" id="deposit-method-manual" hidden>
+              <i class="ph ph-qr-code"></i> Adresse de dépôt
+            </button>
+          </div>
+          <input type="hidden" id="deposit-method" value="secure_exchange">
+        </div>
+
+                <div class="mvc-field hidden" id="deposit-network-field" aria-hidden="true">
+          <div class="mvc-field__top">
+            <label class="mvc-field__label" for="deposit-network">Pièce et réseau</label>
+            <span class="mvc-field__hint" id="deposit-network-hint"></span>
+          </div>
+          <div class="mvc-field__row">
+            <select class="mvc-field__input" id="deposit-network"></select>
+          </div>
+        </div>
+
+        <ul class="mvc-summary">
+          <li class="mvc-summary__row">
+            <span class="k"><i class="ph ph-clock"></i> Processing</span>
+            <span class="v" id="deposit-summary-time">Instantané pour crypto</span>
+          </li>
+          <li class="mvc-summary__row">
+            <span class="k"><i class="ph ph-receipt"></i> Fee</span>
+            <span class="v">Pas de dépôt.</span>
+          </li>
+        </ul>
+
+        <div class="modal-actions">
+          <button type="button" class="button-close-modal tf-button" data-modal-close>Cancel</button>
+          <button type="submit" class="modal-confirm-btn">Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     WITHDRAW - STEP 1 (amount + method)
+     Step 2 is #withdraw-modal below, which collects the payout
+     details. bindWithdrawForm() validates here and hands over.
+     ============================================================ -->
+<div id="withdraw-start-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" data-modal>
+  <div class="modal-overlay" data-modal-close></div>
+  <div class="modal-content" tabindex="-1" aria-labelledby="withdraw-start-title">
+    <header class="modal-header">
+      <h2 id="withdraw-start-title">Retirer des fonds</h2>
+      <button class="modal-close" type="button" aria-label="Close modal" data-modal-close>×</button>
+    </header>
+    <div class="modal-body">
+      <form id="withdraw-form">
+        <div class="mvc-field">
+          <div class="mvc-field__top">
+            <span class="mvc-field__label">Montant à retirer</span>
+            <span class="mvc-field__hint">Available <strong>$<span id="withdraw-available">0.00</span></strong></span>
+          </div>
+          <div class="mvc-field__row">
+            <input class="mvc-field__input" type="number" placeholder="0.00" min="1" step="0.01" id="withdraw-amount" inputmode="decimal">
+            <span class="mvc-field__chip"><i class="ph ph-currency-dollar"></i> USD</span>
+          </div>
+        </div>
+
+        <div class="mvc-field">
+          <div class="mvc-field__top">
+            <span class="mvc-field__label">Méthode de retrait </span>
+          </div>
+          <div class="mvc-field__row">
+            <select class="mvc-field__input" id="withdraw-method">
+              <option selected disabled value="">Select method</option>
+              <option value="local_bank">Local Bank</option>
+              <option value="wallet_address">Wallet Adresse</option>
+            </select>
+          </div>
+        </div>
+
+        <ul class="mvc-summary">
+          <li class="mvc-summary__row">
+            <span class="k"><i class="ph ph-clock"></i> Temps de traitement</span>
+            <span class="v">1 à 3 jours ouvrés</span>
+          </li>
+          <li class="mvc-summary__row">
+            <span class="k"><i class="ph ph-shield-check"></i> Review</span>
+            <span class="v">Approuvé manuellement</span>
+          </li>
+        </ul>
+
+        <div class="modal-actions">
+          <button type="button" class="button-close-modal tf-button" data-modal-close>Cancel</button>
+          <button type="submit" class="modal-confirm-btn">Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Withdrawal Modal (step 2: payout details) -->
+<div id="withdraw-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" data-modal>
+  <div class="modal-overlay" data-modal-close></div>
+  <div class="modal-content" tabindex="-1" aria-labelledby="withdraw-modal-title">
+    <header class="modal-header">
+      <h2 id="withdraw-modal-title">Retirer des fonds</h2>
+      <button class="modal-close" type="button" aria-label="Close modal" data-modal-close>×</button>
+    </header>
+
+    <div class="modal-body">
+      <div class="withdrawal-method">
+        <label>Méthode choisie <span id="modal-method-name"></span></label>
+      </div>
+
+      <div class="form-group">
+        <label>Montant à retirer</label>
+        <input type="text" id="modal-withdraw-amount" readonly>
+      </div>
+
+      <!-- Local Bank Fields -->
+      <div id="local-bank-fields" class="bank-form hidden" aria-hidden="true">
+        <div class="form-group">
+          <label for="modal-bank-country">Country</label>
+          <select id="modal-bank-country">
+            <option value="">Choisissez le pays</option>
+            <option value="United States of America">États-Unis d’Amérique</option>
+            <option value="Germany">Germany</option>
+            <option value="France">France</option>
+            <option value="United Kingdom">Royaume-Uni</option>
+            <option value="Italy">Italy</option>
+            <option value="Spain">Spain</option>
+            <option value="Netherlands">Netherlands</option>
+            <option value="Sweden">Sweden</option>
+            <option value="Switzerland">Switzerland</option>
+            <option value="Poland">Poland</option>
+            <option value="Austria">Austria</option>
+            <option value="Greece">Greece</option>
+            <option value="Portugal">Portugal</option>
+            <option value="Norway">Norway</option>
+            <option value="Denmark">Denmark</option>
+            <option value="Belgium">Belgium</option>
+            <option value="Finland">Finland</option>
+            <option value="Ireland">Ireland</option>
+            <option value="Czech Republic">République tchèque</option>
+            <option value="Hungary">Hungary</option>
+            <option value="Ukraine">Ukraine</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-bank-search">Bank</label>
+          <div class="bank-search-container">
+            <input type="text" id="modal-bank-search" placeholder="Rechercher une banque" autocomplete="off">
+            <div id="modal-bank-dropdown"></div>
+            <input type="hidden" id="modal-bank-name">
+          </div>
+          <small class="form-error" id="modal-bank-name-error"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-account-holder">Nom du titulaire du compte</label>
+          <input type="text" id="modal-account-holder" placeholder="Full Name">
+        </div>
+
+        <div class="form-group">
+          <label for="modal-iban">IBAN</label>
+          <input type="text" id="modal-iban" placeholder="par exemple, DE89370400440532013000">
+        </div>
+
+        <div class="form-group">
+          <label for="modal-bic">Code de BIC / Swift</label>
+          <input type="text" id="modal-bic" placeholder="par exemple, DEUTDEFFXXX">
+        </div>
+
+        <div class="form-group uk-only">
+          <label for="modal-sort-code">Code de tri (Royaume-Uni uniquement)</label>
+          <input type="text" id="modal-sort-code" placeholder="e.g., 12-34-56">
+        </div>
+
+        <div class="form-group">
+          <label for="modal-bank-currency">Currency</label>
+          <select id="modal-bank-currency">
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="GBP">GBP</option>
+            <option value="CHF">CHF</option>
+            <option value="SEK">SEK</option>
+            <option value="PLN">PLN</option>
+            <option value="CZK">CZK</option>
+            <option value="HUF">HUF</option>
+            <option value="NOK">NOK</option>
+            <option value="DKK">DKK</option>
+            <option value="UAH">UAH</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-transaction-ref">Référence de transaction</label>
+          <input type="text" id="modal-transaction-ref" placeholder="par exemple, retrait en octobre 2025">
+        </div>
+
+        <small class="form-error" id="withdraw-general-error"></small>
+        <p class="note">Les conversions bancaires locales sont basées sur la devise sélectionnée.</p>
+      </div>
+
+      <!-- Wallet Address Fields -->
+      <div id="wallet-address-fields" class="hidden" aria-hidden="true">
+        <div class="form-group">
+          <label for="modal-coin">Select Coin</label>
+          <select id="modal-coin">
+            <option value="btc">Bitcoin (BTC)</option>
+            <option value="eth">Ethereum (ETH)</option>
+            <option value="usdt">USDT</option>
+            <option value="usdc">USDC</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-wallet-address">Wallet Adresse</label>
+          <input type="text" id="modal-wallet-address" placeholder="Saisissez l'adresse du portefeuille">
+        </div>
+      </div>
+
+      
+      <button type="button" class="modal-confirm-btn" id="confirm-withdraw">
+        Confirmer le retrait
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     DEPOSIT INSTRUCTIONS  (manual transfer to a published address)
+
+     Replaces #pending-actions-modal, which had a single hardcoded
+     method option, used the legacy .form-group dialect and carried a
+     second, parallel clipboard mechanism (.copy-btn[data-target]).
+
+     Named "instructions", not "address": #deposit-address-modal is
+     already the admin CRUD dialog.
+
+     The address block reuses .mvc-address*, which is already styled and
+     already wired to the delegated [data-copy-text] handler - no new
+     CSS and no new copy logic.
+     ============================================================ -->
+<div id="deposit-instructions-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" data-modal>
+  <div class="modal-overlay" data-modal-close></div>
+  <div class="modal-content" tabindex="-1" aria-labelledby="deposit-instructions-title">
+    <header class="modal-header">
+      <div>
+        <h2 id="deposit-instructions-title">Votre apport</h2>
+        <p class="modal-header__sub">Les fonds sont crédités une fois que nous avons confirmé le transfert.</p>
+      </div>
+      <button class="modal-close" type="button" aria-label="Close modal" data-modal-close>×</button>
+    </header>
+    <div class="modal-body">
+
+      <div class="mvc-field">
+        <div class="mvc-field__top">
+          <span class="mvc-field__label">Send exactly</span>
+          <span class="mvc-field__hint" id="di-network-label"></span>
+        </div>
+        <div class="mvc-field__row">
+          <span class="mvc-field__input" id="di-amount">0.00</span>
+          <span class="mvc-field__chip"><i class="ph ph-currency-dollar"></i> USD</span>
+        </div>
+      </div>
+
+      <ul class="mvc-address-list">
+        <li class="mvc-address">
+          <div class="mvc-address__head">
+            <span class="mvc-address__label" id="di-label"></span>
+            <span class="mvc-address__meta" id="di-meta"></span>
+          </div>
+          <div class="mvc-address__row">
+            <code class="mvc-address__value" id="di-address"></code>
+            <button type="button" class="mvc-address__copy" id="di-address-copy" data-copy-label="Deposit address" aria-label="Adresse de dépôt">
+              <i class="ph ph-copy"></i>
+            </button>
+          </div>
+          <div class="mvc-address__row hidden" id="di-memo-row">
+            <span class="mvc-address__memo-label" id="di-memo-label">Memo</span>
+            <code class="mvc-address__value" id="di-memo"></code>
+            <button type="button" class="mvc-address__copy" id="di-memo-copy" data-copy-label="Memo" aria-label="Copy memo">
+              <i class="ph ph-copy"></i>
+            </button>
+          </div>
+          <p class="mvc-address__note hidden" id="di-instructions"></p>
+        </li>
+      </ul>
+
+      <ul class="mvc-summary">
+        <li class="mvc-summary__row">
+          <span class="k"><i class="ph ph-hash"></i> Reference</span>
+          <span class="v" id="di-reference"></span>
+        </li>
+        <li class="mvc-summary__row hidden" id="di-conf-row">
+          <span class="k"><i class="ph ph-check-circle"></i> Confirmations du réseau</span>
+          <span class="v" id="di-conf"></span>
+        </li>
+        <li class="mvc-summary__row">
+          <span class="k"><i class="ph ph-shield-check"></i> Status</span>
+          <span class="v" id="di-status">En attente de votre transfert</span>
+        </li>
+      </ul>
+
+            <div class="mvc-field mvc-field--textarea hidden" id="di-hash-field">
+        <div class="mvc-field__top">
+          <label class="mvc-field__label" for="di-tx-hash">Hash de transaction</label>
+          <span class="mvc-field__hint">Facultatif, accélère la confirmation</span>
+        </div>
+        <div class="mvc-field__row">
+          <textarea class="mvc-field__input mvc-field__input--mono" id="di-tx-hash" rows="2" maxlength="120" spellcheck="false" placeholder="Collez le hachage de votre portefeuille"></textarea>
+        </div>
+      </div>
+
+      <p class="note">Envoyez uniquement l'actif nommé sur le réseau nommé. Tout le reste est irrécupérable.</p>
+
+      <div class="modal-actions">
+        <button type="button" class="button-close-modal tf-button" data-modal-close>Close</button>
+        <button type="button" class="modal-confirm-btn" id="di-confirm-paid">I have paid</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- core libs: jquery then bootstrap -->
+<script src="../../assets/js/jquery.min.js?v=1760621928"></script>
+<script src="../../assets/js/bootstrap.min.js?v=1760622068"></script>
+
+<!-- app/network layer (deferred) -->
+<script src="../../assets/js/api.js?v=1787870013" defer></script>
+
+<!-- plugins (deferred if they support it) -->
+<script src="../../assets/js/countto.js?v=1785146041" defer></script>
+<script src="../../assets/js/bootstrap-select.min.js?v=1760622154" defer></script>
+
+<!-- main dashboard behaviour (deferred so it runs after DOM is parsed and after api.js) -->
+<script src="../../assets/js/dashboard.js?v=1787870023" defer></script>
+
+    <!-- Iconify CDN -->
+</body>
+</html>

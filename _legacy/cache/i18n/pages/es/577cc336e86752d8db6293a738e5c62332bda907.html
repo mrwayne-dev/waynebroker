@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<?xml encoding="UTF-8"><html lang="es" data-theme="dark" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="Invest a lump sum with Maveren Capital, choose weekly or monthly payouts, and get your principal back in full at maturity.">
+  <meta name="author" content="Maveren Capital">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="csrf-token" content="f774fee5e092d260c5d6ce2f06577138b8a555dfc7a512e392dad61dc803bcb1">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#16232A">
+  <link rel="canonical" href="https://maverencapital.com/">
+
+  <title>Genera riqueza en piloto automático | Maveren Capital</title>
+
+  <!-- Theme: applied before paint so there is no flash of the wrong palette.
+       Must stay INLINE and stay ahead of the stylesheets. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('mvc-theme');
+        document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+      } catch (e) { /* private mode - keep the dark default */ }
+    })();
+  </script>
+
+  <!-- Fonts (self-hosted: Switzer brand face) -->
+  <link rel="preload" href="/assets/fonts/Switzer-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Switzer-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Switzer-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/font.css?v=1787868523">
+
+  <!-- Phosphor icons (self-hosted) -->
+  <link rel="stylesheet" href="/assets/fonts/phosphor.css?v=1785388596">
+
+  <!-- Stylesheets - legacy first, design system overrides last -->
+  <link rel="stylesheet" href="/assets/css/main.css?v=1787868770">
+  <link rel="stylesheet" href="/assets/css/responsive.css?v=1787868837">
+  <link rel="stylesheet" href="/assets/css/mvc-design.css?v=1787879432">
+  <link rel="stylesheet" href="/assets/css/translate.css?v=1787873555">
+    <link rel="stylesheet" href="/assets/css/sections.css?v=1787878719">
+  <script src="/assets/js/theme.js?v=1787869682" defer></script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32">
+  <link rel="shortcut icon" href="/assets/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Maveren Capital">
+  <link rel="manifest" href="/assets/favicon/site.webmanifest">
+
+    <script src="/assets/js/smartsupp.js?v=1787877180" defer></script>
+    <script src="/assets/js/translate.js?v=1787873540" defer></script>
+    <script src="/assets/js/motion.js?v=1787879157" defer></script>
+</head>
+<body class="mvc-redesign" data-hero="dark">
+
+<nav class="navbar" data-navbar>
+  <div class="container">
+    <div class="navbar__inner">
+            <a href="/" class="navbar__brand" aria-label="Maveren Capital Home">
+        <img class="navbar__logo navbar__logo--light" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+        <img class="navbar__logo navbar__logo--dark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+        <span class="navbar__wordmark">Maveren Capital</span>
+      </a>
+
+      <ul class="navbar__links" id="navbar-links">
+        <li><a href="/plans" class="navbar__link">Planes</a></li>
+        <li><a href="/platform" class="navbar__link">Plataforma</a></li>
+        <li><a href="/solutions" class="navbar__link">Soluciones</a></li>
+        <li><a href="/about" class="navbar__link">Acerca de</a></li>
+        <li><a href="/contact" class="navbar__link">Contacto</a></li>
+        <li class="navbar__links-cta"><a href="/login" class="btn btn--primary">Iniciar sesión</a></li>
+      </ul>
+
+      <div class="navbar__actions">
+                <button class="mvc-lang-trigger" data-lang-open type="button" aria-label="Cambiar idioma" aria-haspopup="dialog">
+          <i class="ph ph-translate" aria-hidden="true"></i>
+          <span class="mvc-lang-trigger__code">ES</span>
+        </button>
+                <noscript>
+          <form method="post" action="/api/public/set_language.php" class="mvc-lang-noscript">
+            <input type="hidden" name="csrf_token" value="f774fee5e092d260c5d6ce2f06577138b8a555dfc7a512e392dad61dc803bcb1">
+            <input type="hidden" name="return" value="/">
+            <label class="visually-hidden" for="nojs-lang">Language</label>
+            <select id="nojs-lang" name="lang" onchange="this.form.submit()">
+                              <option value="en">English</option>
+                              <option value="es" selected>Español</option>
+                              <option value="fr">Français</option>
+                              <option value="de">Deutsch</option>
+                              <option value="pt">Português</option>
+                              <option value="ar">العربية</option>
+                              <option value="zh-CN">中文</option>
+                              <option value="hi">हिन्दी</option>
+                              <option value="ru">Русский</option>
+                              <option value="ja">日本語</option>
+                          </select>
+            <button type="submit">Go</button>
+          </form>
+        </noscript>
+        <button class="theme-toggle" data-theme-toggle type="button" aria-label="Cambiar a tema claro" aria-pressed="false">
+          <i class="ph ph-sun"></i>
+        </button>
+        <a href="/login" class="btn btn--nav navbar__cta">Iniciar sesión</a>
+
+        <button class="navbar__toggle" type="button" data-nav-toggler aria-label="Abrir menú" aria-expanded="false" aria-controls="navbar-links">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- =================== HERO — product reveal =================== -->
+<section class="hero-x" id="hero">
+  <div class="hero-x__wash" data-parallax="0.12" aria-hidden="true"></div>
+
+    <div class="hero-x__motif" data-parallax="0.05" aria-hidden="true">
+    <svg viewbox="0 0 100 60" fill="currentColor" style="color: var(--color-accent);">
+      <path d="M32 6 L50 38 L68 6 L82 6 L50 56 L18 6 Z"></path>
+      <path d="M20 33 L30 51 L10 51 Z"></path>
+      <path d="M80 33 L90 51 L70 51 Z"></path>
+    </svg>
+  </div>
+
+  <div class="container">
+    <div class="hero-x__inner">
+      <a class="pill" href="/plans">
+        <span class="pill__tag">Nuevo</span>
+        Tres planes. Una billetera. Cobros que puedes agendar.
+      </a>
+
+      <h1 class="hero-x__title">Ponga su capital<br>o  <em>calendario</em>.</h1>
+
+      <p class="hero-x__lead">
+        Invierta una suma global, elija si desea pagar cada semana o cada
+        mes, y verla aterrizar. Su director vuelve en su totalidad al final
+        del plazo.
+      </p>
+
+      <div class="hero-x__cta">
+        <a href="/register" class="btn btn--primary">Abrir una cuenta</a>
+        <a href="/platform" class="btn btn--ghost">Ver cómo funciona</a>
+      </div>
+
+      <p class="hero-x__trust">
+        <span><i class="ph ph-vault" aria-hidden="true"></i> SEGREGACIÓN DE LOS FONDOS DE LOS CLIENTES</span>
+        <span><i class="ph ph-receipt" aria-hidden="true"></i> Todos los cobros a los que se hace referencia</span>
+        <span><i class="ph ph-clock-countdown" aria-hidden="true"></i> A partir de 250 €</span>
+      </p>
+    </div>
+
+        <div class="hero-x__shot" data-reveal>
+      <div class="device device--bleed">
+        <div class="device__bar" aria-hidden="true">
+          <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+          <span class="device__url">maverencapital.com/dashboard</span>
+        </div>
+        <picture>
+          <source type="image/avif" srcset="/assets/images/product/app-dashboard.avif">
+          <source type="image/webp" srcset="/assets/images/product/app-dashboard.webp">
+          <img src="/assets/images/product/app-dashboard.webp" width="1400" height="612" alt="El panel de control para miembros de Maveren Capital, que muestra el saldo del monedero, los ingresos totales, la cantidad invertida y la fecha del próximo pago." loading="eager" fetchpriority="high">
+        </source></source></picture>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== TRUST STRIP =================== -->
+<section class="section" style="padding-top: var(--space-15); padding-bottom: var(--space-8);">
+  <div class="container">
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span class="marquee__item"><i class="ph ph-vault"></i> Cuentas de clientes segregadas</span>
+        <span class="marquee__item"><i class="ph ph-lock-key"></i> Cifrado AES-256</span>
+        <span class="marquee__item"><i class="ph ph-scales"></i> Conciliado en un horario</span>
+        <span class="marquee__item"><i class="ph ph-shield-check"></i> Autenticación multifactor</span>
+        <span class="marquee__item"><i class="ph ph-file-text"></i> Responsable de protección de datos designado</span>
+        <span class="marquee__item"><i class="ph ph-hand-coins"></i> Principal devuelto en su totalidad</span>
+      </div>
+      <div class="marquee__track">
+        <span class="marquee__item"><i class="ph ph-vault"></i> Cuentas de clientes segregadas</span>
+        <span class="marquee__item"><i class="ph ph-lock-key"></i> Cifrado AES-256</span>
+        <span class="marquee__item"><i class="ph ph-scales"></i> Conciliado en un horario</span>
+        <span class="marquee__item"><i class="ph ph-shield-check"></i> Autenticación multifactor</span>
+        <span class="marquee__item"><i class="ph ph-file-text"></i> Responsable de protección de datos designado</span>
+        <span class="marquee__item"><i class="ph ph-hand-coins"></i> Principal devuelto en su totalidad</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== STICKY SPLIT — how the money moves =================== -->
+<section class="section section--warm" id="smarter-investing">
+  <div class="container">
+    <div class="lede" data-reveal>
+      <span class="kicker">Plataforma</span>
+      <h2>Tres pasos, luego se ejecuta solo.</h2>
+      <p>
+        No hay una cartera que gestionar ni un mercado en el tiempo. Financias una
+        billetera, elige un ritmo y el horario hace el resto.
+      </p>
+    </div>
+
+    <div class="sticky-split" data-sticky-split>
+      <div class="sticky-split__steps">
+        <div class="sticky-step" data-step="0">
+          <span class="sticky-step__n">01</span>
+          <h3 class="sticky-step__title">2. Transfiera fondos a su cartera</h3>
+          <p class="sticky-step__body">
+            Depósito en Bitcoin, USDT o Ether. Todas las transferencias están confirmadas
+            en cadena y aterriza en una billetera con una referencia que puede citar.
+          </p>
+        </div>
+        <div class="sticky-step" data-step="1">
+          <span class="sticky-step__n">02</span>
+          <h3 class="sticky-step__title">Elige tu ritmo</h3>
+          <p class="sticky-step__body">
+            Semanalmente o mensualmente. La tarifa se fija por periodo de cobro y se muestra en
+            completa antes de comprometerse: ninguna figura principal oculta una real más pequeña.
+          </p>
+        </div>
+        <div class="sticky-step" data-step="2">
+          <span class="sticky-step__n">03</span>
+          <h3 class="sticky-step__title">Cobra a tiempo</h3>
+          <p class="sticky-step__body">
+            Los cobros se acreditan automáticamente y se pueden retirar en el momento
+            aterrizan. Su principal devuelve en su totalidad en la fecha de vencimiento.
+          </p>
+        </div>
+      </div>
+
+      <div class="sticky-split__aside">
+        <div style="position: relative;">
+          <div data-shot>
+            <div class="device">
+              <div class="device__bar" aria-hidden="true">
+                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+                <span class="device__url">/dashboard.wallet</span>
+              </div>
+              <picture>
+                <source type="image/avif" srcset="/assets/images/product/app-wallet.avif">
+                <source type="image/webp" srcset="/assets/images/product/app-wallet.webp">
+                <img src="/assets/images/product/app-wallet.webp" width="1120" height="524" loading="lazy" alt="La página del monedero, que muestra el saldo y las direcciones de depósito publicadas.">
+              </source></source></picture>
+            </div>
+          </div>
+          <div data-shot>
+            <div class="device">
+              <div class="device__bar" aria-hidden="true">
+                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+                <span class="device__url">/dashboard.invest</span>
+              </div>
+              <picture>
+                <source type="image/avif" srcset="/assets/images/product/app-invest.avif">
+                <source type="image/webp" srcset="/assets/images/product/app-invest.webp">
+                <img src="/assets/images/product/app-invest.webp" width="1120" height="293" loading="lazy" alt="La página de inversión, que muestra el capital invertido, el rendimiento obtenido hasta la fecha y la próxima fecha de pago.">
+              </source></source></picture>
+            </div>
+          </div>
+          <div data-shot>
+            <div class="device">
+              <div class="device__bar" aria-hidden="true">
+                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+                <span class="device__url">/dashboard.transactions</span>
+              </div>
+              <picture>
+                <source type="image/avif" srcset="/assets/images/product/app-transactions.avif">
+                <source type="image/webp" srcset="/assets/images/product/app-transactions.webp">
+                <img src="/assets/images/product/app-transactions.webp" width="1120" height="524" loading="lazy" alt="La página de transacciones, que enumera cada depósito, cobro y retiro con su referencia.">
+              </source></source></picture>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== BENTO — one wallet =================== -->
+<section class="section">
+  <div class="container">
+    <div class="lede" data-reveal>
+      <span class="kicker">Una cuenta</span>
+      <h2>Una billetera. Todas las formas de hacerla crecer.</h2>
+      <p>
+        Depósitos, posiciones, cobros y retiros en un solo lugar
+        estado de cuenta, con un saldo corriente.
+      </p>
+    </div>
+
+    <div class="bento">
+      <article class="bento__tile bento__tile--wide" data-reveal data-reveal-delay="0">
+        <span class="bento__icon"><i class="ph ph-wallet" aria-hidden="true"></i></span>
+        <h3 class="bento__title">Todo en una sola balanza</h3>
+        <p class="bento__body">
+          No hay subcuentas que conciliar y no hay transferencias que perseguir. Fondo de una sola vez
+          cada posición se basa en la misma billetera.
+        </p>
+        <div class="bento__shot">
+          <picture>
+            <source type="image/avif" srcset="/assets/images/product/app-balances.avif">
+            <source type="image/webp" srcset="/assets/images/product/app-balances.webp">
+            <img src="/assets/images/product/app-balances.webp" width="1120" height="251" loading="lazy" alt="Resumen del monedero que muestra el saldo principal, los ingresos totales, el importe invertido y el próximo cobro.">
+          </source></source></picture>
+        </div>
+      </article>
+
+      <article class="bento__tile" data-reveal data-reveal-delay="80">
+        <span class="bento__icon"><i class="ph ph-chart-donut" aria-hidden="true"></i></span>
+        <h3 class="bento__title">La discordia</h3>
+        <p class="bento__body">
+          Efectivo semanal, mensual y no comprometido, como parte de todo lo que
+          retener: se actualiza a medida que llegan los cobros.
+        </p>
+        <div class="bento__shot">
+          <picture>
+            <source type="image/avif" srcset="/assets/images/product/app-allocation.avif">
+            <source type="image/webp" srcset="/assets/images/product/app-allocation.webp">
+            <img src="/assets/images/product/app-allocation.webp" width="640" height="310" loading="lazy" alt="Gráfico de asignación que divide la cartera entre planes semanales, planes mensuales y efectivo de cartera.">
+          </source></source></picture>
+        </div>
+      </article>
+
+      <article class="bento__tile" data-reveal data-reveal-delay="0">
+        <span class="bento__icon"><i class="ph ph-calendar-check" aria-hidden="true"></i></span>
+        <h3 class="bento__title">Cobros automáticos</h3>
+        <p class="bento__body">
+          Se acredita al mismo ritmo en cada periodo, sin necesidad de abrir la aplicación.
+        </p>
+      </article>
+
+      <article class="bento__tile" data-reveal data-reveal-delay="80">
+        <span class="bento__icon"><i class="ph ph-hand-coins" aria-hidden="true"></i></span>
+        <h3 class="bento__title">Principal devuelto</h3>
+        <p class="bento__body">
+          En su totalidad, en la fecha de vencimiento, de vuelta a la misma billetera que dejó.
+        </p>
+      </article>
+
+      <article class="bento__tile" data-reveal data-reveal-delay="160">
+        <span class="bento__icon"><i class="ph ph-vault" aria-hidden="true"></i></span>
+        <h3 class="bento__title">Celebrado por separado</h3>
+        <p class="bento__body">
+          Los fondos de los clientes se encuentran en cuentas segregadas, nunca mezcladas con la empresa
+          dinero operativo.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== COMPARE — the three plans, from the database =================== -->
+<section class="section section--warm">
+  <div class="container">
+    <div class="lede" data-reveal>
+      <span class="kicker">La estantería</span>
+      <h2>Dos ritmos. Tres planes.</h2>
+      <p>
+        Cada plan cotiza un porcentaje fijo por periodo de cobro. Ese porcentaje
+        es lo que aterriza en tu billetera.
+      </p>
+    </div>
+
+    <div class="compare-wrap" data-reveal>
+      <table class="compare">
+        <caption class="visually-hidden">Planes de Maveren Capital comparados por ritmo de pago, tasa, plazo y mínimo</caption>
+        <thead>
+          <tr>
+            <th scope="col">Plan</th>
+                          <th scope="col">Reserva mensual de Maveren</th>
+                          <th scope="col" class="is-featured">Maveren Weekly Core</th>
+                          <th scope="col">Maveren Weekly Prime</th>
+                      </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Ritmo de cobro</th>
+                          <td>Cada mes</td>
+                          <td class="is-featured">Cada semana</td>
+                          <td>Cada semana</td>
+                      </tr>
+          <tr>
+            <th scope="row">Por abono</th>
+                          <td class="is-figure">6.00%</td>
+                          <td class="is-figure is-featured">1.10%</td>
+                          <td class="is-figure">1.65%</td>
+                      </tr>
+          <tr>
+            <th scope="row">Número de pagos:</th>
+                          <td class="is-figure">12</td>
+                          <td class="is-figure is-featured">13</td>
+                          <td class="is-figure">26</td>
+                      </tr>
+          <tr>
+            <th scope="row">Término</th>
+                          <td>360 días</td>
+                          <td class="is-featured">91 días</td>
+                          <td>182 días</td>
+                      </tr>
+          <tr>
+            <th scope="row">Mínimo</th>
+                          <td class="is-figure">$5,000</td>
+                          <td class="is-figure is-featured">$250</td>
+                          <td class="is-figure">$1,000</td>
+                      </tr>
+          <tr>
+            <th scope="row">Banda de riesgo</th>
+                          <td>Moderada</td>
+                          <td class="is-featured">Bajo</td>
+                          <td>Moderada</td>
+                      </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top: var(--space-6);">
+      <a href="/plans" class="btn btn--primary">Compara todos los planes</a>
+    </p>
+  </div>
+</section>
+
+
+<!-- =================== PULL QUOTE — the vision =================== -->
+<section class="section" id="vision">
+  <div class="container">
+    <div class="quote-xl" data-reveal>
+      <p class="quote-xl__mark" aria-hidden="true">“</p>
+      <p class="quote-xl__text">
+        Durante décadas, los mejores rendimientos, las mejores condiciones y los informes más limpios
+        estaban reservados para personas con saldos de siete cifras. Publicamos
+        <em>tarifa única</em> y un horario, y son los mismos desde $ 250
+        hacia arriba.
+      </p>
+      <p class="quote-xl__by">Por qué existe Maveren Capital</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== DATA BAND =================== -->
+<section class="band">
+  <div class="container">
+    <div class="lede" style="margin-bottom: var(--space-15);" data-reveal>
+      <span class="kicker">Nuestros números </span>
+      <h2 style="color: var(--color-ink-white);">Construido para el capital real.</h2>
+      <p style="color: rgba(228,238,240,.7);">
+        Lo que los miembros han construido en la plataforma y el registro detrás de ella.
+      </p>
+    </div>
+
+    <div class="band__grid">
+      <div class="band__item" data-reveal data-reveal-delay="0">
+        <p class="band__figure"><span data-count-to="12000" data-count-suffix="+">12,000+</span></p>
+        <p class="band__label">Inversores que asignan activamente</p>
+      </div>
+      <div class="band__item" data-reveal data-reveal-delay="90">
+        <p class="band__figure"><span data-count-to="6800" data-count-suffix="+">6,800+</span></p>
+        <p class="band__label">Cobros liquidados a tiempo</p>
+      </div>
+      <div class="band__item" data-reveal data-reveal-delay="180">
+        <p class="band__figure"><span data-count-to="320">320</span></p>
+        <p class="band__label">Días de pista de auditoría limpia</p>
+      </div>
+      <div class="band__item" data-reveal data-reveal-delay="270">
+        <p class="band__figure"><em>$250</em></p>
+        <p class="band__label">Mínimo para abrir una posición</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== TABS — why Maveren =================== -->
+<section class="section">
+  <div class="container">
+    <div class="lede" data-reveal>
+      <span class="kicker">Por qué Maveren</span>
+      <h2>Sin reinvención. Solo menos fricción.</h2>
+      <p>
+        Eliminamos el marcado, la fragmentación y la letra pequeña, y devolvemos
+        la diferencia con las personas que invierten en la capital.
+      </p>
+    </div>
+
+        <div data-tabs>
+      <div class="tabs__list" role="tablist" aria-label="Por qué Maveren Capital">
+        <button class="tabs__btn" role="tab" id="tab-pricing" aria-controls="panel-pricing" type="button">Precios honestos</button>
+        <button class="tabs__btn" role="tab" id="tab-ledger" aria-controls="panel-ledger" type="button">Libro mayor de grado de auditoría</button>
+        <button class="tabs__btn" role="tab" id="tab-guard" aria-controls="panel-guard" type="button">Salvaguardia</button>
+        <button class="tabs__btn" role="tab" id="tab-access" aria-controls="panel-access" type="button">Mínimos accesibles</button>
+      </div>
+
+      <div class="tabs__panel" role="tabpanel" id="panel-pricing" aria-labelledby="tab-pricing">
+        <div class="split-row">
+          <div>
+            <h3 class="split-row__title">La tarifa que lees es la tarifa que obtienes.</h3>
+            <p class="split-row__body">
+              Una cifra, cotizada por periodo de cobro, se muestra antes de que te comprometas.
+              Sin juegos de spreads, sin margen oculto y sin "tasa de titulares"
+              nota al pie que descubres en la madurez.
+            </p>
+            <ul class="split-row__list">
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Porcentaje fijo por periodo, no anualizado</li>
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Plazo, mínimo y banda de riesgo publicados por adelantado</li>
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Sin gastos de entrada, salida o gestión</li>
+            </ul>
+          </div>
+          <div class="split-row__media">
+            <div class="device">
+              <div class="device__bar" aria-hidden="true">
+                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+                <span class="device__url">/dashboard.invest</span>
+              </div>
+              <picture>
+                <source type="image/avif" srcset="/assets/images/product/app-invest.avif">
+                <source type="image/webp" srcset="/assets/images/product/app-invest.webp">
+                <img src="/assets/images/product/app-invest.webp" width="1120" height="293" loading="lazy" alt="Capital invertido, rendimiento obtenido hasta la fecha, importe del próximo cobro y fecha de vencimiento.">
+              </source></source></picture>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabs__panel" role="tabpanel" id="panel-ledger" aria-labelledby="tab-ledger">
+        <div class="split-row">
+          <div>
+            <h3 class="split-row__title">Cada movimiento lleva una referencia.</h3>
+            <p class="split-row__body">
+              Los depósitos, cobros, retiros y liberaciones de capital reciben
+              su propia referencia, con marca de tiempo y exportable. Conciliando seis
+              meses toma un clic, no un hilo de correo electrónico.
+            </p>
+            <ul class="split-row__list">
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Referenciado, con marca de tiempo, inmutable</li>
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Filtrar por tipo, fecha o importe</li>
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Exportable para su contador</li>
+            </ul>
+          </div>
+          <div class="split-row__media">
+            <div class="device">
+              <div class="device__bar" aria-hidden="true">
+                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+                <span class="device__url">/dashboard.transactions</span>
+              </div>
+              <picture>
+                <source type="image/avif" srcset="/assets/images/product/app-transactions.avif">
+                <source type="image/webp" srcset="/assets/images/product/app-transactions.webp">
+                <img src="/assets/images/product/app-transactions.webp" width="1120" height="524" loading="lazy" alt="Historial de transacciones que enumera los depósitos, cobros y retiros con referencias.">
+              </source></source></picture>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabs__panel" role="tabpanel" id="panel-guard" aria-labelledby="tab-guard">
+        <div class="split-row">
+          <div>
+            <h3 class="split-row__title">El dinero del cliente se guarda por separado.</h3>
+            <p class="split-row__body">
+              Los fondos se depositan en cuentas segregadas, nunca se mezclan con la empresa
+              dinero operativo, y se concilian en un horario regular.
+              La identidad se verifica antes de que cualquier retiro salga de la plataforma.
+            </p>
+            <ul class="split-row__list">
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Cuentas de clientes segregadas</li>
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Cifrado AES-256 e inicio de sesión multifactor</li>
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Verificación de identidad antes del retiro</li>
+            </ul>
+          </div>
+          <div class="split-row__media">
+            <div class="device">
+              <div class="device__bar" aria-hidden="true">
+                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+                <span class="device__url">/dashboard.wallet</span>
+              </div>
+              <picture>
+                <source type="image/avif" srcset="/assets/images/product/app-wallet.avif">
+                <source type="image/webp" srcset="/assets/images/product/app-wallet.webp">
+                <img src="/assets/images/product/app-wallet.webp" width="1120" height="524" loading="lazy" alt="La página del monedero con el saldo y las direcciones de depósito publicadas.">
+              </source></source></picture>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabs__panel" role="tabpanel" id="panel-access" aria-labelledby="tab-access">
+        <div class="split-row">
+          <div>
+            <h3 class="split-row__title">Empieza en $ 250. Escala cuando quieras.</h3>
+            <p class="split-row__body">
+              Los mínimos que excluyen a los inversores minoristas de términos decentes sí
+              no existe aquí. El plan de entrada se abre en $ 250 y el mismo
+              la presentación de informes se aplica a lo que usted asigne.
+            </p>
+            <ul class="split-row__list">
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Plan de entrada desde $ 250</li>
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Misma declaración y horario en todos los tamaños</li>
+              <li><i class="ph ph-check-circle" aria-hidden="true"></i> Ejecutar más de una posición a la vez</li>
+            </ul>
+          </div>
+          <div class="split-row__media">
+            <div class="device">
+              <div class="device__bar" aria-hidden="true">
+                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+                <span class="device__url">Panel de control</span>
+              </div>
+              <picture>
+                <source type="image/avif" srcset="/assets/images/product/app-balances.avif">
+                <source type="image/webp" srcset="/assets/images/product/app-balances.webp">
+                <img src="/assets/images/product/app-balances.webp" width="1120" height="251" loading="lazy" alt="Tarjetas de resumen del monedero que muestran el saldo, las ganancias, el capital invertido y el próximo pago.">
+              </source></source></picture>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== TESTIMONIAL =================== -->
+<section class="section section--warm">
+  <div class="container">
+    <div class="quote-xl" data-reveal>
+      <p class="quote-xl__mark" aria-hidden="true">“</p>
+      <p class="quote-xl__text">
+        Había estado estacionando mi superávit salarial en un ahorro del 0,5% durante años. Abrir un
+        plan semanal tomó diez minutos, y ahora un pago llega todos los viernes con un
+        fecha de vencimiento que puedo ver en el panel de control.
+      </p>
+      <p class="quote-xl__by">Sarah Johnson · Miembro del plan semanal</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- =================== FAQ =================== -->
+<section class="section">
+  <div class="container">
+    <div class="lede lede--center" data-reveal>
+      <span class="kicker">FAQs</span>
+      <h2>Preguntas frecuentes</h2>
+      <p>Respuestas rápidas a lo que los miembros preguntan con más frecuencia.</p>
+    </div>
+
+    <div class="accordion" data-reveal>
+      <details class="accordion__item" open>
+        <summary class="accordion__trigger">
+          ¿Qué es Maveren Capital?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          Maveren Capital es una plataforma de inversión construida en torno a un solo producto: invierte una suma global en un plan que devuelve un porcentaje fijo de su capital a su billetera, ya sea semanal o mensualmente, y devuelve su capital en su totalidad al final del plazo. Un monedero, un extracto, un horario.
+        </div>
+      </details>
+
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Está mi dinero a salvo con Maveren Capital?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          Los fondos de los clientes se mantienen en cuentas segregadas, nunca se mezclan con los fondos operativos de la empresa y se concilian de forma regular. Su capital está en riesgo: las tasas no están garantizadas y revelamos el peor de los casos antes de cada asignación.
+        </div>
+      </details>
+
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Están seguros mis datos personales?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          Sí. Utilizamos cifrado AES-256 de extremo a extremo, autenticación multifactor y controles de seguridad revisados trimestralmente. La plataforma sigue la práctica reconocida de protección de datos de EE. UU., con un Oficial de Protección de Datos nombrado y un Aviso de Privacidad transparente.
+        </div>
+      </details>
+
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Cuál es el mínimo para empezar?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          Los mínimos varían según el plan. Maveren Weekly Core abre a $ 250, Weekly Prime a $ 1.000 y Monthly Reserve a $ 5.000. Cada mínimo se muestra en el plan antes de que te comprometas.
+        </div>
+      </details>
+
+      <details class="accordion__item">
+        <summary class="accordion__trigger">
+          ¿Puedo retirar mi dinero en cualquier momento?
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="accordion__body">
+          El saldo de tu monedero está disponible a pedido y todos los cobros se pueden retirar en el momento en que llegan. El capital comprometido con un plan se bloquea durante el plazo y se libera en su totalidad en la fecha de vencimiento. Los retiros requieren una identidad verificada.
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+            <a href="/" class="footer__brand" aria-label="Maveren Capital Home">
+                <img class="footer__logo footer__logo--light" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+        <img class="footer__logo footer__logo--dark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+        <span class="footer__wordmark">Maveren Capital</span>
+      </a>
+      <h2 style="margin: var(--space-2) 0;">Su riqueza, simplificada en un solo lugar.</h2>
+      <p style="color: var(--color-ink-muted); max-width: 560px;">
+        Abre una cuenta en minutos. Financie el monedero. Implemente planes semanales y mensuales, y deje que Maveren Capital se encargue de la capitalización, los informes y las protecciones.
+      </p>
+      <a href="/register" class="btn btn--primary">Inicia una conversación</a>
+    </div>
+
+    <nav class="footer__nav" aria-label="Footer">
+      <a href="/plans">Planes</a><span class="footer__sep">·</span>
+      <a href="/platform">Plataforma</a><span class="footer__sep">·</span>
+      <a href="/solutions">Soluciones</a><span class="footer__sep">·</span>
+      <a href="/about">Acerca de</a><span class="footer__sep">·</span>
+      <a href="/contact">Contacto</a><span class="footer__sep">·</span>
+      <a href="/login">Iniciar sesión</a>
+    </nav>
+
+        <div class="footer__credits">
+      <span>© 2026 Maveren Capital LLC. Todos los derechos reservados.</span>
+    </div>
+  </div>
+</footer>
+
+<noscript>
+  Powered by <a href="https://www.smartsupp.com" target="_blank" rel="noopener noreferrer">Smartsupp</a>
+</noscript>
+
+
+  <!-- Scripts -->
+  <script src="/assets/js/main.js?v=1787868523" defer></script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Maveren Capital",
+  "url": "https://maverencapital.com",
+  "logo": "https://maverencapital.com/assets/favicon/android-chrome-512x512.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/maverenholdings",
+    "https://twitter.com/maverenholdings",
+    "https://instagram.com/maverenholdings"
+  ]
+}
+</script>
+
+</body>
+</html>

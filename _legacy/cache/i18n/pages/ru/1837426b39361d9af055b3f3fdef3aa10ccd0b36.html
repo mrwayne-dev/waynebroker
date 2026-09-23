@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<?xml encoding="UTF-8"><html lang="ru" data-theme="dark" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Your Maveren Capital dashboard: wallet, positions, and payout schedule.">
+    <meta name="author" content="Maveren Capital">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="d5a261a64cb10bc5d876e29d7891ad8f2522c128d48b04e0c033d954bc079558">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#16232A">
+    <title>Подтверждение личности | Maveren Capital</title>
+
+    <!-- Theme: applied before paint so there is no flash of the wrong palette.
+         Must stay INLINE and stay ahead of the stylesheets. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('mvc-theme');
+          document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+        } catch (e) { /* private mode - keep the dark default */ }
+      })();
+    </script>
+
+    <!-- Critical CSS -->
+        <link rel="stylesheet" href="/assets/css/bootstrap.css?v=1760620542">
+    <link rel="stylesheet" href="/assets/css/dashboard.css?v=1787904412">
+
+    <!-- Fonts (self-hosted: Switzer brand face).
+         font.css sits immediately after the preloads on purpose: it holds the
+         @font-face rules, and until it parses the browser has no reason to use
+         the bytes it just fetched. Behind animation/bootstrap-select it landed
+         late enough for the "preloaded but not used" warning to fire. -->
+    <link rel="preload" href="/assets/fonts/Switzer-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/Switzer-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/Switzer-600.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/assets/fonts/font.css?v=1787868523">
+
+    <!-- Phosphor icons (self-hosted) -->
+    <link rel="stylesheet" href="/assets/fonts/phosphor.css?v=1785388596">
+
+    <!-- Non-critical CSS -->
+    <link rel="stylesheet" href="/assets/css/animation.min.css?v=1760620498">
+    <link rel="stylesheet" href="/assets/css/animation.css?v=1785146041">
+    <link rel="stylesheet" href="/assets/css/bootstrap-select.min.css?v=1760620576">
+
+    <!-- MVC design re-skin (loads last to win the cascade) -->
+    <link rel="stylesheet" href="/assets/css/mvc-dashboard.css?v=1788469269">
+    <link rel="stylesheet" href="/assets/css/translate.css?v=1787873555">
+
+    <script src="/assets/js/theme.js?v=1787869682" defer></script>
+    <script src="/assets/js/dock.js?v=1787868523" defer></script>
+        <script src="/assets/js/confirm.js?v=1787948723" defer></script>
+
+    <noscript>
+        <link rel="stylesheet" href="/assets/css/bootstrap.css?v=1760620542">
+        <link rel="stylesheet" href="/assets/css/dashboard.css?v=1787904412">
+        <link rel="stylesheet" href="/assets/css/mvc-dashboard.css?v=1788469269">
+    </noscript>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-title" content="Maveren Capital">
+    <link rel="manifest" href="/assets/favicon/site.webmanifest">
+
+        <script src="/assets/js/smartsupp.js?v=1787877180" defer></script>
+        <script src="/assets/js/translate.js?v=1787873540" defer></script>
+</head>
+
+<body class="counter-scroll mvc-dash">
+    <div id="wrapper">
+        <div id="page" class="">
+            <div class="layout-wrap loader-off">
+                <div id="preload" class="preload-container">
+                    <div class="preloading"><span></span></div>
+                </div>
+
+                <div class="section-menu-left">
+    <div class="box-logo">
+                <a href="/dashboard" id="site-logo-inner" class="mvc-brand" aria-label="Панель управления Maveren Capital">
+            <img id="logo_header" class="mvc-brand__mark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+            <span class="mvc-brand__name">Maveren Capital</span>
+        </a>
+        <div class="button-show-hide">
+            <i class="ph ph-caret-left"></i>
+        </div>
+    </div>
+    <div class="section-menu-left-wrap">
+        <div class="center">
+            <div class="center-item">
+                <div class="center-heading f14-regular text-Gray menu-heading mb-12">Навигация</div>
+            </div>
+            <div class="center-item">
+                <ul class="">
+                    <li class="menu-item">
+                        <a href="/dashboard" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-squares-four"></i></div>
+                            <div class="text">Bнформационная панель</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/dashboard.wallet" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-wallet"></i></div>
+                            <div class="text">Кошелек</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/dashboard.transactions" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-receipt"></i></div>
+                            <div class="text">Операции</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/dashboard.invest" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-chart-line-up"></i></div>
+                            <div class="text">Инвестировать</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/dashboard.profile" class="menu-item-button">
+                            <div class="icon"><i class="ph ph-user-circle"></i></div>
+                            <div class="text">Профиль</div>
+                        </a>
+                    </li>
+                    <li class="menu-item active">
+                        <a href="/dashboard.kyc" class="menu-item-button active">
+                            <div class="icon"><i class="ph ph-shield-check"></i></div>
+                            <div class="text">проверка (верификация)</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+                <nav class="mvc-dock" aria-label="Первичные">
+    <a href="/dashboard" class="mvc-dock__item">
+        <i class="ph ph-squares-four" aria-hidden="true"></i>
+        <span>Домой</span>
+    </a>
+    <a href="/dashboard.wallet" class="mvc-dock__item">
+        <i class="ph ph-wallet" aria-hidden="true"></i>
+        <span>Кошелек</span>
+    </a>
+    <a href="/dashboard.invest" class="mvc-dock__item">
+        <i class="ph ph-chart-line-up" aria-hidden="true"></i>
+        <span>Инвестировать</span>
+    </a>
+    <a href="/dashboard.transactions" class="mvc-dock__item">
+        <i class="ph ph-receipt" aria-hidden="true"></i>
+        <span>Активность</span>
+    </a>
+    <a href="/dashboard.profile" class="mvc-dock__item">
+        <i class="ph ph-user-circle" aria-hidden="true"></i>
+        <span>Профиль</span>
+    </a>
+    <a href="/dashboard.kyc" class="mvc-dock__item is-active" aria-current="page">
+        <i class="ph ph-shield-check" aria-hidden="true"></i>
+        <span>Пройти верификацию</span>
+    </a>
+</nav>
+
+                <div class="section-content-right">
+                    <div class="header-dashboard">
+    <div class="wrap">
+        <div class="header-left">
+                        <a href="/dashboard" class="mvc-topbar-logo" aria-label="Maveren Capital">
+                <img class="mvc-topbar-logo__dark" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+                <img class="mvc-topbar-logo__light" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+                <span class="mvc-topbar-logo__name">Maveren Capital</span>
+            </a>
+            <div class="button-show-hide"><i class="ph ph-list"></i></div>
+            <h6>Верификация личности </h6>
+        </div>
+        <div class="header-grid">
+            <button class="mvc-lang-trigger" data-lang-open type="button" aria-label="Изменить язык" aria-haspopup="dialog">
+                <i class="ph ph-translate" aria-hidden="true"></i>
+                <span class="mvc-lang-trigger__code">RU</span>
+            </button>
+            <button class="theme-toggle" data-theme-toggle type="button" aria-label="Переключиться на светлую тему" aria-pressed="false">
+                <i class="ph ph-sun"></i>
+            </button>
+            <div class="line1"></div>
+            <div class="popup-wrap user type-header">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="header-user wg-user">
+                            <span class="image"><img id="topbar-avatar" src="/assets/images/avatar/default.png" alt="" data-fallback-src="/assets/images/avatar/default.png"></span>
+                            <span class="content flex flex-column">
+                                <span class="label-02 text-Black name" id="topbar-username">джон Дод</span>
+                                <span class="f14-regular text-Gray">Пользователь</span>
+                            </span>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton3">
+                        <li><a href="/dashboard.profile" class="user-item"><div class="body-title-2">Профиль</div></a></li>
+                        <li><a href="/dashboard.transactions" class="user-item"><div class="body-title-2">Операции</div></a></li>
+                        <li><a href="#" id="logout-btn" class="user-item" data-logout-url="/dashboard.logout"><div class="body-title-2">Выйти из учетной записи</div></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    <div class="main-content">
+                        <div class="main-content-inner">
+                            <div class="main-content-wrap">
+                                <div class="tf-container">
+
+                                    <div class="mvc-verify">
+
+                                                                            <div class="mvc-verify-status mvc-verify-status--none">
+                                        <i class="ph ph-shield-check mvc-verify-status__icon" aria-hidden="true"></i>
+                                        <div class="mvc-verify-status__body">
+                                                                                      <div class="mvc-verify-status__title">Подтвердите свою личность, чтобы разблокировать вывод средств</div>
+                                            <div class="mvc-verify-status__text">
+                                              Занимает около двух минут. Депозиты и инвестиции открыты в любом случае.
+                                            </div>
+                                                                                  </div>
+                                        <span class="mvc-kyc-badge mvc-kyc-badge--none">Не запущено</span>
+                                      </div>
+
+                                                                            <section class="mvc-panel">
+                                                                                <div class="mvc-steps" aria-label="3 ОПЕРАЦИИ ПОВЕРКИ">
+                                          <div class="mvc-steps__item is-current">
+                                            <span class="mvc-steps__n">1</span>
+                                            <span class="mvc-steps__label">Ваши реквизиты</span>
+                                          </div>
+                                          <span class="mvc-steps__line"></span>
+                                          <div class="mvc-steps__item is-current">
+                                            <span class="mvc-steps__n">2</span>
+                                            <span class="mvc-steps__label">Документация</span>
+                                          </div>
+                                          <span class="mvc-steps__line"></span>
+                                          <div class="mvc-steps__item">
+                                            <span class="mvc-steps__n">3</span>
+                                            <span class="mvc-steps__label">Процесс рассмотрения</span>
+                                          </div>
+                                        </div>
+
+                                        <form id="kyc-form" enctype="multipart/form-data">
+
+                                          <div class="mvc-fieldset">
+                                            <span class="mvc-fieldset__legend">Ваши реквизиты</span>
+
+                                            <div class="mvc-field">
+                                              <div class="mvc-field__top">
+                                                <label class="mvc-field__label" for="kyc-full-name">ФИО, в точности как напечатано на документе</label>
+                                              </div>
+                                              <div class="mvc-field__row">
+                                                <input type="text" id="kyc-full-name" name="full_name" maxlength="150" required class="mvc-field__input" value="john dod">
+                                              </div>
+                                            </div>
+
+                                            <div class="mvc-grid-2">
+                                              <div class="mvc-field">
+                                                <div class="mvc-field__top">
+                                                  <label class="mvc-field__label" for="kyc-dob">Дата рождени</label>
+                                                  <span class="mvc-field__hint">18 лет и старше</span>
+                                                </div>
+                                                <div class="mvc-field__row">
+                                                  <input type="date" id="kyc-dob" name="date_of_birth" required class="mvc-field__input">
+                                                </div>
+                                              </div>
+
+                                              <div class="mvc-field">
+                                                <div class="mvc-field__top">
+                                                  <label class="mvc-field__label" for="kyc-country">Страна выдачи</label>
+                                                </div>
+                                                <div class="mvc-field__row">
+                                                  <input type="text" id="kyc-country" name="country" maxlength="80" required class="mvc-field__input" autocomplete="country-name" value="">
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            <div class="mvc-grid-2">
+                                              <div class="mvc-field">
+                                                <div class="mvc-field__top">
+                                                  <label class="mvc-field__label" for="kyc-id-type">Вид документа</label>
+                                                </div>
+                                                <div class="mvc-field__row">
+                                                  <select id="kyc-id-type" name="id_type" required class="mvc-field__input">
+                                                    <option value="">Выберите документ</option>
+                                                    <option value="passport">Паспорт</option>
+                                                    <option value="national_id">Национальное удостоверение личности</option>
+                                                    <option value="drivers_license">Водительские права</option>
+                                                  </select>
+                                                </div>
+                                              </div>
+
+                                              <div class="mvc-field">
+                                                <div class="mvc-field__top">
+                                                  <label class="mvc-field__label" for="kyc-id-number">№ документа</label>
+                                                </div>
+                                                <div class="mvc-field__row">
+                                                  <input type="text" id="kyc-id-number" name="id_number" maxlength="80" required class="mvc-field__input mvc-field__input--mono" autocomplete="off">
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <div class="mvc-fieldset">
+                                            <span class="mvc-fieldset__legend">Ваши документы</span>
+
+                                            <div class="mvc-uploads">
+                                              <div class="mvc-upload" data-kyc-drop="doc_front">
+                                                <input type="file" name="doc_front" id="kyc-doc-front" hidden accept="image/png,image/jpeg,image/webp,application/pdf">
+                                                <img class="mvc-upload__preview" alt="" hidden>
+                                                <div class="mvc-upload__empty">
+                                                  <i class="ph ph-identification-card mvc-upload__icon" aria-hidden="true"></i>
+                                                  <div class="mvc-upload__name">Лицевая сторона документа</div>
+                                                  <div class="mvc-upload__hint">PNG, JPG, WEBP или PDF</div>
+                                                </div>
+                                              </div>
+
+                                                                                            <div class="mvc-upload" data-kyc-drop="doc_back" id="kyc-back-wrap" hidden>
+                                                <input type="file" name="doc_back" id="kyc-doc-back" hidden accept="image/png,image/jpeg,image/webp,application/pdf">
+                                                <img class="mvc-upload__preview" alt="" hidden>
+                                                <div class="mvc-upload__empty">
+                                                  <i class="ph ph-identification-card mvc-upload__icon" aria-hidden="true"></i>
+                                                  <div class="mvc-upload__name">Оборотная сторона документа</div>
+                                                  <div class="mvc-upload__hint">PNG, JPG, WEBP или PDF</div>
+                                                </div>
+                                              </div>
+
+                                              <div class="mvc-upload" data-kyc-drop="selfie">
+                                                <input type="file" name="selfie" id="kyc-selfie" hidden accept="image/png,image/jpeg,image/webp">
+                                                <img class="mvc-upload__preview" alt="" hidden>
+                                                <div class="mvc-upload__empty">
+                                                  <i class="ph ph-user-focus mvc-upload__icon" aria-hidden="true"></i>
+                                                  <div class="mvc-upload__name">Селфи с ним в руках</div>
+                                                  <div class="mvc-upload__hint">PNG, JPG или WEBP</div>
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            <p class="mvc-verify-note">
+                                              <i class="ph ph-lightbulb" aria-hidden="true"></i>
+                                              <span>Сфотографируйте документ плоским и в хорошем свете, со всеми четырьмя
+                                              видимые углы и ничего, покрывающего текст. Каждый файл до 10 МБ.</span>
+                                            </p>
+                                          </div>
+
+                                          <p class="mvc-verify-note">
+                                            <i class="ph ph-lock-simple" aria-hidden="true"></i>
+                                            <span>Ваши документы видны только нашей команде по соблюдению нормативных требований и никогда
+                                            отображаются в вашем профиле и недоступны для тех, у кого есть ссылка.</span>
+                                          </p>
+
+                                          <button type="submit" id="kyc-submit" class="tf-button bg-Primary f14-bold w-full mt-16">
+                                            <i class="ph ph-shield-check" aria-hidden="true"></i> Отправить на проверку
+                                          </button>
+                                        </form>
+                                      </section>
+                                      
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader" class="hidden">
+        <div class="line-loader"><div></div><div></div><div></div><div></div><div></div></div>
+    </div>
+    <div id="toast-container"></div>
+
+    <script src="../../assets/js/jquery.min.js?v=1760621928"></script>
+    <script src="../../assets/js/bootstrap.min.js?v=1760622068"></script>
+    <script src="../../assets/js/api.js?v=1787870013" defer></script>
+    <script src="../../assets/js/dashboard.js?v=1788469929" defer></script>
+    <script src="../../assets/js/kyc.js?v=1787901213" defer></script>
+</body>
+</html>

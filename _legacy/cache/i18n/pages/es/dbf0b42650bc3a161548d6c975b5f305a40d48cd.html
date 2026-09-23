@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<?xml encoding="UTF-8"><html lang="es" data-theme="dark" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="Maveren Capital investment plans. Invest a lump sum, choose weekly or monthly payouts, and get your principal back in full at maturity.">
+  <meta name="author" content="Maveren Capital">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="csrf-token" content="a463e5b1d59f2f4a840633b2be3fd26f2836c9e23618974a730a44ef61830787">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#16232A">
+  <link rel="canonical" href="https://maverencapital.com/plans">
+
+  <title>Planes de inversión | Pagos semanales y mensuales | Maveren Capital</title>
+
+  <!-- Theme: applied before paint so there is no flash of the wrong palette.
+       Must stay INLINE and stay ahead of the stylesheets. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('mvc-theme');
+        document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+      } catch (e) { /* private mode - keep the dark default */ }
+    })();
+  </script>
+
+  <!-- Fonts (self-hosted: Switzer brand face) -->
+  <link rel="preload" href="/assets/fonts/Switzer-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Switzer-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Switzer-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/font.css?v=1787868523">
+
+  <!-- Phosphor icons (self-hosted) -->
+  <link rel="stylesheet" href="/assets/fonts/phosphor.css?v=1785388596">
+
+  <!-- Stylesheets - legacy first, design system overrides last -->
+  <link rel="stylesheet" href="/assets/css/main.css?v=1787868770">
+  <link rel="stylesheet" href="/assets/css/responsive.css?v=1787868837">
+  <link rel="stylesheet" href="/assets/css/mvc-design.css?v=1787879432">
+  <link rel="stylesheet" href="/assets/css/translate.css?v=1787873555">
+    <link rel="stylesheet" href="/assets/css/sections.css?v=1787878719">
+  <script src="/assets/js/theme.js?v=1787869682" defer></script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32">
+  <link rel="shortcut icon" href="/assets/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Maveren Capital">
+  <link rel="manifest" href="/assets/favicon/site.webmanifest">
+
+    <script src="/assets/js/smartsupp.js?v=1787877180" defer></script>
+    <script src="/assets/js/translate.js?v=1787873540" defer></script>
+    <script src="/assets/js/motion.js?v=1787879157" defer></script>
+</head>
+<body class="mvc-redesign" data-hero="dark">
+
+<nav class="navbar" data-navbar>
+  <div class="container">
+    <div class="navbar__inner">
+            <a href="/" class="navbar__brand" aria-label="Maveren Capital Home">
+        <img class="navbar__logo navbar__logo--light" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+        <img class="navbar__logo navbar__logo--dark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+        <span class="navbar__wordmark">Maveren Capital</span>
+      </a>
+
+      <ul class="navbar__links" id="navbar-links">
+        <li><a href="/plans" class="navbar__link">Planes</a></li>
+        <li><a href="/platform" class="navbar__link">Plataforma</a></li>
+        <li><a href="/solutions" class="navbar__link">Soluciones</a></li>
+        <li><a href="/about" class="navbar__link">Acerca de</a></li>
+        <li><a href="/contact" class="navbar__link">Contacto</a></li>
+        <li class="navbar__links-cta"><a href="/login" class="btn btn--primary">Iniciar sesión</a></li>
+      </ul>
+
+      <div class="navbar__actions">
+                <button class="mvc-lang-trigger" data-lang-open type="button" aria-label="Cambiar idioma" aria-haspopup="dialog">
+          <i class="ph ph-translate" aria-hidden="true"></i>
+          <span class="mvc-lang-trigger__code">ES</span>
+        </button>
+                <noscript>
+          <form method="post" action="/api/public/set_language.php" class="mvc-lang-noscript">
+            <input type="hidden" name="csrf_token" value="a463e5b1d59f2f4a840633b2be3fd26f2836c9e23618974a730a44ef61830787">
+            <input type="hidden" name="return" value="/plans">
+            <label class="visually-hidden" for="nojs-lang">Language</label>
+            <select id="nojs-lang" name="lang" onchange="this.form.submit()">
+                              <option value="en">English</option>
+                              <option value="es" selected>Español</option>
+                              <option value="fr">Français</option>
+                              <option value="de">Deutsch</option>
+                              <option value="pt">Português</option>
+                              <option value="ar">العربية</option>
+                              <option value="zh-CN">中文</option>
+                              <option value="hi">हिन्दी</option>
+                              <option value="ru">Русский</option>
+                              <option value="ja">日本語</option>
+                          </select>
+            <button type="submit">Go</button>
+          </form>
+        </noscript>
+        <button class="theme-toggle" data-theme-toggle type="button" aria-label="Cambiar a tema claro" aria-pressed="false">
+          <i class="ph ph-sun"></i>
+        </button>
+        <a href="/login" class="btn btn--nav navbar__cta">Iniciar sesión</a>
+
+        <button class="navbar__toggle" type="button" data-nav-toggler aria-label="Abrir menú" aria-expanded="false" aria-controls="navbar-links">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- =================== HERO — rates above the fold =================== -->
+<section class="hero-x hero-x--compact">
+  <div class="hero-x__wash" data-parallax="0.1" aria-hidden="true"></div>
+
+  <div class="container">
+    <div class="hero-x__inner">
+      <span class="kicker">Planes de inversión</span>
+      <h1 class="hero-x__title">Invierte una vez.<br>Solicitar un pago <em>en horario de</em>.</h1>
+      <p class="hero-x__lead">
+        Ponga una suma global a trabajar, elija si desea pagar cada semana o cada
+        y recibirá su principal en su totalidad al final del plazo.
+      </p>
+      <div class="hero-x__cta">
+        <a href="/register" class="btn btn--primary">Abrir una cuenta</a>
+        <a href="#plans" class="btn btn--ghost">Ver los planes</a>
+      </div>
+    </div>
+
+          <div class="rate-strip">
+                  <div class="rate-strip__item">
+            <span class="rate-strip__name">Reserva mensual de Maveren</span>
+            <span class="rate-strip__rate">6.00%</span>
+            <span class="rate-strip__note">
+              al mes ·
+              desde $ 5.000            </span>
+          </div>
+                  <div class="rate-strip__item">
+            <span class="rate-strip__name">Maveren Weekly Core</span>
+            <span class="rate-strip__rate">1.10%</span>
+            <span class="rate-strip__note">
+              por semana ·
+              desde $ 250            </span>
+          </div>
+                  <div class="rate-strip__item">
+            <span class="rate-strip__name">Maveren Weekly Prime</span>
+            <span class="rate-strip__rate">1.65%</span>
+            <span class="rate-strip__note">
+              por semana ·
+              desde $ 1000            </span>
+          </div>
+              </div>
+      </div>
+</section>
+
+
+<!-- =================== PROCESS RAIL =================== -->
+<section class="section section--warm" id="how">
+  <div class="container">
+    <div class="lede" data-reveal>
+      <span class="kicker">Cómo funciona</span>
+      <h2>Cuatro pasos, luego se ejecuta solo.</h2>
+      <p>
+        Cada plan cotiza un porcentaje fijo por periodo de cobro. Ese porcentaje
+        es lo que aterriza en su billetera: no hay una tasa principal que oculte una
+        uno real más pequeño.
+      </p>
+    </div>
+
+    <div class="rail rail--h" data-reveal>
+      <div class="rail__step">
+        <span class="rail__n">1</span>
+        <h3 class="rail__title">2. Transfiera fondos a su cartera</h3>
+        <p class="rail__body">Deposite en su billetera Maveren. El saldo permanece allí hasta que elijas implementarlo.</p>
+      </div>
+      <div class="rail__step">
+        <span class="rail__n">2</span>
+        <h3 class="rail__title">Elige tu ritmo</h3>
+        <p class="rail__body">Los planes semanales pagan cada siete días. Los planes mensuales pagan en la misma fecha cada mes, a una tasa más alta.</p>
+      </div>
+      <div class="rail__step">
+        <span class="rail__n">3</span>
+        <h3 class="rail__title">Cobrar cada periodo</h3>
+        <p class="rail__body">Cada cobro se acredita automáticamente y se puede retirar de inmediato. Nunca esperas a la madurez para ver una devolución.</p>
+      </div>
+      <div class="rail__step">
+        <span class="rail__n">4</span>
+        <h3 class="rail__title">Principal devuelto</h3>
+        <p class="rail__body">Al final del plazo, tu capital original se devuelve en su totalidad, además de cada cobro ya realizado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section section--warm" id="plans">
+  <div class="container">
+    <div class="lede lede--center" data-reveal>
+      <span class="kicker">Planes de inversión</span>
+      <h2>Elige tu ritmo de cobro.</h2>
+      <p>
+        Invierta una vez. Cada plan paga un porcentaje fijo de su capital a
+        su billetera a un ritmo establecido, y devuelve su principal en su totalidad al
+        final del plazo.
+      </p>
+    </div>
+
+    <div class="grid-3">
+              <article class="plan-card" data-reveal data-reveal-delay="0">
+          <span class="plan-card__tier">
+            <i class="ph ph-buildings"></i>
+            Mensual          </span>
+          <div class="plan-card__roi">
+            6%            <span class="plan-card__roi-note">al mes</span>
+          </div>
+          <div class="plan-card__name">Reserva mensual de Maveren</div>
+          <ul class="plan-card__meta">
+                          <li><span>Término</span><strong>24 meses</strong></li>
+                          <li><span>Payouts</span><strong>12 x 6%</strong></li>
+                          <li><span>Mínimo</span><strong>$5,000</strong></li>
+                          <li><span>Riesgo</span><strong>Moderada</strong></li>
+                      </ul>
+          <div class="plan-card__total">Rentabilidad total</div>
+                      <p class="plan-card__summary">Doce cobros mensuales limpios durante un año completo. Fácil de pronosticar, fácil de planificar y nuestra tarifa publicada más alta.</p>
+                  </article>
+              <article class="plan-card" data-reveal data-reveal-delay="80">
+          <span class="plan-card__tier">
+            <i class="ph ph-plant"></i>
+            Semanalmente          </span>
+          <div class="plan-card__roi">
+            1.1%            <span class="plan-card__roi-note">a la semana</span>
+          </div>
+          <div class="plan-card__name">Maveren Weekly Core</div>
+          <ul class="plan-card__meta">
+                          <li><span>Término</span><strong>13 semanas</strong></li>
+                          <li><span>Payouts</span><strong>13 x 1.1%</strong></li>
+                          <li><span>Mínimo</span><strong>$250</strong></li>
+                          <li><span>Riesgo</span><strong>Bajo</strong></li>
+                      </ul>
+          <div class="plan-card__total">14,3% de rendimiento total</div>
+                      <p class="plan-card__summary">La forma más ligera de entrar. Ponga el capital a trabajar durante un trimestre, reciba un pago cada semana y recupere su capital al final.</p>
+                  </article>
+              <article class="plan-card" data-reveal data-reveal-delay="160">
+          <span class="plan-card__tier">
+            <i class="ph ph-trend-up"></i>
+            Semanalmente          </span>
+          <div class="plan-card__roi">
+            1.65%            <span class="plan-card__roi-note">a la semana</span>
+          </div>
+          <div class="plan-card__name">Maveren Weekly Prime</div>
+          <ul class="plan-card__meta">
+                          <li><span>Término</span><strong>26 semanas</strong></li>
+                          <li><span>Payouts</span><strong>26 x 1.65%</strong></li>
+                          <li><span>Mínimo</span><strong>$1,000</strong></li>
+                          <li><span>Riesgo</span><strong>Moderada</strong></li>
+                      </ul>
+          <div class="plan-card__total">42,9% de rendimiento total</div>
+                      <p class="plan-card__summary">Medio año, veintiséis cobros y una tarifa sustancialmente mejor que el nivel de entrada para comprometer el plazo adicional.</p>
+                  </article>
+          </div>
+  </div>
+</section>
+
+
+<!-- =================== WORKED EXAMPLE =================== -->
+<section class="section section--warm">
+  <div class="container">
+    <div class="lede" data-reveal>
+      <span class="kicker">Ejemplo práctico</span>
+      <h2>$ 5.000 en Reserva Mensual.</h2>
+      <p>La misma aritmética que ejecuta el tablero, escrita.</p>
+    </div>
+
+    <div class="figures" data-reveal>
+      <div class="figures__item">
+        <span class="figures__value">$5,000</span>
+        <span class="figures__label">Invertido una vez</span>
+      </div>
+      <div class="figures__item">
+        <span class="figures__value">$300</span>
+        <span class="figures__label">Pagado en tu monedero cada mes</span>
+      </div>
+      <div class="figures__item">
+        <span class="figures__value">$3,600</span>
+        <span class="figures__label">Cobros totales a lo largo de 12 meses</span>
+      </div>
+      <div class="figures__item">
+        <span class="figures__value figures__value--accent">72%</span>
+        <span class="figures__label">Rendimiento total, capital devuelto en su totalidad</span>
+      </div>
+    </div>
+
+    <p class="figures__note">
+      Al 6.00% mensual durante un plazo de 12 meses. El capital está en riesgo y las tasas
+      no garantizado.
+    </p>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+            <a href="/" class="footer__brand" aria-label="Maveren Capital Home">
+                <img class="footer__logo footer__logo--light" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+        <img class="footer__logo footer__logo--dark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+        <span class="footer__wordmark">Maveren Capital</span>
+      </a>
+      <h2 style="margin: var(--space-2) 0;">Su riqueza, simplificada en un solo lugar.</h2>
+      <p style="color: var(--color-ink-muted); max-width: 560px;">
+        Abre una cuenta en minutos. Financie el monedero. Implemente planes semanales y mensuales, y deje que Maveren Capital se encargue de la capitalización, los informes y las protecciones.
+      </p>
+      <a href="/register" class="btn btn--primary">Inicia una conversación</a>
+    </div>
+
+    <nav class="footer__nav" aria-label="Footer">
+      <a href="/plans">Planes</a><span class="footer__sep">·</span>
+      <a href="/platform">Plataforma</a><span class="footer__sep">·</span>
+      <a href="/solutions">Soluciones</a><span class="footer__sep">·</span>
+      <a href="/about">Acerca de</a><span class="footer__sep">·</span>
+      <a href="/contact">Contacto</a><span class="footer__sep">·</span>
+      <a href="/login">Iniciar sesión</a>
+    </nav>
+
+        <div class="footer__credits">
+      <span>© 2026 Maveren Capital LLC. Todos los derechos reservados.</span>
+    </div>
+  </div>
+</footer>
+
+<noscript>
+  Powered by <a href="https://www.smartsupp.com" target="_blank" rel="noopener noreferrer">Smartsupp</a>
+</noscript>
+
+
+<script src="/assets/js/main.js?v=1787868523" defer></script>
+</body>
+</html>

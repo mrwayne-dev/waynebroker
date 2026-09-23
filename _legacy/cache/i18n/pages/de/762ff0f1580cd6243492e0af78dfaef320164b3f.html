@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<?xml encoding="UTF-8"><html lang="de" data-theme="dark" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="Sign in to your Maveren Capital account to manage your investments and portfolio.">
+  <meta name="author" content="Maveren Capital">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="csrf-token" content="836552d99b9a434fdc45c9985d30e6490098a07dea50d70b4852676620c9a3e9">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#16232A">
+  <link rel="canonical" href="https://maverencapital.com/login">
+
+  <title>Anmelden | Maveren Capital</title>
+
+  <!-- Theme: applied before paint so there is no flash of the wrong palette.
+       Must stay INLINE and stay ahead of the stylesheets. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('mvc-theme');
+        document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+      } catch (e) { /* private mode - keep the dark default */ }
+    })();
+  </script>
+
+  <!-- Fonts (self-hosted: Switzer brand face) -->
+  <link rel="preload" href="/assets/fonts/Switzer-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Switzer-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Switzer-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/font.css?v=1787868523">
+
+  <!-- Phosphor icons (self-hosted) -->
+  <link rel="stylesheet" href="/assets/fonts/phosphor.css?v=1785388596">
+
+  <!-- Stylesheets - legacy first, design system overrides last -->
+  <link rel="stylesheet" href="/assets/css/main.css?v=1787868770">
+  <link rel="stylesheet" href="/assets/css/responsive.css?v=1787868837">
+  <link rel="stylesheet" href="/assets/css/mvc-design.css?v=1787879432">
+  <link rel="stylesheet" href="/assets/css/translate.css?v=1787873555">
+    <link rel="stylesheet" href="/assets/css/sections.css?v=1787878719">
+  <script src="/assets/js/theme.js?v=1787869682" defer></script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32">
+  <link rel="shortcut icon" href="/assets/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Maveren Capital">
+  <link rel="manifest" href="/assets/favicon/site.webmanifest">
+
+    <script src="/assets/js/smartsupp.js?v=1787877180" defer></script>
+    <script src="/assets/js/translate.js?v=1787873540" defer></script>
+    <script src="/assets/js/motion.js?v=1787879157" defer></script>
+</head>
+<body class="mvc-redesign">
+
+<nav class="navbar navbar--solid" data-navbar>
+  <div class="container">
+    <div class="navbar__inner">
+            <a href="/" class="navbar__brand" aria-label="Maveren Capital Home">
+        <img class="navbar__logo navbar__logo--light" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+        <img class="navbar__logo navbar__logo--dark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+        <span class="navbar__wordmark">Maveren Capital</span>
+      </a>
+
+      <ul class="navbar__links" id="navbar-links">
+        <li><a href="/plans" class="navbar__link">Planung</a></li>
+        <li><a href="/platform" class="navbar__link">Bühne</a></li>
+        <li><a href="/solutions" class="navbar__link">Lösungen</a></li>
+        <li><a href="/about" class="navbar__link">Über</a></li>
+        <li><a href="/contact" class="navbar__link">Kontakt</a></li>
+        <li class="navbar__links-cta"><a href="/login" class="btn btn--primary">Anmelden</a></li>
+      </ul>
+
+      <div class="navbar__actions">
+                <button class="mvc-lang-trigger" data-lang-open type="button" aria-label="Sprache wechseln" aria-haspopup="dialog">
+          <i class="ph ph-translate" aria-hidden="true"></i>
+          <span class="mvc-lang-trigger__code">DE</span>
+        </button>
+                <noscript>
+          <form method="post" action="/api/public/set_language.php" class="mvc-lang-noscript">
+            <input type="hidden" name="csrf_token" value="836552d99b9a434fdc45c9985d30e6490098a07dea50d70b4852676620c9a3e9">
+            <input type="hidden" name="return" value="/login">
+            <label class="visually-hidden" for="nojs-lang">Language</label>
+            <select id="nojs-lang" name="lang" onchange="this.form.submit()">
+                              <option value="en">English</option>
+                              <option value="es">Español</option>
+                              <option value="fr">Français</option>
+                              <option value="de" selected>Deutsch</option>
+                              <option value="pt">Português</option>
+                              <option value="ar">العربية</option>
+                              <option value="zh-CN">中文</option>
+                              <option value="hi">हिन्दी</option>
+                              <option value="ru">Русский</option>
+                              <option value="ja">日本語</option>
+                          </select>
+            <button type="submit">Go</button>
+          </form>
+        </noscript>
+        <button class="theme-toggle" data-theme-toggle type="button" aria-label="Zum hellen Design wechseln" aria-pressed="false">
+          <i class="ph ph-sun"></i>
+        </button>
+        <a href="/login" class="btn btn--nav navbar__cta">Anmelden</a>
+
+        <button class="navbar__toggle" type="button" data-nav-toggler aria-label="Menü öffnen" aria-expanded="false" aria-controls="navbar-links">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="auth-page">
+  <div class="container">
+    <div class="form-card">
+      <div class="form-card__header">
+        <p class="eyebrow">
+          <span class="eyebrow__icon"><svg viewbox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"></circle></svg></span>
+          Willkommen zurück
+        </p>
+        <h1>Melden Sie sich bei Maveren Capital an</h1>
+        <p>Verwalten Sie Ihre Investitionen, Ersparnisse und Ihr Portfolio.</p>
+      </div>
+
+      <form id="login-form" class="form-stack" autocomplete="off">
+        <div class="form-field">
+          <label class="form-field__label" for="email">E-Mail</label>
+          <input id="email" name="email" type="email" class="form-field__input" placeholder="ihre_adresse@example.com" required>
+        </div>
+
+        <div class="form-field form-field--with-action">
+          <label class="form-field__label" for="password">Passwort</label>
+          <input id="password" name="password" type="password" class="form-field__input" placeholder="••••••••" required>
+          <button type="button" class="form-field__action" aria-label="Passwort anzeigen/verbergen" aria-pressed="false">
+            <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-sm);">
+          <label style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-ink-muted); cursor: pointer;">
+            <input type="checkbox" id="terms" checked> Angemeldet bleiben
+          </label>
+          <a href="/forgotpassword" class="form-link">Passwort vergessen?</a>
+        </div>
+
+        <button type="submit" class="btn btn--primary" style="width: 100%;">Anmelden</button>
+      </form>
+
+      <!-- Verify step - revealed when an unverified account tries to sign in -->
+      <form id="verify-form" class="form-stack hidden" autocomplete="off">
+        <div class="form-field">
+          <label class="form-field__label" for="verify-otp">Geben Sie den 6-stelligen Code ein</label>
+          <input id="verify-otp" type="text" inputmode="numeric" class="form-field__input" placeholder="••••••" maxlength="6" required>
+          <p class="form-field__hint">Deine E-Mail-Adresse ist noch nicht verifiziert. Wir haben einen Code per E-Mail gesendet. Überprüfe deinen Posteingang (und deinen Spam-Ordner).</p>
+        </div>
+        <button type="submit" class="btn btn--primary" style="width: 100%;">Verifizieren und fortfahren</button>
+        <p style="text-align:center; font-size: var(--text-sm); margin-top: var(--space-3);">
+          Hast du es nicht verstanden? <a href="#" id="verify-resend" class="form-link">Code erneut senden</a>
+        </p>
+      </form>
+
+      <div class="form-footer">
+        Sie haben noch kein Benutzerkonto? <a href="/register">Erstelle einen</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Toast container preserved for api.js compatibility -->
+<div id="toast-container"></div>
+<div id="loader" class="hidden"><div class="line-loader"><div></div><div></div><div></div><div></div><div></div></div></div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+            <a href="/" class="footer__brand" aria-label="Maveren Capital Home">
+                <img class="footer__logo footer__logo--light" src="/assets/images/logo/mvc-mark-orange.png" width="128" height="128" alt="">
+        <img class="footer__logo footer__logo--dark" src="/assets/images/logo/mvc-mark-ink.png" width="128" height="128" alt="">
+        <span class="footer__wordmark">Maveren Capital</span>
+      </a>
+      <h2 style="margin: var(--space-2) 0;">Ihr Vermögen, vereinfacht an einem Ort.</h2>
+      <p style="color: var(--color-ink-muted); max-width: 560px;">
+        Eröffnen Sie in wenigen Minuten ein Konto. Finanzieren Sie die Brieftasche. Stellen Sie sie über Wochen- und Monatspläne hinweg bereit und überlassen Sie Maveren Capital die Aufzinsung, die Berichterstattung und den Schutz.
+      </p>
+      <a href="/register" class="btn btn--primary">Ein Gespräch beginnen</a>
+    </div>
+
+    <nav class="footer__nav" aria-label="Fußzeile">
+      <a href="/plans">Planung</a><span class="footer__sep">·</span>
+      <a href="/platform">Bühne</a><span class="footer__sep">·</span>
+      <a href="/solutions">Lösungen</a><span class="footer__sep">·</span>
+      <a href="/about">Über</a><span class="footer__sep">·</span>
+      <a href="/contact">Kontakt</a><span class="footer__sep">·</span>
+      <a href="/login">Anmelden</a>
+    </nav>
+
+        <div class="footer__credits">
+      <span>© 2026 Maveren Capital LLC. Alle Rechte vorbehalten.</span>
+    </div>
+  </div>
+</footer>
+
+<noscript>
+  Powered by <a href="https://www.smartsupp.com" target="_blank" rel="noopener noreferrer">Smartsupp</a>
+</noscript>
+
+
+<script src="/assets/js/main.js?v=1787868523" defer></script>
+<script src="/assets/js/api.js?v=1787870013" defer></script>
+</body>
+</html>
