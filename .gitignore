@@ -1,18 +1,46 @@
-# =========================================================
-# Maveren Capital - .gitignore
-# =========================================================
-
-# ----- Environment / secrets -----
+# ── Environment / secrets ─────────────────────────────────
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 *.env.backup
 
-# ----- Logs -----
-logs/
-*.log
+# ── PHP / Composer ────────────────────────────────────────
+vendor/
+composer.lock
+# (composer.lock IS committed for applications; we un-ignore it
+#  once Laravel is scaffolded. Kept ignored while _legacy/ still
+#  holds Maveren's outdated lock.)
 
-# ----- Editor / OS noise -----
+# ── Node / Vite ───────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ── Laravel runtime ───────────────────────────────────────
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/app/public/*
+!/storage/app/public/.gitkeep
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitkeep
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/testing/*
+!/storage/framework/testing/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
+
+# ── Editor / OS ───────────────────────────────────────────
 .DS_Store
 Thumbs.db
 .vscode/
@@ -21,46 +49,33 @@ Thumbs.db
 *.swo
 *~
 
-# ----- PHP / Composer -----
-vendor/
-composer.lock
+# ── Tooling artifacts ─────────────────────────────────────
+.phpunit.result.cache
+.phpunit.cache
+.pest.cache
+.playwright-report/
+/test-results/
+/coverage/
+.storybook/build/
+storybook-static/
 
-# ----- Node (if added later) -----
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# ── Claude Code local state ───────────────────────────────
+.claude/
 
-# ----- Local SQL dumps / backups -----
-*.sql.bak
-dbschema/local-*.sql
-
-# Live wallet addresses - applied directly, never published (public repo)
-dbschema/deposit_addresses_live.sql
-
-# ----- Member-uploaded content -----
-# Identity documents must never be committed. The directory and its guards are
-# tracked; nothing a member sends us is. This is a hard rule, not tidiness:
-# a KYC document in git history is a passport in every clone of the repo.
-uploads/kyc/*
-!uploads/kyc/.htaccess
-!uploads/kyc/index.html
-uploads/profiles/*
-uploads/contacts/*
-uploads/contact/*
-uploads/products/*
-!uploads/**/.gitkeep
-!uploads/**/.htaccess
-
-# ----- Translation cache -----
-# Generated at runtime and owned by the web-server user. Rebuild with
-# scripts/i18n_warm.php after a deploy.
-cache/i18n/*
-!cache/.htaccess
-
-# ----- Working screenshots -----
-# shots/ is scratch output from the headless-Chrome verification runs. Useful
-# while building, not part of the product.
-shots/
-.env.production
-.env.dbpass
+# ── Legacy Maveren carryovers (rules preserved from _legacy/) ─
+_legacy/logs/
+_legacy/shots/
+_legacy/vendor/
+_legacy/cache/i18n/*
+!_legacy/cache/.htaccess
+_legacy/uploads/kyc/*
+!_legacy/uploads/kyc/.htaccess
+!_legacy/uploads/kyc/index.html
+_legacy/uploads/profiles/*
+_legacy/uploads/contacts/*
+_legacy/uploads/contact/*
+_legacy/uploads/products/*
+!_legacy/uploads/**/.gitkeep
+!_legacy/uploads/**/.htaccess
+_legacy/dbschema/deposit_addresses_live.sql
+_legacy/dbschema/local-*.sql
