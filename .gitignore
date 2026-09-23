@@ -79,3 +79,7 @@ _legacy/uploads/products/*
 !_legacy/uploads/**/.htaccess
 _legacy/dbschema/deposit_addresses_live.sql
 _legacy/dbschema/local-*.sql
+
+# Ladle component-story build output (dev tooling, not shipped)
+/build
+/playwright-report
