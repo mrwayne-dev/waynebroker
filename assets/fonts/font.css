@@ -1,0 +1,66 @@
+/* ==============================
+   Switzer - Maveren Capital brand face
+   Self-hosted (Fontshare, free licence). Stands in for Neue
+   Montreal from the brand sheet: same neo-grotesk proportions,
+   same Regular / Medium / Semibold set.
+   Self-hosted deliberately - the CSP has no font CDN allowance.
+   ============================== */
+@font-face {
+  font-family: 'Switzer';
+  src: url('../fonts/Switzer-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Switzer';
+  src: url('../fonts/Switzer-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Switzer';
+  src: url('../fonts/Switzer-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* ==============================
+   Host Grotesk - Local Font Setup (legacy fallback)
+   ============================== */
+@font-face {
+  font-family: 'Host Grotesk';
+  src: url('../fonts/HostGrotesk-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Host Grotesk';
+  src: url('../fonts/HostGrotesk-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Host Grotesk';
+  src: url('../fonts/HostGrotesk-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Host Grotesk';
+  src: url('../fonts/HostGrotesk-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

@@ -1,0 +1,4907 @@
+/* =================================================================
+ * Maveren Capital Dashboard Re-skin (token bridge)
+ * Adapts the Maveren design system onto the existing dashboard
+ * component framework WITHOUT changing any DOM the JS depends on.
+ *
+ * Activation: add `mvc-dash` to the dashboard <body> class, e.g.
+ *   <body class="counter-scroll mvc-dash">
+ *
+ * Strategy:
+ *   1. Override dashboard.css :root variables (re-skins ~65% that
+ *      reads from var()).
+ *   2. Explicit overrides for hardcoded components (wallet variants,
+ *      buttons, sidebar, cards, tables).
+ *   3. General Sans font + no-shadow + 8px radii per spec.
+ * ================================================================= */
+
+/* Fonts are self-hosted in assets/fonts/font.css (Switzer + Host Grotesk).
+   No @import here: the CSP allows no font CDN. */
+
+
+/* =================================================================
+ * 1. VARIABLE OVERRIDES - re-skins everything driven by var()
+ *
+ * dashboard.css reads ~65% of its colours from these names, so
+ * redefining them here re-skins the bulk of the dashboard without
+ * touching any DOM the JS depends on.
+ *
+ * DARK is the default; the light block below flips the same names.
+ * ================================================================= */
+/* Motion tokens live on :root, not on body, because <html>, the mobile dock
+   and the ::view-transition pseudo-elements all sit outside body's scope and
+   still need them. Values mirror mvc-design.css so both namespaces agree. */
+:root {
+  --mvc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --mvc-dur-fast: 180ms;
+  --mvc-dur-base: 240ms;
+  --mvc-dur-slow: 400ms;
+
+  /* dashboard.css:210 and :528 have always read the page font from these two
+     names, but nothing ever declared them. An undefined var() is invalid at
+     computed-value time, so `font-family` silently collapsed to `inherit` and
+     the Switzer @font-face was only ever reached by the body.mvc-dash rule
+     below - which is why the browser reported the preloaded woff2 as unused.
+     They live on :root so main.css (public site) resolves them too. */
+  --mvc-font-body:    'Switzer', 'Host Grotesk', system-ui, -apple-system, sans-serif;
+  --mvc-font-display: 'Switzer', 'Host Grotesk', system-ui, -apple-system, sans-serif;
+
+  /* --- Spacing scale --------------------------------------------------
+   * Names and values mirror mvc-design.css so the dashboard and the public
+   * site speak one language.
+   *
+   * This file previously had NO scale at all: ~150 hardcoded px spacing
+   * declarations (6, 9, 10, 12, 14, 16, 20, 22, 26, 34 ...), each picked in
+   * isolation. That is the actual reason the modals read as arbitrarily
+   * cramped in some places and loose in others - there was nothing to be
+   * consistent WITH.
+   *
+   * The modal system below is retrofitted onto these. The rest of the file
+   * still uses literals; converting all 150 is a separate pass with a much
+   * larger blast radius.
+   */
+  --mvc-space-1:  4px;
+  --mvc-space-2:  8px;
+  --mvc-space-3:  12px;
+  --mvc-space-4:  16px;
+  --mvc-space-5:  20px;
+  --mvc-space-6:  24px;
+  --mvc-space-8:  32px;
+  --mvc-space-10: 40px;
+
+  /* Semantic aliases. Components reference these rather than raw steps, so
+     "the gap between two fields" can be retuned in one place. */
+  --mvc-modal-pad:        var(--mvc-space-6);   /* dialog inner padding      */
+  --mvc-modal-pad-sm:     var(--mvc-space-4);   /* same, on a phone          */
+  --mvc-field-pad-y:      var(--mvc-space-3);   /* field card, vertical      */
+  --mvc-field-pad-x:      var(--mvc-space-4);   /* field card, horizontal    */
+  --mvc-field-gap:        var(--mvc-space-4);   /* BETWEEN two field cards   */
+  --mvc-field-row-gap:    var(--mvc-space-3);   /* label/control/chip gap    */
+  --mvc-action-gap:       var(--mvc-space-3);   /* between buttons           */
+  --mvc-section-gap:      var(--mvc-space-5);   /* between groups of fields  */
+}
+
+body.mvc-dash {
+  --White:        #ffffff;
+  --Primary:      #FF5B04;   /* brand orange - buttons, sidebar active, text-Primary */
+  --Primary-Hover:#FF7733;
+  --Accent:       #1D2E36;   /* elevated surface */
+  --Bg:           #16232A;   /* page background */
+  --Surface:      #1D2E36;
+  --Surface-Alt:  #22353E;
+  --Black:        #FFFFFF;   /* inverted: "Black" is the high-contrast ink */
+  --GrayDark:     #9FB3BA;   /* muted text */
+  --Gray:         #8A9DA5;
+  --Gainsboro:    #22353E;
+  --LightGray:    rgba(255, 255, 255, 0.10);
+  --Green:        #4ADE80;   /* status-success only (active badges) */
+  /* dashboard.css reaches for --Secondary ~12 times as the hover ink on menu
+     and dropdown items (:1305, :3616, :4649, :4695 ...) and never defined it,
+     so those hovers fell back to whatever was inherited. Point it at the brand
+     orange, which is what every one of those sites was reaching for. */
+  --Secondary:    #FF5B04;
+  /* Also referenced by dashboard.css (dropdown-item hover) and never defined. */
+  --LimeGreen:    #FF5B04;
+
+  /* Design-system aliases so dashboard markup can opt into them */
+  --mvc-orange:      #FF5B04;
+  /* Deep Sea Green, the brand's third base. Used as a chart series colour at
+     dashboard.php:110, so it has to stay legible on both page surfaces - this
+     is the dark-page value and the light block lightens it. */
+  --mvc-teal:        #2E8B92;
+  --mvc-ink:         #16232A;
+  --mvc-on-accent:   #16232A;   /* text sitting ON an orange fill */
+  /* The inverse of --mvc-on-accent: orange used AS text, on a page surface.
+     #FF5B04 is 5.16:1 on the dark page and perfectly readable, but only
+     3.11:1 on the light theme's white - so the light block darkens it. The
+     FILL token stays #FF5B04 in both themes; only the ink moves. */
+  --Primary-Ink:     #FF5B04;
+  --mvc-border:      rgba(255, 255, 255, 0.10);
+  --mvc-accent-red:  #FF5B04;   /* legacy alias */
+  /* Label colour for an --mvc-accent-red fill. Same problem as --mvc-on-green:
+     the red token is a bright orange here and a deep rust in the light theme,
+     so the ink has to flip with it. Dark ink on #FF5B04 is 5.16:1; on the light
+     theme's #B04102 it is only 2.75:1, which is what the Delete button in the
+     users table was rendering at. */
+  --mvc-on-red:      #16232A;
+  --mvc-warning:     #FBBF24;
+  /* Label colour for a --mvc-warning fill. Was missing entirely while
+     --mvc-on-green and --mvc-on-red both existed, so the KYC "Pending" badge
+     borrowed --mvc-on-accent (pinned dark in both themes) and measured 2.7:1
+     against the light theme's #B45309. */
+  --mvc-on-warning:  #16232A;
+  /* The soft accent chip. These were REFERENCED in four places
+     (.mvc-notice__icon, .mvc-plan.is-selected, the toolbar focus ring,
+     .mvc-quick__icon) and declared nowhere, so every use silently fell back to
+     its inline literal and the token was decorative.
+     --mvc-on-accent-soft is the ink FOR that chip: --Primary-Ink is #FF5B04
+     here, which on a 12% orange tint of the same hue composites to 4.03:1 -
+     an orange glyph on an orange chip. This lifts it to 5.3:1. */
+  --mvc-accent-soft:    rgba(255, 91, 4, 0.14);
+  --mvc-on-accent-soft: #FF8A4C;
+  /* Tint for a control sitting ON the orange fill (the balance card's eye and
+     copy pill). White, not ink: an ink tint moves the control toward the colour
+     of the text on top of it and the two converge. At 16% the dark ink reads
+     5.97:1, matching the copy pill's measured 5.99:1. Both themes - the orange
+     fill is identical in each, so these do not flip. */
+  --mvc-on-accent-tint:       rgba(255, 255, 255, 0.16);
+  --mvc-on-accent-tint-hover: rgba(255, 255, 255, 0.30);
+  /* Label colour for a --Green fill. --Green is a light mint here and a deep
+     green in the light theme, so what sits on it has to flip with it. */
+  --mvc-on-green:    #16232A;
+  --mvc-radius-card: 8px;
+  --mvc-radius-pill: 30px;
+
+  /* Font */
+  font-family: 'Switzer', 'Host Grotesk', system-ui, -apple-system, sans-serif;
+  background: var(--Bg);
+  color: var(--Black);
+}
+
+/* --- LIGHT THEME -------------------------------------------------
+   Same variable names, light values. --Primary stays the brand orange
+   in both themes; only the surfaces and ink flip. */
+:root[data-theme="light"] body.mvc-dash {
+  --White:        #ffffff;
+  --Primary:      #FF5B04;
+  --Primary-Hover:#E64F00;
+  --Accent:       #F4F8F9;
+  --Bg:           #F4F8F9;
+  --Surface:      #FFFFFF;
+  --Surface-Alt:  #E4EEF0;
+  --Black:        #16232A;
+  --GrayDark:     #526670;
+  /* Was #8A9DA5, carried over unchanged from the dark theme where it sits on
+     near-black. On white it is 3.53:1 - under AA for body text, and it labels
+     every inactive sidebar item. #5A6C74 is 5.48:1 on white and 4.64:1 on
+     --Surface-Alt and still reads lighter than --GrayDark, so the two remain
+     distinguishable. */
+  --Gray:         #5A6C74;
+  --Gainsboro:    #EDF4F5;
+  --LightGray:    rgba(22, 35, 42, 0.08);
+  /* #15803D was 4.29:1 on the --Gainsboro table rows; this is 5.94:1. */
+  --Green:        #116B32;
+  --Secondary:    #B04102;
+  --LimeGreen:    #B04102;
+  --Primary-Ink:  #B04102;   /* 5.83:1 on white and 5.23:1 on the --Gainsboro row tint, where the #FF5B04 fill colour is 3.11:1 */
+
+  /* --mvc-on-accent deliberately stays dark: the orange fill is identical in
+     both themes, and #16232A on #FF5B04 is 5.16:1 where white is only 3.11:1. */
+  --mvc-on-accent: #16232A;
+  --mvc-border:    rgba(22, 35, 42, 0.10);
+  --mvc-accent-red:#B04102;
+  --mvc-on-red:    #FFFFFF;   /* 5.83:1 on #B04102, where dark ink is 2.75:1 */
+  --mvc-warning:   #B45309;
+  --mvc-on-warning:#FFFFFF;   /* 5.98:1 on #B45309, where dark ink is 2.75:1 */
+  --mvc-on-green:  #FFFFFF;
+  /* The tint is pale enough on a white surface that the standard orange ink
+     carries it; no lightening needed on this side. */
+  --mvc-accent-soft:    rgba(255, 91, 4, 0.12);
+  --mvc-on-accent-soft: #B04102;
+  --mvc-teal:           #075056;   /* the true brand value; readable on white */
+}
+
+/* Tells the UA which palette to draw its own widgets in. This is the only
+   handle CSS has on native <option> popups, date pickers, autofill chips and
+   default scrollbars - none of which can be styled directly, and all of which
+   were rendering light chrome inside a dark UI. */
+body.mvc-dash {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] body.mvc-dash {
+  color-scheme: light;
+}
+
+/* The tokens live on body, so <html> cannot read them; these are the literal
+   --Bg values. Without this the root element stays white and flashes on
+   overscroll and on short pages. */
+html:has(body.mvc-dash) {
+  background: #16232A;
+}
+:root[data-theme="light"]:has(body.mvc-dash) {
+  background: #F4F8F9;
+}
+
+
+/* =================================================================
+ * 1b. MOTION - theme flip + page transitions
+ *
+ * Flipping data-theme rewrites the token values above. Without a
+ * transition the page background and every text colour snap while the
+ * handful of components that DO carry one (buttons, the toggle itself)
+ * lag ~180ms behind, which reads as tearing. Everything that paints a
+ * themed surface therefore animates on the same duration and curve.
+ *
+ * Only colour properties are listed. A blanket `transition: all` would
+ * also animate layout and fight the sidebar's own left/transform.
+ * ================================================================= */
+html:has(body.mvc-dash),
+body.mvc-dash,
+body.mvc-dash .section-menu-left,
+body.mvc-dash .header-dashboard,
+body.mvc-dash .section-content-right .main-content,
+body.mvc-dash .wg-box,
+body.mvc-dash .wallet-card,
+body.mvc-dash .wallet-item,
+body.mvc-dash .wallet-overview,
+body.mvc-dash .modal-content,
+body.mvc-dash .mvc-table,
+body.mvc-dash .mvc-table th,
+body.mvc-dash .mvc-table td {
+  transition: background-color var(--mvc-dur-base) var(--mvc-ease-out),
+              border-color var(--mvc-dur-base) var(--mvc-ease-out),
+              color var(--mvc-dur-base) var(--mvc-ease-out);
+}
+
+/* Cross-document view transitions. Chrome/Edge and Safari 18+ honour this and
+   crossfade between navigations; Firefox ignores the whole at-rule, which is
+   why the fade-in below is unconditional rather than a VT-only effect. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--mvc-dur-base);
+  animation-timing-function: var(--mvc-ease-out);
+}
+
+/* Entry animation for every browser. Applied to the content column rather
+   than body so the sidebar and topbar stay put and only the page body moves.
+
+   Deliberately opacity-only. This used to animate `transform: translateY(8px)`
+   with `animation-fill-mode: both`, which never stops being current - so
+   .main-content-inner permanently had a transform-related property and
+   therefore permanently acted as the containing block for `position: fixed`
+   DESCENDANTS. Any modal nested inside it was then laid out against the
+   content column instead of the viewport: the overlay stopped at the sidebar
+   edge and the dialog sat 128px right of centre. That is exactly what the
+   admin deposit-address modal was doing, because it is the only admin modal
+   authored inside .main-content-inner.
+
+   The markup has since been moved out (pages/admin/deposit_addresses.php),
+   but dropping the transform removes the trap for good - `translate`, `scale`
+   and `filter` would all reintroduce it. */
+@keyframes mvcPageIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+body.mvc-dash .section-content-right .main-content-inner {
+  animation: mvcPageIn var(--mvc-dur-slow) var(--mvc-ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(body.mvc-dash),
+  body.mvc-dash,
+  body.mvc-dash .section-menu-left,
+  body.mvc-dash .header-dashboard,
+  body.mvc-dash .section-content-right .main-content,
+  body.mvc-dash .wg-box,
+  body.mvc-dash .wallet-card,
+  body.mvc-dash .wallet-item,
+  body.mvc-dash .wallet-overview,
+  body.mvc-dash .modal-content,
+  body.mvc-dash .mvc-table,
+  body.mvc-dash .mvc-table th,
+  body.mvc-dash .mvc-table td {
+    transition: none;
+  }
+
+  body.mvc-dash .section-content-right .main-content-inner {
+    animation: none;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* =================================================================
+ * 1c. ICON FONT REPAIR
+ *
+ * dashboard.css draws several pseudo-element glyphs from an "icomoon"
+ * font whose stylesheet (assets/icon/style.css) is not linked from any
+ * page, so they rendered as blank boxes. Phosphor is already loaded on
+ * every dashboard page, so these are remapped to Phosphor codepoints
+ * rather than pulling in a second 40KB icon font.
+ * ================================================================= */
+body.mvc-dash .radio-buttons .item input:checked::before,
+body.mvc-dash .select-colors-theme .item.active::after {
+  font-family: 'Phosphor' !important;
+  content: "\e182";           /* ph-check (was icomoon \e932) */
+}
+
+body.mvc-dash .tf-select::after,
+body.mvc-dash .dropdown.bootstrap-select.image-select > button::after {
+  font-family: 'Phosphor' !important;
+  content: "\e136";           /* ph-caret-down (was icomoon \e911) */
+}
+
+body.mvc-dash h1,
+body.mvc-dash h2,
+body.mvc-dash h3,
+body.mvc-dash h4,
+body.mvc-dash h5,
+body.mvc-dash h6 {
+  font-family: 'Switzer', 'Host Grotesk', system-ui, sans-serif;
+  letter-spacing: -0.3px;
+  color: var(--Black);
+}
+
+
+/* =================================================================
+ * 2. KILL SHADOWS - depth via contrast (spec A.4)
+ * ================================================================= */
+body.mvc-dash .wg-box,
+body.mvc-dash .wallet-card,
+body.mvc-dash .impact-card,
+body.mvc-dash .plan-card,
+body.mvc-dash .card-details,
+body.mvc-dash .tf-button,
+body.mvc-dash .box-icon,
+body.mvc-dash .dropdown-menu {
+  box-shadow: none !important;
+}
+/* .modal-content deliberately NOT in that list. It used to be, while section
+   10 set a real shadow on it - both !important at the same specificity, so
+   the shadow rendered only because it happened to come later in the file. A
+   dialog floating over a dimmed page is the one place depth is earned. */
+
+body.mvc-dash .wallet-card:hover {
+  transform: none;
+  box-shadow: none !important;
+}
+
+/* Dropdown panels (Actions menus, the topbar account menu). Bootstrap ships
+   them white with dark text, which inverts wrong in the dark theme. */
+body.mvc-dash .dropdown-menu {
+  background: var(--Surface);
+  border: 1px solid var(--LightGray);
+  border-radius: var(--mvc-radius-card);
+  padding: 6px;
+}
+
+body.mvc-dash .dropdown-menu .dropdown-item,
+body.mvc-dash .dropdown-menu .user-item {
+  color: var(--Black);
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 14px;
+  transition: background-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .dropdown-menu .dropdown-item:hover,
+body.mvc-dash .dropdown-menu .dropdown-item:focus,
+body.mvc-dash .dropdown-menu .user-item:hover,
+body.mvc-dash .dropdown-menu .user-item:focus {
+  background: var(--Surface-Alt);
+  color: var(--Primary-Ink);
+}
+
+/* The account / logout menu needed its own rule at matching specificity.
+   dashboard.css:4513 targets `.popup-wrap > .dropdown > .dropdown-menu.show`
+   (0,4,0) and fills it with var(--White) - literal #ffffff in BOTH themes -
+   which outranked the (0,2,1) rule above. Its items inherit --Black, white in
+   dark mode, so the whole panel was white text on a white card. */
+/* Filter menus ("All Users", "Active Only", ...). dashboard.css:4809 fills
+   `.dropdown.default > .dropdown-menu` with var(--White) at (0,3,0), which
+   outranked the (0,2,1) rule above - so this panel stayed literally white in
+   both themes while its links inherited the brand orange, at 3.11:1.
+   Its :hover also reaches for var(--LimeGreen), which is defined nowhere. */
+body.mvc-dash .dropdown.default > .dropdown-menu {
+  background-color: var(--Surface);
+  border: 1px solid var(--mvc-border);
+  border-radius: 12px;
+  padding: 6px;
+  overflow: hidden;
+}
+
+body.mvc-dash .dropdown.default > .dropdown-menu a {
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--Black);
+  transition: background-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .dropdown.default > .dropdown-menu a:hover,
+body.mvc-dash .dropdown.default > .dropdown-menu a:focus {
+  background-color: var(--Surface-Alt);
+  color: var(--Primary-Ink);
+}
+
+body.mvc-dash .popup-wrap > .dropdown > .dropdown-menu.show {
+  background: var(--Surface);
+  border: 1px solid var(--mvc-border);
+  border-radius: 12px;
+  padding: 6px;
+  gap: 2px;
+  margin-top: 12px !important;
+}
+
+body.mvc-dash .popup-wrap.user .dropdown-menu.show .user-item {
+  height: auto;
+  align-items: center;
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+/* dashboard.css:4695 colours the inner .body-title-2 rather than the item, at
+   (0,5,0), so the item-level rule above never reached the label. */
+body.mvc-dash .popup-wrap.user .dropdown-menu.show .user-item .body-title-2,
+body.mvc-dash .popup-wrap.user .dropdown-menu.show .user-item .icon i {
+  color: var(--Black);
+  transition: color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .popup-wrap.user .dropdown-menu.show .user-item:hover,
+body.mvc-dash .popup-wrap.user .dropdown-menu.show .user-item:focus {
+  background: var(--Surface-Alt);
+}
+
+body.mvc-dash .popup-wrap.user .dropdown-menu.show .user-item:hover .body-title-2,
+body.mvc-dash .popup-wrap.user .dropdown-menu.show .user-item:hover .icon i {
+  color: var(--Primary-Ink);
+}
+
+/* Destructive entries stay red on hover rather than picking up the accent. */
+body.mvc-dash .dropdown-menu .dropdown-item[class*="delete"]:hover,
+body.mvc-dash .dropdown-menu .dropdown-item[class*="Delete"]:hover {
+  color: var(--mvc-accent-red);
+}
+
+
+/* =================================================================
+ * 3. CARDS - 8px radius, contrast-based depth
+ * ================================================================= */
+body.mvc-dash .wg-box {
+  border-radius: var(--mvc-radius-card);
+  border: 1px solid var(--LightGray);
+  background: var(--Surface);
+}
+
+/* Panel wrapping the wallet stat cards. dashboard.css fills it with
+   var(--White), which must stay literally white (see the sidebar note), so it
+   stayed a white slab in the dark theme. */
+body.mvc-dash .wallet-overview {
+  background: var(--Surface);
+  border: 1px solid var(--LightGray);
+  border-radius: var(--mvc-radius-card);
+}
+
+/* Wallet activity rows. dashboard.css hardcodes #ffffff (and #fefae0 on
+   hover), bypassing the token bridge entirely, so these stayed white in the
+   dark theme. */
+body.mvc-dash .wallet-item {
+  background: var(--Surface);
+  border: 1px solid var(--LightGray);
+  border-radius: var(--mvc-radius-card);
+}
+
+body.mvc-dash .wallet-item:hover {
+  background: var(--Surface-Alt);
+  transform: none;
+}
+
+body.mvc-dash .wallet-card {
+  border-radius: var(--mvc-radius-card);
+  /* !important defeats the legacy short-stat-card rules in dashboard.css
+     (.wallet-card { height:140px!important } + a 130px!important mobile clamp)
+     which otherwise crush the hero on mobile and push its metrics outside. */
+  height: auto !important;
+  min-height: 170px;
+}
+
+/* Main wallet card stays dark/ink - the single dark surface */
+body.mvc-dash .wallet-main {
+  background: var(--Primary) !important;
+  color: var(--mvc-on-accent);
+}
+
+/* Secondary wallet cards → white with warm border + ink text.
+   .wallet-members is the admin "Total Members" card. Without it in this group
+   that card had no background and white ink, so it was invisible in the light
+   theme. */
+body.mvc-dash .wallet-investments,
+body.mvc-dash .wallet-aum,
+body.mvc-dash .wallet-members,
+body.mvc-dash .wallet-green,
+body.mvc-dash .wallet-accent,
+body.mvc-dash .wallet-purple {
+  background: var(--Surface) !important;
+  color: var(--Black) !important;
+  border: 1px solid var(--LightGray);
+}
+
+/* Card icons: muted on light cards, white on the dark main card */
+body.mvc-dash .wallet-investments .ph,
+body.mvc-dash .wallet-aum .ph,
+body.mvc-dash .wallet-members .ph,
+body.mvc-dash .wallet-green .ph,
+body.mvc-dash .wallet-accent .ph,
+body.mvc-dash .wallet-purple .ph {
+  color: var(--mvc-accent-red);
+}
+body.mvc-dash .wallet-main .ph {
+  color: var(--mvc-on-accent);
+}
+
+body.mvc-dash .impact-card,
+body.mvc-dash .plan-card {
+  border-radius: var(--mvc-radius-card);
+  border: 1px solid var(--LightGray);
+  background: var(--Surface);
+}
+
+
+/* =================================================================
+ * 4. BUTTONS - dark pill primary, clean secondary
+ * ================================================================= */
+/* dashboard.css sets `.tf-button { background-color: var(--White); color:
+   var(--Black) }`. --Black inverts to white in the dark theme while --White
+   stays literally white, so the default (unmodified) button rendered
+   white-on-white and was invisible. Anchor it to a real surface/ink pair; the
+   .bg-Primary / .bg-Green / .bg-Red / .bg-Accent variants below still win. */
+body.mvc-dash .tf-button {
+  border-radius: var(--mvc-radius-pill);
+  background-color: var(--Surface-Alt);
+  color: var(--Black);
+  border: 1px solid var(--LightGray);
+  font-weight: 500;
+  letter-spacing: 0;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+/* The resting state was fixed above but the HOVER was not, and dashboard.css
+   :3733 sets `background-color: var(--Black) !important; color: var(--White)`.
+   Both resolve to #ffffff in dark mode, so the home page's "View All" button
+   vanished the moment you pointed at it. Needs !important to beat theirs. */
+body.mvc-dash .tf-button:hover,
+body.mvc-dash .tf-button:focus-visible {
+  background-color: var(--Primary) !important;
+  color: var(--mvc-on-accent) !important;
+  border-color: var(--Primary);
+}
+
+body.mvc-dash .tf-button:hover .ph,
+body.mvc-dash .tf-button:hover i,
+body.mvc-dash .tf-button:focus-visible .ph {
+  color: inherit;
+}
+
+/* An icon sitting on an orange fill takes the SAME ink as the text beside it.
+   Only the :hover case above was covered, so at rest a glyph inside a solid
+   orange button kept whatever colour a more specific rule elsewhere had given
+   it - the KYC "Submit for review" shield rendered a different colour from its
+   own label. Phosphor is an icon FONT, so `color` is the only lever and
+   `inherit` picks up the --mvc-on-accent the fill already sets. */
+body.mvc-dash .tf-button.bg-Primary .ph,
+body.mvc-dash .tf-button.bg-Primary i,
+body.mvc-dash .tf-button.bg-Green .ph,
+body.mvc-dash .tf-button.bg-Green i,
+body.mvc-dash .mvc-table thead th .ph,
+body.mvc-dash .mvc-balance .ph,
+body.mvc-dash .mvc-stat--featured .ph {
+  color: inherit;
+}
+
+body.mvc-dash .tf-button.bg-Primary,
+body.mvc-dash .tf-button.bg-Green {
+  background: var(--Primary) !important;
+  color: var(--mvc-on-accent) !important;
+}
+body.mvc-dash .tf-button.bg-Primary:hover,
+body.mvc-dash .tf-button.bg-Green:hover {
+  background: var(--Primary-Hover) !important;
+}
+
+/* Destructive keeps red. `!important` on the colour because the markup pairs
+   .bg-Red with .text-White in several places, and the correct ink depends on
+   which theme's red is underneath - not on the utility class. */
+body.mvc-dash .tf-button.bg-Red,
+body.mvc-dash .tf-button.bg-Red.text-White,
+body.mvc-dash .box-status.bg-Red,
+body.mvc-dash .box-status.bg-Red * {
+  background-color: var(--mvc-accent-red) !important;
+  color: var(--mvc-on-red) !important;
+}
+
+/* Subtle / accent action buttons → light pill */
+body.mvc-dash .tf-button.bg-Accent,
+body.mvc-dash .tf-button.bg-GrayLight {
+  background: var(--Surface-Alt) !important;
+  color: var(--Black) !important;
+}
+
+/* Quick-action buttons on the dashboard overview */
+body.mvc-dash .quick-action-btn.bg-Primary {
+  background: var(--Primary) !important;
+  color: var(--mvc-on-accent) !important;
+  border-radius: var(--mvc-radius-card);
+}
+
+/* .bg-Black is the "inverse fill" utility. dashboard.css paints it
+   var(--Black), which the token bridge inverts to white in the dark theme,
+   while the .text-White it is always paired with stays white: white on white.
+   --Bg is the correct label in both themes. */
+body.mvc-dash .quick-action-btn.bg-Black,
+body.mvc-dash .tf-button.bg-Black {
+  background: var(--Black) !important;
+  color: var(--Bg) !important;
+}
+body.mvc-dash .quick-action-btn.bg-Black *,
+body.mvc-dash .tf-button.bg-Black * {
+  color: var(--Bg) !important;
+}
+
+/* Green fills carry .text-White in the markup, which is 1.7:1 on the dark
+   theme's mint. Same flip as the status badges. */
+body.mvc-dash .quick-action-btn.bg-Green,
+body.mvc-dash .quick-action-btn.bg-Green * {
+  color: var(--mvc-on-green) !important;
+}
+
+/* dashboard.css:8938 paints this orange-on-var(--LightGray) - an 8% ink wash
+   over white in the light theme, so the label landed at 2.38:1. Give it a real
+   surface and readable ink instead of a translucent overlay. */
+body.mvc-dash .quick-action-btn.bg-GrayLight,
+body.mvc-dash .quick-action-btn.bg-GrayLight * {
+  background: var(--Surface-Alt);
+  color: var(--Black) !important;
+  border: 1px solid var(--mvc-border);
+}
+body.mvc-dash .quick-action-btn.bg-GrayLight:hover {
+  background: var(--Primary);
+  border-color: var(--Primary);
+}
+body.mvc-dash .quick-action-btn.bg-GrayLight:hover,
+body.mvc-dash .quick-action-btn.bg-GrayLight:hover * {
+  color: var(--mvc-on-accent) !important;
+}
+
+
+/* Table "Actions" dropdown.
+   dashboard.css:4868 sets `background-color: var(--Black) !important; color:
+   var(--White)` on hover. --Black is INVERTED to #FFFFFF in the dark theme
+   while --White stays literally white, so the hovered pill was white text on
+   a white fill. The brand orange with on-accent ink is correct in both. */
+body.mvc-dash .dropdown.default.style-fill > button {
+  background-color: var(--Surface-Alt);
+  color: var(--Black);
+  border: 1px solid var(--LightGray);
+  transition: background-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              color var(--mvc-dur-fast) var(--mvc-ease-out),
+              border-color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .dropdown.default.style-fill > button:hover,
+body.mvc-dash .dropdown.default.style-fill.show > button {
+  background-color: var(--Primary) !important;
+  color: var(--mvc-on-accent) !important;
+  border-color: var(--Primary);
+}
+
+body.mvc-dash .dropdown.default.style-fill > button:hover i,
+body.mvc-dash .dropdown.default.style-fill.show > button i {
+  color: var(--mvc-on-accent) !important;
+}
+
+
+/* Search bars. dashboard.css reserves 36px of left padding for an icon that
+   never painted (icomoon, see 1c). Now that it does, theme the field. */
+body.mvc-dash .topbar-search .form-search input {
+  background-color: var(--Surface-Alt) !important;
+  border: 1px solid var(--LightGray);
+  border-radius: var(--mvc-radius-card);
+  color: var(--Black);
+  height: 44px;
+  transition: border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              box-shadow var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .topbar-search .form-search input::placeholder {
+  color: var(--Gray);
+}
+
+body.mvc-dash .topbar-search .form-search input:focus {
+  border-color: var(--Primary);
+  box-shadow: 0 0 0 3px rgba(255, 91, 4, 0.14);
+  outline: none;
+}
+
+body.mvc-dash .topbar-search .form-search .button-submit button {
+  color: var(--Gray);
+  background: none;
+  transition: color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .topbar-search .form-search .button-submit button:hover i,
+body.mvc-dash .topbar-search .form-search input:focus ~ .button-submit button i {
+  color: var(--Primary-Ink);
+}
+
+
+/* =================================================================
+ * 5. STATUS BADGES - success stays green, others mapped
+ * ================================================================= */
+body.mvc-dash .box-status {
+  border-radius: 999px;
+  font-weight: 500;
+}
+body.mvc-dash .box-status.bg-Green  { background-color: var(--Green) !important; }
+/* The label has to flip with --Green; dashboard.css and the wallet-hero rule
+   below both force var(--White), which is 1.7:1 on the dark theme's mint. */
+body.mvc-dash .box-status.bg-Green,
+body.mvc-dash .box-status.bg-Green * { color: var(--mvc-on-green) !important; }
+/* Was setting a fill and NO ink, so the chip inherited --Black: white text on
+   #FBBF24 in dark (1.6:1) and dark text on #B45309 in light (2.7:1) - wrong in
+   both. Its bg-Green/bg-Red neighbours each got an explicit on-colour; this
+   one was missed. */
+body.mvc-dash .box-status.bg-Yellow,
+body.mvc-dash .box-status.bg-Yellow * {
+  background-color: var(--mvc-warning) !important;
+  color: var(--mvc-on-warning) !important;
+}
+body.mvc-dash .box-status.bg-Red    { background-color: var(--mvc-accent-red) !important; }
+body.mvc-dash .box-status.bg-Primary{ background-color: var(--Primary) !important; }
+body.mvc-dash .box-status.bg-Gray   { background-color: var(--Gray) !important; }
+
+/* Neutral chip - "this row is the unremarkable case".
+ *
+ * A filled grey chip cannot be made to work in both themes: --Gray is #8A9DA5
+ * in dark, where white ink is 3.0:1, and #5A6C74 in light, where dark ink is
+ * 4.3:1. An outline chip on the page surface inherits --Black, so it is
+ * correct in both without a per-theme ink rule. */
+body.mvc-dash .box-status.bg-Neutral,
+body.mvc-dash .box-status.bg-Neutral * {
+  background-color: var(--Surface-Alt) !important;
+  color: var(--GrayDark) !important;
+  box-shadow: inset 0 0 0 1px var(--mvc-border);
+}
+
+
+/* =================================================================
+ * 6. SIDEBAR - white surface, ink active state, red accent
+ * ================================================================= */
+/* --Surface, not --White: --White has to stay literally white in both themes
+   because dashboard.css uses it for text sitting on the orange fills. Only
+   --Surface flips with the theme. */
+body.mvc-dash .section-menu-left {
+  background: var(--Surface);
+  border-right: 1px solid var(--LightGray);
+}
+
+/* dashboard.css lays an `inset: 0; background: var(--Primary)` pseudo-element
+   over the entire sidebar (.section-menu-left::before), which buried the
+   surface set above it and left the muted --Gray labels orange-on-orange and
+   unreadable. The re-skin wants a themed surface with orange on the active
+   item only, so the overlay is taken out. */
+body.mvc-dash .section-menu-left::before {
+  background: transparent;
+}
+
+body.mvc-dash .section-menu-left .box-logo {
+  border-bottom: 1px solid var(--LightGray);
+}
+
+/* Sidebar brand lockup: leaf mark left, company name right.
+   .box-logo inherits `background: var(--Primary)` from dashboard.css:4126 and
+   nothing overrides it, so this bar is brand orange in both themes. Ink is the
+   readable pairing on that fill (5.16:1) - the same call --color-ink-on-accent
+   makes for buttons - so neither the mark nor the name swaps by theme. */
+body.mvc-dash .section-menu-left .box-logo .mvc-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-decoration: none;
+}
+
+body.mvc-dash .section-menu-left .box-logo .mvc-brand__mark {
+  flex: 0 0 auto;
+  width: auto;
+  height: 30px;
+  min-width: 0;   /* dashboard.css sets min-width on box-logo images */
+}
+
+body.mvc-dash .section-menu-left .box-logo .mvc-brand__name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  white-space: nowrap;
+  color: #16232A;
+}
+
+/* Active top-level item - orange text + accent bar.
+   !important is required: dashboard.css paints the active and hovered label
+   `color: var(--White) !important`, which was white-on-white (invisible) once
+   the sidebar became a themed surface in the light theme. */
+body.mvc-dash .section-menu-left .menu-item.active > a .text,
+body.mvc-dash .section-menu-left .menu-item.active .menu-item-button .text,
+body.mvc-dash .section-menu-left .menu-item .menu-item-button.active .text {
+  color: var(--Primary-Ink) !important;
+  font-weight: 600;
+}
+
+/* Hover on any sidebar item: same reason as above. */
+body.mvc-dash .section-menu-left .menu-item a:hover .text,
+body.mvc-dash .section-menu-left .menu-item a:hover .ph {
+  color: var(--Primary-Ink) !important;
+}
+
+body.mvc-dash .section-menu-left .menu-item.active > a .ph,
+body.mvc-dash .section-menu-left .menu-item .menu-item-button.active .ph {
+  color: var(--mvc-accent-red) !important;
+}
+
+body.mvc-dash .section-menu-left .sub-menu-item.active a .text {
+  color: var(--Primary-Ink) !important;
+  font-weight: 600;
+}
+
+/* Active accent bar.
+   The `.has-children.active::after` selector that used to be grouped here was
+   targeting the submenu CARET, not a bar, so it painted an orange rectangle
+   behind a glyph that never rendered. No sidebar has has-children any more. */
+body.mvc-dash .section-menu-left .menu-item .menu-item-button.active::before {
+  background: var(--mvc-accent-red) !important;
+}
+
+
+/* =================================================================
+ * 7. HEADER / TOPBAR
+ * ================================================================= */
+body.mvc-dash .header-dashboard {
+  background: var(--Surface);
+  border-bottom: 1px solid var(--LightGray);
+}
+
+body.mvc-dash .header-dashboard h6 {
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+/* Topbar account chip - truncate long usernames instead of overflowing.
+   Width shrinks to fit short names, caps on long ones (and narrow screens). */
+body.mvc-dash .header-dashboard .wg-user {
+  width: auto;
+  max-width: min(200px, 42vw);
+}
+body.mvc-dash .header-dashboard .wg-user .content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+body.mvc-dash .header-dashboard .wg-user .content > span {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Avatar - clamp the image to its 50px slot.
+ *
+ * dashboard.css:1265 declares ONLY `border-radius: 50%` on this img: no
+ * width, no height, no object-fit, and no `overflow:hidden` on the .image
+ * wrapper. The only other constraint is the global `img { max-width:100%;
+ * height:auto }`, which caps the WIDTH at 50px and then keeps the file's
+ * intrinsic aspect ratio - so height is unbounded.
+ *
+ * The seeded default is a perfect square and renders 50x50, which is why
+ * this never showed up in testing. Every real upload is arbitrary ratio:
+ * a 1080x1881 portrait renders 50x87 and spills out of the chip (the
+ * dropdown toggle above it is `overflow: unset`, dashboard.css:4499), and
+ * border-radius:50% on a non-square box draws an ellipse. That is the
+ * "container expands after upload" report.
+ *
+ * Same four declarations the profile-page avatar already uses at :2003. */
+body.mvc-dash .wg-user .image {
+  overflow: hidden;
+  border-radius: 50%;
+}
+body.mvc-dash .wg-user .image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+/* =================================================================
+ * 8. TABLES - clean rows, ink headers
+ * ================================================================= */
+body.mvc-dash .list-transaction-head.bg-Primary {
+  background: var(--Primary) !important;
+  border-radius: var(--mvc-radius-card) var(--mvc-radius-card) 0 0;
+}
+
+body.mvc-dash .tf-table-item {
+  border-bottom: 1px solid var(--LightGray);
+}
+
+body.mvc-dash .table-list-transaction {
+  border-radius: var(--mvc-radius-card);
+}
+
+
+/* =================================================================
+ * 9. FORM CONTROLS - warm-cream inputs
+ * ================================================================= */
+/* background-COLOR, not the shorthand: the shorthand resets background-image,
+   which is where the select caret lives (see section 19). */
+body.mvc-dash .form-control,
+body.mvc-dash .form-select,
+body.mvc-dash .custom-select,
+body.mvc-dash .wallet-input {
+  border-radius: var(--mvc-radius-card);
+  border: 1px solid var(--LightGray);
+  background-color: var(--Surface-Alt);
+  /* These rules override bootstrap's background and border at higher
+     specificity but never touched `color`, so bootstrap's #212529 survived -
+     near-black ink on a #22353E surface. That is why the profile fields were
+     unreadable in dark mode the moment you clicked into one. */
+  color: var(--Black);
+}
+
+body.mvc-dash .form-control:focus,
+body.mvc-dash .form-select:focus,
+body.mvc-dash .custom-select:focus,
+body.mvc-dash .wallet-input:focus {
+  border-color: var(--Primary);
+  background-color: var(--Surface);
+  color: var(--Black);
+  box-shadow: 0 0 0 3px rgba(255, 91, 4, 0.14);
+}
+
+body.mvc-dash .form-control::placeholder,
+body.mvc-dash .wallet-input::placeholder {
+  color: var(--Gray);
+  opacity: 1;   /* Firefox dims placeholders by default */
+}
+
+body.mvc-dash .form-control:disabled,
+body.mvc-dash .form-control[readonly],
+body.mvc-dash .readonly-input {
+  background-color: var(--Surface-Alt);
+  color: var(--GrayDark);
+}
+
+/* Chrome's autofill paints its own background and ink straight over the
+   control. An inset shadow the size of the box is the only way to repaint it. */
+body.mvc-dash input:-webkit-autofill,
+body.mvc-dash input:-webkit-autofill:hover,
+body.mvc-dash input:-webkit-autofill:focus,
+body.mvc-dash textarea:-webkit-autofill,
+body.mvc-dash select:-webkit-autofill {
+  -webkit-text-fill-color: var(--Black);
+  -webkit-box-shadow: 0 0 0 1000px var(--Surface-Alt) inset;
+  caret-color: var(--Black);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+
+/* =================================================================
+ * 10. MODALS
+ *
+ * Sheet-style dialog: themed surface, generous radius, muted labels
+ * over strong values, inset "field cards" for the primary inputs, a
+ * summary block for read-only rows, and a full-width primary action.
+ * Becomes a bottom sheet on phones.
+ * ================================================================= */
+body.mvc-dash .modal-overlay {
+  background: rgba(13, 13, 13, 0.55);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* dashboard.css:8058 fills this with var(--White), which is pinned to
+   literal #ffffff in BOTH themes. In dark mode that produced a white card
+   whose inherited body text was also white, so copy such as the delete
+   confirmation was invisible. --Surface is the token that actually flips.
+ *
+ * The card is also a flex COLUMN and no longer scrolls itself: dashboard.css
+ * put overflow-y:auto here, which meant the title scrolled out of view on a
+ * long dialog. Moving the scroll to .modal-body pins the header, and a pinned
+ * header can afford to be smaller - which is where the wasted space above the
+ * first field came from. */
+body.mvc-dash .modal-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: min(86vh, 780px);
+  background: var(--Surface) !important;
+  color: var(--Black);
+  border-radius: 18px;
+  border: 1px solid var(--mvc-border);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.45);
+  /* Was 16px 22px 20px - three different values for one box. */
+  padding: var(--mvc-modal-pad);
+}
+
+/* --- Wide variant -------------------------------------------------
+ * dashboard.css:8060 caps EVERY dialog at `width: min(540px, 95%)`, which
+ * gives a two-column form ~236px per column - not enough for a 24px value
+ * plus a trailing chip, and not enough for a six-column table at all.
+ *
+ * Guarded by min-width:576px on purpose. This selector is (0,3,1) and the
+ * phone bottom-sheet rule below is (0,2,1), so without the guard a wide
+ * dialog would outrank the sheet and pin 720px onto a 390px screen. */
+@media (min-width: 576px) {
+  body.mvc-dash .mvc-modal--wide .modal-content {
+    width: min(720px, 95%);
+  }
+}
+
+/* --- Compact form variant -----------------------------------------
+ * The default `.mvc-field` is a 68px card whose value renders at 24px/600
+ * (:1238). That reads well for a dialog with two or three fields - the
+ * member deposit and withdraw sheets - because the value IS the content.
+ *
+ * It falls apart on a settings form. The deposit-address dialog has nine
+ * controls, and at 24px an asset code, a chain name and a sort order of "0"
+ * all shout at the same volume as the address itself; the card was 720px
+ * wide and still had to scroll. This variant keeps the same card vocabulary
+ * but at data-entry weight, so the label/value hierarchy actually reads.
+ *
+ * Applies to the whole dialog, so no field can be missed and drift back to
+ * 24px on its own. */
+body.mvc-dash .mvc-modal--compact .mvc-field:last-of-type:not(:last-child) {
+  margin-bottom: var(--mvc-space-3);
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-field {
+  min-height: 0;
+  /* One step down the same scale, not a fresh set of literals. */
+  padding: var(--mvc-space-3) var(--mvc-space-4);
+  margin-bottom: var(--mvc-space-3);
+  border-radius: 12px;
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-field__top {
+  min-height: 0;
+  margin-bottom: var(--mvc-space-1);
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-field__row {
+  min-height: 26px;
+}
+
+/* One declaration for every input type in the dialog. The `--static`,
+ * `--compact` and bare `.mvc-field__input` variants would otherwise land on
+ * 16px, 17px and 24px respectively in the same form. */
+body.mvc-dash .mvc-modal--compact .mvc-field .mvc-field__input,
+body.mvc-dash .mvc-modal--compact .modal-body .mvc-field .mvc-field__input {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-field .mvc-field__input--mono,
+body.mvc-dash .mvc-modal--compact .modal-body .mvc-field .mvc-field__input--mono {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* dashboard.css:3893 sets `form textarea { height: 200px !important }`, so
+ * every textarea rule in this file has to restate height. */
+body.mvc-dash .mvc-modal--compact .mvc-field textarea.mvc-field__input,
+body.mvc-dash .mvc-modal--compact .modal-body .mvc-field textarea.mvc-field__input {
+  height: auto !important;
+  min-height: 44px;
+  max-height: 160px;
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-field__chip {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-disclosure {
+  margin-bottom: var(--mvc-space-3);
+  border-radius: 12px;
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-disclosure > summary {
+  padding: var(--mvc-space-3) var(--mvc-space-4);
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-disclosure__body {
+  padding: 0 var(--mvc-space-4) var(--mvc-space-3);
+}
+
+body.mvc-dash .mvc-modal--compact .mvc-segment__btn {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+body.mvc-dash .mvc-modal--compact .modal-confirm-btn,
+body.mvc-dash .mvc-modal--compact .modal-footer-actions .button-close-modal.tf-button {
+  padding: var(--mvc-space-3) var(--mvc-space-5);
+  font-size: 14px;
+}
+
+body.mvc-dash .modal-body,
+body.mvc-dash .modal-body p,
+body.mvc-dash .modal-body li,
+body.mvc-dash .modal-body strong,
+body.mvc-dash .modal-body span:not([class*="text-"]) {
+  color: var(--Black);
+}
+
+/* --- Header ------------------------------------------------------ */
+body.mvc-dash .modal-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+  padding-bottom: 0;
+  margin-bottom: var(--mvc-section-gap);
+  border-bottom: 0;
+}
+
+body.mvc-dash .modal-header h2 {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+  margin: 0;
+  color: var(--Black);
+}
+
+body.mvc-dash .modal-header__sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--Gray);
+}
+
+/* No resting fill: a filled disc next to a 17px title reads as the loudest
+   thing in the dialog, which is the opposite of what a dismiss control is. */
+body.mvc-dash .modal-header .modal-close,
+body.mvc-dash .modal-header .button-close-modal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  margin-right: -4px;    /* optical alignment with the card edge */
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--Gray);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out),
+              border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .modal-header .modal-close:hover,
+body.mvc-dash .modal-header .button-close-modal:hover {
+  background: var(--Surface-Alt);
+  border-color: var(--mvc-border);
+  color: var(--Black);
+}
+
+/* --- Body: the scroll container ---------------------------------- */
+body.mvc-dash .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;              /* without this flex refuses to shrink */
+  overflow-y: auto;
+  /* The bootstrap .row inside two-column dialogs carries negative side
+     margins, which combined with the gutter trick below pushed the body a few
+     pixels wide and produced a stray horizontal scrollbar. */
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  gap: 0;                     /* .mvc-field / .form-group own their spacing */
+  /* Park the scrollbar in the card's padding gutter instead of over content */
+  padding-right: 8px;
+  margin-right: -8px;
+}
+
+/* .modal-body is a COLUMN FLEX container (dashboard.css:8116), so its children
+   default to flex-shrink:1. Once the content exceeds the available height,
+   flexbox shrinks the children BEFORE overflow-y:auto ever gets a chance to
+   scroll - the box gets shorter than its content and everything inside it
+   overlaps whatever follows.
+
+   It only showed up on the tallest dialog (manage position, where a field
+   collapsed from 78px to 21px and the disclosure below it drew straight over
+   the top), but it was latent in every modal that could outgrow its body.
+   Children keep their natural height now, and the body scrolls as intended. */
+body.mvc-dash .modal-body > * {
+  flex-shrink: 0;
+}
+
+/* --- Expanded / accordion states ----------------------------------
+ * Two things inside a dialog grow AFTER it has been sized:
+ *
+ *   <details class="mvc-disclosure">   the optional-settings accordion
+ *   tr.mvc-detail-row                  the per-row deposit detail expander
+ *
+ * flex-shrink:0 above stops children collapsing, but a growing child also
+ * needs the BODY to be the thing that scrolls. .modal-content is
+ * `overflow: hidden` with a max-height, so without an explicit min-height:0
+ * on the body its flex base size wins and the expanded content is clipped by
+ * the card instead of scrolling inside it.
+ *
+ * min-height:0 is already set on .modal-body; these rules make sure nothing
+ * inside re-establishes a floor that defeats it. */
+body.mvc-dash .mvc-disclosure,
+body.mvc-dash .mvc-disclosure__body {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* An open accordion must not force the dialog wider. Long mono values -
+   wallet addresses, transaction hashes - are the usual culprit. */
+body.mvc-dash .mvc-disclosure__body .mvc-field__input--mono,
+body.mvc-dash .mvc-detail-row code,
+body.mvc-dash .mvc-address__value {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Scroll the BODY, never the page, when an accordion opens past the fold. */
+body.mvc-dash .modal-content {
+  overscroll-behavior: contain;
+}
+
+/* Scroll shadows. The two solid gradients are attached to the CONTENT, so
+   they sit over the shadow gradients until you scroll away from an edge -
+   the cue that there is more below, with no JS and no scroll listener. */
+body.mvc-dash .modal-header + .modal-body {
+  background:
+    linear-gradient(var(--Surface) 30%, rgba(0, 0, 0, 0)) top / 100% 16px no-repeat,
+    linear-gradient(rgba(0, 0, 0, 0), var(--Surface) 70%) bottom / 100% 16px no-repeat,
+    radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0)) top / 100% 6px no-repeat,
+    radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0)) bottom / 100% 6px no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
+
+body.mvc-dash .modal-header .modal-close:focus-visible,
+body.mvc-dash .modal-header .button-close-modal:focus-visible {
+  outline: 2px solid var(--Primary);
+  outline-offset: 2px;
+}
+
+/* --- Plain form rows --------------------------------------------- */
+body.mvc-dash .modal-body label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--Gray);          /* muted label over a strong value */
+}
+
+/* background-COLOR, not the shorthand - see section 19 */
+body.mvc-dash .modal-body input,
+body.mvc-dash .modal-body select,
+body.mvc-dash .modal-body textarea {
+  width: 100%;
+  border-radius: 12px;
+  background-color: var(--Surface-Alt);
+  border: 1px solid var(--LightGray);
+  color: var(--Black);          /* was --Primary: orange input text */
+  font-family: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
+  transition: border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              box-shadow var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .modal-body input::placeholder,
+body.mvc-dash .modal-body textarea::placeholder {
+  color: var(--Gray);
+}
+
+body.mvc-dash .modal-body input:focus,
+body.mvc-dash .modal-body select:focus,
+body.mvc-dash .modal-body textarea:focus {
+  border-color: var(--Primary);
+  box-shadow: 0 0 0 3px rgba(255, 91, 4, 0.16);   /* was a stale brand red */
+  outline: none;
+}
+
+body.mvc-dash .modal-body input:disabled,
+body.mvc-dash .modal-body select:disabled,
+body.mvc-dash .modal-body textarea:disabled,
+body.mvc-dash .modal-body input[readonly] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* --- Field card: label above a large value, optional trailing chip --
+ *
+ * Density: the label row used to spend 13px of type plus a 6px gap on what is
+ * really a caption, and the cards then sat 12px apart. Tightening the caption
+ * and spending the reclaimed pixels on the gap BETWEEN cards is what separates
+ * "cramped" from "composed" without making the dialog any taller. */
+body.mvc-dash .mvc-field {
+  position: relative;
+  background: var(--Surface-Alt);
+  border: 1px solid var(--mvc-border);
+  border-radius: 14px;
+  /* Was 11px 14px 12px - asymmetric top/bottom for no reason. */
+  padding: var(--mvc-field-pad-y) var(--mvc-field-pad-x);
+  margin-bottom: var(--mvc-field-gap);
+  /* Sized for the 16px page scale. 68px was built around the 24px amount type
+     and left a band of dead space above and below ordinary text. Dialogs
+     restore it below, where the type is still 24px. */
+  min-height: 56px;            /* keeps a stack of cards visually aligned */
+  transition: border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              box-shadow var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .modal-body .mvc-field { min-height: 68px; }
+
+/* The card is the control, so the focus ring belongs on the card. */
+body.mvc-dash .mvc-field:focus-within {
+  border-color: var(--Primary);
+  box-shadow: 0 0 0 3px rgba(255, 91, 4, 0.14);
+}
+
+body.mvc-dash .mvc-field:last-of-type {
+  margin-bottom: 0;
+}
+
+/* ...but "last of its TYPE" is not "last in the box". In the manage-position
+   dialog the rate card is the final .mvc-field yet an <details> accordion
+   follows it, so the card lost its margin and the two sat border-to-border -
+   the same "no gap between fields" symptom, one level up.
+   Only zero the margin when the field really is the last thing in its box. */
+body.mvc-dash .mvc-field:last-of-type:not(:last-child) {
+  margin-bottom: var(--mvc-field-gap);
+}
+
+/* A disclosure that is the last element likewise needs no trailing margin -
+   the pinned footer already separates it. */
+body.mvc-dash .mvc-disclosure:last-child {
+  margin-bottom: 0;
+}
+
+/* ...but :last-of-type matches per PARENT. Every .mvc-field inside a grid
+   column is the only .mvc-field in that column, so it was always the last of
+   its type and always lost its 14px bottom margin - while the single-column
+   fields around it kept theirs. In a form of paired rows that produced bands
+   colliding with zero separation, which is what "cramped" actually looked
+   like. Restore the gap for grid children. */
+body.mvc-dash .modal-body .row > [class*="col-"] > .mvc-field:last-of-type {
+  margin-bottom: 14px;
+}
+
+/* ...except on the last band, where that margin is just padding at the foot
+   of the form. The pinned footer already supplies the separation. */
+body.mvc-dash .modal-body form > .row:last-child > [class*="col-"] > .mvc-field:last-of-type {
+  margin-bottom: 0;
+}
+
+/* A card in a grid column fills that column, so a pair shares a bottom edge
+   whatever their content heights are. Without this the shorter of the two
+   top-aligns and leaves a visible step. */
+body.mvc-dash .modal-body .row > [class*="col-"] {
+  display: flex;
+}
+body.mvc-dash .modal-body .row > [class*="col-"] > .mvc-field {
+  flex: 1 1 auto;
+}
+
+/* .mvc-segment sits where .mvc-field__row would, so it has to inherit the
+   same 34px contract instead of setting its own taller one. */
+body.mvc-dash .mvc-field > .mvc-segment {
+  min-height: 34px;
+  align-items: stretch;
+}
+body.mvc-dash .mvc-field > .mvc-segment .mvc-segment__btn {
+  padding: 6px 12px;
+}
+
+/* Numerics and short codes in a field card are data, not headline figures.
+   At 24px/600 a sort order of "0" was the loudest glyph in the dialog. */
+body.mvc-dash .mvc-field .mvc-field__input--compact {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+/* A label and its hint share one row inside a ~206px column. Let the hint
+   drop underneath rather than wrap mid-phrase and break the pair's
+   bottom alignment. */
+body.mvc-dash .mvc-field__top {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+/* Labels are real <label for> elements now, for the sake of screen readers
+   and click-to-focus. mvc-dashboard.css styles .modal-body label as a
+   block-level 13px caption, which would break the flex __top row. */
+body.mvc-dash .mvc-field label.mvc-field__label,
+body.mvc-dash .modal-body .mvc-field label.mvc-field__label {
+  display: inline;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--Gray);
+}
+
+/* --- Pinned dialog footer ----------------------------------------
+ * .modal-actions inside .modal-body scrolls away with the content, so on any
+ * dialog taller than the viewport the primary action sat below the fold.
+ * .modal-content is already a flex column, so a sibling footer pins itself
+ * with no positioning tricks. */
+body.mvc-dash .modal-footer-actions {
+  flex: 0 0 auto;
+  display: flex;
+  /* Buttons were 10px apart - close enough that a mis-tap on a phone hits
+     the wrong one, and destructive actions sat right beside safe ones. */
+  gap: var(--mvc-action-gap);
+  margin-top: var(--mvc-section-gap);
+  padding-top: var(--mvc-section-gap);
+  border-top: 1px solid var(--mvc-border);
+  /* .modal-body reserves an 8px scrollbar gutter with `padding-right:8px;
+     margin-right:-8px`. The footer is its SIBLING, not a child, so without
+     the same offset the Save button stopped 8px short of the right edge of
+     every field above it. Mirror the offset so both share one inner box. */
+  margin-right: -8px;
+  padding-right: 8px;
+}
+
+/* --- Optional-settings disclosure --------------------------------- */
+body.mvc-dash .mvc-disclosure {
+  margin-bottom: var(--mvc-field-gap);
+  background: var(--Surface-Alt);
+  border: 1px solid var(--mvc-border);
+  border-radius: 14px;
+}
+
+body.mvc-dash .mvc-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mvc-field-row-gap);
+  padding: var(--mvc-field-pad-y) var(--mvc-field-pad-x);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--Black);
+  cursor: pointer;
+  list-style: none;
+}
+
+body.mvc-dash .mvc-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+body.mvc-dash .mvc-disclosure > summary::after {
+  content: "\e136";           /* ph-caret-down */
+  font-family: "Phosphor";
+  font-size: 14px;
+  color: var(--Gray);
+  transition: transform var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .mvc-disclosure[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+body.mvc-dash .mvc-disclosure > summary:hover {
+  color: var(--Primary-Ink);
+}
+
+body.mvc-dash .mvc-disclosure__count {
+  margin-left: auto;
+  margin-right: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--Gray);
+}
+
+body.mvc-dash .mvc-disclosure__body {
+  /* Was `0 14px 4px`. A 4px bottom meant the last field inside the
+     accordion sat flush against the panel edge - the reported pinch. */
+  padding: 0 var(--mvc-field-pad-x) var(--mvc-field-pad-y);
+}
+
+/* The disclosure supplies the outer surface, so the cards inside it drop
+   theirs - otherwise it reads as boxes inside a box. */
+body.mvc-dash .mvc-disclosure__body .mvc-field {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+body.mvc-dash .mvc-disclosure__body .mvc-field:focus-within {
+  box-shadow: none;
+  border-color: transparent;
+}
+
+body.mvc-dash .mvc-field__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 16px;
+  margin-bottom: var(--mvc-space-2);
+}
+
+body.mvc-dash .mvc-field__label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--Gray);
+}
+
+body.mvc-dash .mvc-field__hint {
+  font-size: 12px;
+  color: var(--GrayDark);
+}
+
+body.mvc-dash .mvc-field__hint strong {
+  color: var(--Primary-Ink);
+}
+
+/* Guidance that is too long for the single-line __hint slot in the field's
+   top row, so it sits UNDER the control instead of competing with the label
+   for the same width. */
+body.mvc-dash .mvc-field__note {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--Gray);
+}
+
+body.mvc-dash .mvc-field__row {
+  display: flex;
+  align-items: center;
+  gap: var(--mvc-field-row-gap);
+  min-height: 34px;            /* guarantees a comfortable card hit area */
+}
+
+/* The input inside a field card is chromeless: the card IS the control.
+   background-COLOR, not the shorthand - the shorthand wiped the select
+   caret this file installs in section 19. */
+body.mvc-dash .mvc-field .mvc-field__input,
+body.mvc-dash .modal-body .mvc-field .mvc-field__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  /* Page default is TEXT, not money.
+     24px/600 is the amount treatment: it was designed for the deposit and
+     withdraw dialogs, where the field holds a figure and wants that weight.
+     Applied globally it also caught every name, email, phone and address on
+     the profile and verification forms, so ordinary text rendered at
+     currency size. The modal rule below keeps 24px where it was meant. */
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--Black);
+  box-shadow: none;
+}
+
+/* Money keeps its size. More specific than the page rule above, so dialogs are
+   untouched by the retune. */
+body.mvc-dash .modal-body .mvc-field .mvc-field__input {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* --- Input sizing ------------------------------------------------
+ * .mvc-field__input is `flex: 1 1 auto` with no max-width, so EVERY control
+ * stretched the full width of its card. In a 720px --wide dialog that meant a
+ * rate field showing "1.45" occupied ~600px, which is what "inputs are too
+ * long" describes: the control's size implied far more content than it holds.
+ *
+ * Sized by what the field actually contains. Long-form inputs (address,
+ * display label, instructions, message, subject) deliberately keep the full
+ * width - capping those would be the opposite mistake.
+ *
+ * `ch` units, so the cap tracks the font rather than a magic pixel count. */
+body.mvc-dash .mvc-field__input--num,
+body.mvc-dash .mvc-field input[type="number"].mvc-field__input {
+  max-width: 12ch;
+  flex: 0 1 auto;
+}
+
+/* Short tokens: currency codes, sort order, confirmation counts. */
+body.mvc-dash .mvc-field__input--short {
+  max-width: 20ch;
+  flex: 0 1 auto;
+}
+
+/* A capped input leaves slack in the row; keep the label/value left-aligned
+   and let any trailing chip or button sit next to it rather than drifting to
+   the far edge of the card. */
+body.mvc-dash .mvc-field__row:has(.mvc-field__input--num),
+body.mvc-dash .mvc-field__row:has(input[type="number"].mvc-field__input),
+body.mvc-dash .mvc-field__row:has(.mvc-field__input--short) {
+  justify-content: flex-start;
+}
+
+/* --- Action separation -------------------------------------------
+ * Buttons living INSIDE a field row (the manage-position dialog puts Save /
+ * Credit / Apply beside their input, and Settle / Cancel side by side) were
+ * inheriting the 12px field-row gap, so a destructive action sat one tap-width
+ * from a safe one. Push them apart and give the row room to wrap on a phone
+ * instead of overflowing. */
+body.mvc-dash .mvc-field__row .tf-button {
+  flex: 0 0 auto;
+  margin-left: var(--mvc-space-2);
+}
+
+body.mvc-dash .mvc-field__row .tf-button + .tf-button {
+  margin-left: var(--mvc-space-4);
+}
+
+body.mvc-dash .mvc-field__row {
+  flex-wrap: wrap;
+  row-gap: var(--mvc-space-2);
+}
+
+body.mvc-dash .mvc-field .mvc-field__input:focus {
+  border: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+/* --- Textarea variant --------------------------------------------
+ * dashboard.css:3893 forces `form textarea { height: 200px !important }`,
+ * which inflates every dialog and makes the rows attribute inert. The
+ * !important here is not stylistic - it is the only way to outrank it. */
+body.mvc-dash .mvc-field--textarea {
+  padding-bottom: 10px;
+}
+
+body.mvc-dash .mvc-field textarea.mvc-field__input,
+body.mvc-dash .modal-body .mvc-field textarea.mvc-field__input {
+  height: auto !important;
+  min-height: 84px;
+  max-height: 240px;
+  resize: vertical;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.55;
+  font-family: inherit;
+  overflow-y: auto;
+}
+
+/* A value that is stated rather than chosen (e.g. the single remaining deposit
+   method) still has to sit on the value baseline, not the label's. */
+body.mvc-dash .mvc-field .mvc-field__input--static {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  padding: 6px 0;
+  margin: -6px 0;
+  color: var(--Black);
+}
+
+/* A mono textarea holds a single wrapped address, not prose, so it does not
+   need the 84px min-height a free-text one does - at that size it was the
+   largest element in the dialog.
+
+   Both selectors below must carry `.modal-body` to reach (0,4,2). The generic
+   textarea rule above is `body.mvc-dash .modal-body .mvc-field
+   textarea.mvc-field__input` = (0,4,2) with min-height:84px and font-size:14px;
+   these were authored one class lighter, so they lost on specificity and never
+   applied - the address box stayed 84px tall and 14px, which is why it was
+   still the biggest thing in the dialog. */
+body.mvc-dash .modal-body .mvc-field textarea.mvc-field__input--mono {
+  min-height: 46px;
+}
+
+/* Wallet addresses and hashes: no ligatures, no ambiguous glyphs. */
+body.mvc-dash .mvc-field .mvc-field__input--mono,
+body.mvc-dash .modal-body .mvc-field .mvc-field__input--mono {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  word-break: break-all;
+}
+
+/* Legacy modals get the same relief with no markup change. */
+body.mvc-dash .modal-body textarea {
+  height: auto !important;
+  min-height: 96px;
+  max-height: 260px;
+  resize: vertical;
+}
+
+/* Trailing chip / selector, like the token pickers in the reference. */
+body.mvc-dash .mvc-field__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border-radius: var(--mvc-radius-pill);
+  background: var(--Surface);
+  border: 1px solid var(--LightGray);
+  color: var(--Black);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+body.mvc-dash .mvc-field__chip i {
+  color: var(--Primary-Ink);
+}
+
+/* A <select> used as the chip keeps the pill shape. */
+body.mvc-dash .modal-body .mvc-field__chip.mvc-field__chip--select {
+  width: auto;
+  padding: 7px 12px;
+  font-size: 13px;
+  background: var(--Surface);
+}
+
+/* --- Segmented pill row ------------------------------------------- */
+body.mvc-dash .mvc-segment {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+body.mvc-dash .mvc-segment__btn {
+  flex: 1 1 auto;
+  min-width: 72px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--LightGray);
+  background: var(--Surface);
+  color: var(--Gray);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out),
+              color var(--mvc-dur-fast) var(--mvc-ease-out),
+              border-color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .mvc-segment__btn:hover {
+  border-color: var(--Primary);
+  color: var(--Black);
+}
+
+body.mvc-dash .mvc-segment__btn.is-active {
+  background: var(--Primary);
+  border-color: var(--Primary);
+  color: var(--mvc-on-accent);
+}
+
+/* --- Summary block ------------------------------------------------ */
+body.mvc-dash .mvc-summary {
+  margin: 18px 0;
+  list-style: none;
+  padding: 0;
+}
+
+body.mvc-dash .mvc-summary__title {
+  font-size: 13px;
+  color: var(--Gray);
+  margin-bottom: 10px;
+}
+
+body.mvc-dash .mvc-summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--LightGray);
+  font-size: 14px;
+}
+
+body.mvc-dash .mvc-summary__row:last-child {
+  border-bottom: 0;
+}
+
+body.mvc-dash .mvc-summary__row .k {
+  color: var(--Gray);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+body.mvc-dash .mvc-summary__row .v {
+  color: var(--Black);
+  font-weight: 600;
+  text-align: right;
+}
+
+body.mvc-dash .mvc-summary__row--total .v {
+  color: var(--Primary-Ink);
+  font-size: 16px;
+}
+
+/* --- Actions ------------------------------------------------------ */
+/* Action rows are `.d-flex.justify-content-end.gap-2` in the markup; on the
+   sheet layout the primary action spans the full width instead. */
+body.mvc-dash .modal-body .modal-actions,
+body.mvc-dash .modal-body .d-flex.justify-content-end.gap-2 {
+  display: flex;
+  gap: var(--mvc-action-gap);
+  margin-top: var(--mvc-section-gap);
+}
+
+/* --- The generic confirm dialog (assets/js/confirm.js) ---------------
+ * Scoped to .mvc-confirm so the bespoke deposit and withdrawal dialogs keep
+ * their existing proportions. Those are wide, detail-heavy sheets where a
+ * confirm button spanning the row reads correctly; this one holds a sentence
+ * and two choices, and .modal-confirm-btn's `flex: 1 1 auto` made the primary
+ * sprawl while Cancel collapsed to its own padding. Both get a real width and
+ * sit as a pair.
+ * ------------------------------------------------------------------- */
+body.mvc-dash .mvc-confirm .modal-content { max-width: 470px; }
+body.mvc-dash .mvc-confirm .modal-body { padding-top: var(--mvc-space-2); }
+body.mvc-dash .mvc-confirm #mvc-confirm-body {
+  margin: 0 0 var(--mvc-space-6);
+  color: var(--GrayDark);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+body.mvc-dash .mvc-confirm .modal-actions { justify-content: flex-end; }
+body.mvc-dash .mvc-confirm .modal-actions .tf-button,
+body.mvc-dash .mvc-confirm .modal-confirm-btn {
+  flex: 0 0 auto;
+  /* dashboard.css:8009 gives .modal-confirm-btn `width: 100%`. With
+     `flex-basis: auto` the basis falls back to that width, so the primary
+     took the whole row regardless of the flex shorthand above and pushed
+     Cancel out past the container's left edge, where the dialog clipped it -
+     the button was rendered, sized and visible, just outside the box. */
+  width: auto;
+  min-width: 118px;
+  padding: 11px 22px;
+  border-radius: var(--mvc-radius-pill);
+}
+/* Phone: stack, primary on top, both full width - a 118px minimum beside a
+   long label wraps awkwardly at 320px. */
+@media (max-width: 420px) {
+  body.mvc-dash .mvc-confirm .modal-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  body.mvc-dash .mvc-confirm .modal-actions .tf-button,
+  body.mvc-dash .mvc-confirm .modal-confirm-btn { width: 100%; }
+}
+
+body.mvc-dash .modal-confirm-btn {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 12px;
+  background: var(--Primary);
+  color: var(--mvc-on-accent);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .modal-confirm-btn:hover {
+  background: var(--Primary-Hover);
+}
+
+body.mvc-dash .modal-confirm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Secondary / cancel sits beside it, sized to content. */
+body.mvc-dash .modal-body .button-close-modal.tf-button,
+body.mvc-dash .modal-footer-actions .button-close-modal.tf-button,
+body.mvc-dash .modal-actions .mvc-btn-ghost {
+  flex: 0 0 auto;
+  border-radius: 12px;
+  padding: 14px 18px;
+  background: var(--Surface-Alt) !important;
+  color: var(--Black) !important;
+  border: 1px solid var(--LightGray);
+  font-weight: 600;
+}
+
+body.mvc-dash .modal-body .button-close-modal.tf-button:hover,
+body.mvc-dash .modal-footer-actions .button-close-modal.tf-button:hover {
+  background: var(--LightGray) !important;
+}
+
+/* --- Destructive confirmations ------------------------------------ */
+body.mvc-dash .mvc-modal--danger .modal-confirm-btn,
+body.mvc-dash .modal-confirm-btn.bg-Red {
+  background: #D0323A !important;   /* #E5484D was only 3.91:1 with white */
+  color: #ffffff !important;
+}
+
+body.mvc-dash .mvc-modal--danger .modal-confirm-btn:hover,
+body.mvc-dash .modal-confirm-btn.bg-Red:hover {
+  background: #B72A31 !important;
+}
+
+/* =================================================================
+ * LEGACY FIELD COMPAT - .form-group rendered as a field card
+ *
+ * 14 of the 16 dialogs predate .mvc-field and all share one dialect:
+ *   div.form-group.mb-3 > label + (input|select|textarea).form-control
+ * Converting them by hand is ~120 markup edits across six PHP files,
+ * every one carrying a live jQuery id, with no build step and no tests
+ * to catch a typo. This reproduces the .mvc-field look with zero markup
+ * risk. New dialogs should still be authored with .mvc-field directly.
+ * ================================================================= */
+body.mvc-dash .modal-body .form-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--Surface-Alt);
+  border: 1px solid var(--mvc-border);
+  border-radius: 14px;
+  padding: 11px 14px 12px;
+  /* !important is required here: bootstrap's own .mb-3 is !important */
+  margin-bottom: 14px !important;
+  transition: border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              box-shadow var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .modal-body .form-group:focus-within {
+  border-color: var(--Primary);
+  box-shadow: 0 0 0 3px rgba(255, 91, 4, 0.14);
+}
+
+body.mvc-dash .modal-body .form-group.hidden,
+body.mvc-dash .modal-body .form-group[hidden] {
+  display: none !important;
+}
+
+/* dashboard.css:8133 sizes these at 1.1rem, which is larger than the value
+   they label. A field label is a caption. */
+body.mvc-dash .modal-body .form-group > label,
+body.mvc-dash .modal-body .form-group > .form-label,
+body.mvc-dash .modal-body .withdrawal-method > label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--Gray);
+}
+
+body.mvc-dash .modal-body .form-group > input,
+body.mvc-dash .modal-body .form-group > select,
+body.mvc-dash .modal-body .form-group > textarea,
+body.mvc-dash .modal-body .form-group > .form-control,
+body.mvc-dash .modal-body .form-group > .form-select {
+  background-color: transparent;   /* longhand: keeps the section-19 caret */
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  min-height: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--Black);
+  box-shadow: none !important;
+}
+
+body.mvc-dash .modal-body .form-group > input:focus,
+body.mvc-dash .modal-body .form-group > select:focus,
+body.mvc-dash .modal-body .form-group > textarea:focus,
+body.mvc-dash .modal-body .form-group > .form-control:focus,
+body.mvc-dash .modal-body .form-group > .form-select:focus {
+  border: 0;
+  outline: none;
+  background-color: transparent;
+  box-shadow: none !important;    /* the ring lives on the card */
+}
+
+body.mvc-dash .modal-body .form-group > select {
+  background-position: right center;
+  padding-right: 26px;
+}
+
+body.mvc-dash .modal-body .form-group > :disabled,
+body.mvc-dash .modal-body .form-group > [readonly] {
+  color: var(--GrayDark);
+  opacity: 1;
+}
+
+/* Two-column rows (#plan-modal, #announcement-modal) keep their grid but
+   lose bootstrap's 12px gutter, which is too wide between field cards. */
+body.mvc-dash .modal-body .row {
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+body.mvc-dash .modal-body .row > [class^="col-"],
+body.mvc-dash .modal-body .row > [class*=" col-"] {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* Helper and error text belongs under the card, not inside it. */
+body.mvc-dash .modal-body .form-group > small,
+body.mvc-dash .modal-body .note {
+  font-size: 12px;
+  color: var(--Gray);
+}
+
+body.mvc-dash .modal-body .form-error {
+  font-size: 12px;
+  color: var(--mvc-accent-red);
+}
+
+body.mvc-dash .modal-body .form-error:not(:empty) {
+  margin: -8px 0 10px;
+}
+
+/* Bank autocomplete panel. dashboard.css:8190 fills it with var(--White) -
+   literal #ffffff in both themes - under --Black text that is white in dark
+   mode, so the whole suggestion list was invisible in the withdraw flow. It
+   also has to escape the field card's rounded clip. */
+body.mvc-dash .modal-body .bank-search-container {
+  position: relative;
+}
+
+body.mvc-dash #modal-bank-dropdown {
+  top: calc(100% + 8px);
+  left: -14px;
+  right: -14px;
+  z-index: 20;
+  max-height: 240px;
+  background: var(--Surface);
+  border: 1px solid var(--mvc-border);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.5);
+}
+
+body.mvc-dash #modal-bank-dropdown div {
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--Black);
+  border-bottom: 1px solid var(--mvc-border);
+}
+
+body.mvc-dash #modal-bank-dropdown div:last-child {
+  border-bottom: 0;
+}
+
+body.mvc-dash #modal-bank-dropdown div:hover,
+body.mvc-dash #modal-bank-dropdown .selected {
+  background: var(--Surface-Alt);
+  color: var(--Primary-Ink);
+}
+
+/* --- Phones: dock to the bottom as a sheet ------------------------ */
+@media (max-width: 575px) {
+  body.mvc-dash .modal.is-open,
+  body.mvc-dash .modal.open {
+    align-items: flex-end;
+  }
+
+  body.mvc-dash .modal-content {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    border-bottom: 0;
+    padding: 10px 18px calc(18px + env(safe-area-inset-bottom));
+  }
+
+  /* Grab handle. flex:0 0 auto because .modal-content is a flex column now -
+     without it the handle gets squashed to nothing on a full-height sheet. */
+  body.mvc-dash .modal-content::before {
+    content: "";
+    display: block;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 4px;
+    margin: 0 auto 12px;
+    border-radius: 999px;
+    background: var(--LightGray);
+  }
+
+  body.mvc-dash .modal-body .modal-actions,
+  body.mvc-dash .modal-body .d-flex.justify-content-end.gap-2 {
+    flex-direction: column-reverse;
+  }
+
+  body.mvc-dash .modal-body .button-close-modal.tf-button {
+    width: 100%;
+  }
+
+  /* The pinned footer keeps the same column-reverse stacking as the inline
+     .modal-actions above. */
+  body.mvc-dash .modal-footer-actions {
+    flex-direction: column-reverse;
+  }
+  body.mvc-dash .modal-footer-actions .tf-button {
+    width: 100%;
+  }
+
+  /* Bootstrap already stacks col-md-6 below 768px, so the halved negative
+     gutters are pure overhang here - they pushed the body a few pixels wide. */
+  body.mvc-dash .modal-body .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  body.mvc-dash .modal-body .row > [class*="col-"] {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+
+/* =================================================================
+ * 11. TEXT UTILITY REMAPS
+ * ================================================================= */
+body.mvc-dash .text-Primary { color: var(--Primary-Ink) !important; }
+/* dashboard.css:6838 paints this heading var(--Primary) directly rather than
+   through .text-Primary, so it missed the ink-token swap. */
+body.mvc-dash .investment-form .label-01 { color: var(--Primary-Ink); }
+body.mvc-dash .text-Green   { color: var(--Green) !important; }
+body.mvc-dash .text-Gray    { color: var(--GrayDark) !important; }
+
+
+/* =================================================================
+ * 12. WALLET PAGE - portfolio hero, allocations, activity
+ *     (reuses wallet-card/wg-box/tf-button; tokens only)
+ * ================================================================= */
+
+/* --- Portfolio hero (dark wallet-main) --- */
+body.mvc-dash .wallet-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+  min-height: 240px;
+}
+body.mvc-dash .wallet-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+body.mvc-dash .wallet-hero-top .box-status {
+  border-radius: var(--mvc-radius-pill);
+  padding: 4px 12px;
+  color: var(--White);
+  flex-shrink: 0;
+}
+body.mvc-dash .wallet-hero-balance { min-width: 0; max-width: 100%; }
+body.mvc-dash .wallet-hero-balance h2 {
+  font-size: clamp(26px, 7vw, 44px);
+  line-height: 1.05;
+  margin: 0;
+  color: var(--White);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
+}
+body.mvc-dash .wallet-hero-change {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  color: var(--Green);
+}
+
+/* Inside the orange hero card, the success green is only ~1.6:1. Use the
+   on-accent ink that .wallet-main already sets for everything else. */
+body.mvc-dash .wallet-main .wallet-hero-change,
+body.mvc-dash .wallet-main .wallet-hero-change * {
+  color: var(--mvc-on-accent);
+}
+body.mvc-dash .wallet-hero-substats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  padding-top: 18px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+body.mvc-dash .wallet-substat { min-width: 0; }
+body.mvc-dash .wallet-substat .f12-regular { color: rgba(255, 255, 255, 0.6); }
+body.mvc-dash .wallet-substat .f14-bold { margin-top: 4px; font-size: 18px; }
+body.mvc-dash .wallet-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+body.mvc-dash .wallet-hero-actions .tf-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+}
+/* Ghost pills on the dark card */
+body.mvc-dash .wallet-hero-actions .tf-button.bg-Accent {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--White) !important;
+}
+body.mvc-dash .wallet-hero-actions .tf-button.bg-Accent:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* --- Lifetime activity stat list --- */
+body.mvc-dash .wallet-lifetime { padding: 24px; }
+body.mvc-dash .h-full { height: 100%; }
+body.mvc-dash .wallet-stat-list { list-style: none; margin: 0; padding: 0; }
+body.mvc-dash .wallet-stat-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--LightGray);
+}
+body.mvc-dash .wallet-stat-list li:last-child { border-bottom: 0; }
+body.mvc-dash .wallet-stat-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+body.mvc-dash .wallet-stat-label .ph { color: var(--Gray); }
+
+/* --- Portfolio allocation list --- */
+body.mvc-dash .wallet-alloc-list { list-style: none; margin: 0; padding: 0; }
+body.mvc-dash .wallet-alloc-item + .wallet-alloc-item { border-top: 1px solid var(--LightGray); }
+body.mvc-dash .wallet-alloc-item > a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 8px;
+  border-radius: var(--mvc-radius-card);
+  transition: background-color 0.2s ease;
+}
+body.mvc-dash .wallet-alloc-item > a:hover { background: var(--Surface-Alt); }
+body.mvc-dash .wallet-alloc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--mvc-radius-card);
+  background: var(--Surface-Alt);
+  color: var(--Primary-Ink);
+  font-size: 22px;
+}
+body.mvc-dash .wallet-alloc-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+body.mvc-dash .wallet-alloc-value { white-space: nowrap; }
+body.mvc-dash .wallet-alloc-arrow { color: var(--Gray); flex-shrink: 0; }
+
+/* --- Activity empty state --- */
+body.mvc-dash .wallet-activity-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 40px 20px;
+  color: var(--Gray);
+}
+body.mvc-dash .wallet-activity-empty .ph { color: var(--Gray); margin-bottom: 4px; }
+
+/* --- Responsive --- */
+@media (max-width: 1200px) {
+  body.mvc-dash .wallet-hero-balance h2 { font-size: 38px; }
+}
+@media (max-width: 768px) {
+  body.mvc-dash .wallet-hero { padding: 22px; min-height: 0; }
+  body.mvc-dash .wallet-hero-balance h2 { font-size: 32px; }
+  body.mvc-dash .wallet-hero-substats { gap: 24px; flex-wrap: wrap; }
+  body.mvc-dash .wallet-hero-actions .tf-button { flex: 1 1 auto; justify-content: center; }
+  body.mvc-dash .wallet-alloc-item > a { gap: 12px; padding: 14px 4px; }
+  body.mvc-dash .wallet-alloc-icon { width: 38px; height: 38px; font-size: 19px; }
+}
+@media (max-width: 480px) {
+  body.mvc-dash .wallet-hero-substats > .wallet-substat { flex: 1 1 100%; }
+}
+
+
+/* =================================================================
+ * 13. PLAN DETAIL PANEL - dashboard product pages (dropdown UX)
+ * ================================================================= */
+/* Everything used to be --Primary orange on a flat panel: the name, the
+   rate, and every meta value competed at the same weight with no grouping.
+   Now it reads top-down - name, hero rate on its own tinted card, quiet
+   summary rows, then the blurb in a footer block. */
+body.mvc-dash .plan-detail-panel {
+  padding: 22px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+body.mvc-dash .plan-detail-panel .pdp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+body.mvc-dash .plan-detail-panel .pdp-name {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--Black);
+}
+
+/* Hero rate, boxed so it reads as the headline figure. */
+body.mvc-dash .plan-detail-panel .pdp-roi {
+  background: var(--Surface-Alt);
+  border: 1px solid var(--LightGray);
+  border-radius: 14px;
+  padding: 18px 18px 6px;
+  margin-bottom: 0;
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--Primary-Ink);
+}
+
+body.mvc-dash .plan-detail-panel .pdp-roi small {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--Gray);
+  letter-spacing: 0;
+}
+
+/* Caption sits inside the same card as the figure it labels. */
+body.mvc-dash .plan-detail-panel .pdp-roi-label {
+  background: var(--Surface-Alt);
+  border: 1px solid var(--LightGray);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+  margin: -1px 0 18px;
+  padding: 0 18px 16px;
+  font-size: 12px;
+  color: var(--Gray);
+}
+
+body.mvc-dash .plan-detail-panel .pdp-meta {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+body.mvc-dash .plan-detail-panel .pdp-meta li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--LightGray);
+  font-size: 14px;
+}
+
+body.mvc-dash .plan-detail-panel .pdp-meta li:last-child { border-bottom: 0; }
+body.mvc-dash .plan-detail-panel .pdp-meta .k { color: var(--Gray); }
+
+body.mvc-dash .plan-detail-panel .pdp-meta .v {
+  color: var(--Black);        /* was orange on every row */
+  font-weight: 600;
+  text-align: right;
+}
+
+body.mvc-dash .plan-detail-panel .pdp-summary {
+  margin: auto 0 0;           /* pinned to the bottom of the panel */
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--Surface-Alt);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--GrayDark);
+}
+
+body.mvc-dash .plan-detail-panel .pdp-summary:empty { display: none; }
+
+body.mvc-dash .plan-detail-panel .pdp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: var(--mvc-radius-pill);
+  background: var(--Surface-Alt);
+  border: 1px solid var(--LightGray);
+  color: var(--Primary-Ink);
+  white-space: nowrap;
+}
+
+/* Empty / placeholder state */
+body.mvc-dash .plan-detail-panel .pdp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  min-height: 260px;
+  height: 100%;
+  padding: 24px;
+  border: 1px dashed var(--LightGray);
+  border-radius: 14px;
+  color: var(--Gray);
+}
+body.mvc-dash .plan-detail-panel .pdp-empty .ph { color: var(--Gray); }
+
+
+/* =================================================================
+ * 14. PROFILE PAGE - avatar card
+ * ================================================================= */
+body.mvc-dash .profile-avatar-card { padding: 24px; text-align: center; }
+body.mvc-dash .profile-avatar-wrap {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 20px;
+  border-radius: var(--mvc-radius-circle, 50%);
+  overflow: hidden;
+  background: var(--Surface-Alt);
+  border: 1px solid var(--LightGray);
+}
+body.mvc-dash .profile-avatar-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+body.mvc-dash .profile-avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+body.mvc-dash .profile-avatar-actions .tf-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+body.mvc-dash .profile-avatar-actions .tf-button[disabled] { opacity: 0.5; cursor: not-allowed; }
+body.mvc-dash .profile-avatar-hint { margin-top: 12px; }
+
+
+/* =================================================================
+ * 15. SCROLLABLE TABLE - real <table>, horizontal scroll on mobile
+ *     (used by the transactions page; JS appends <tr><td> rows)
+ * ================================================================= */
+/* Containment: the dashboard content chain uses flex (and the layout-wrap clips
+   overflow), so flex items default to min-width:auto and let a wide table push
+   the column past the viewport - clipping the right-hand columns. Forcing
+   min-width:0 / max-width:100% lets the scroll container below actually scroll. */
+body.mvc-dash .section-content-right,
+body.mvc-dash .main-content,
+body.mvc-dash .main-content-inner,
+body.mvc-dash .main-content-wrap,
+body.mvc-dash .tf-container {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* dashboard.css paints the page canvas with var(--White) (which must stay
+   literally white, see the --Surface note on the sidebar). Left alone, the
+   whole content area stayed white in the dark theme while the text inverted
+   to white with it. Selector carries .section-content-right to outrank
+   `.layout-wrap .section-content-right .main-content` in dashboard.css. */
+body.mvc-dash .section-content-right .main-content {
+  background: var(--Bg);
+}
+
+body.mvc-dash .mvc-scroll-table {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--LightGray);
+  border-radius: var(--mvc-radius-card);
+}
+body.mvc-dash .mvc-table {
+  /* size to content (no column compression → no nowrap overlap on mobile),
+     but never narrower than the scroll wrapper. The wrapper's overflow-x:auto
+     then provides horizontal scroll when content is wider than the screen.
+     !important defeats bootstrap's .w-100{width:100%!important}. */
+  width: max-content !important;
+  min-width: 100%;
+  border-collapse: collapse;
+  /* dashboard.css:374 sets `table { table-layout: fixed; margin: 0 0 30px }`
+     on every table on the site. Fixed layout sizes columns from the FIRST ROW
+     and ignores everything after it, which silently defeats the width:max-content
+     + nowrap strategy above - columns compressed and cell text wrapped no matter
+     what this section asked for. The margin was landing INSIDE .mvc-scroll-table's
+     border, hanging 30px of dead space under every table. */
+  table-layout: auto;
+  margin: 0;
+}
+body.mvc-dash .mvc-table thead th {
+  text-align: left;
+  background: var(--Primary);
+  /* No `color` here: section 17c (:3296) forces --mvc-on-accent !important on
+     this exact selector, so a declaration here can never win. It read as the
+     live value and it was not. */
+  font-size: 12px;
+  font-weight: 600;
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+/* Centered empty/placeholder rows span the full table cleanly */
+body.mvc-dash .mvc-table td.mvc-empty { text-align: center; color: var(--Gray); padding: 28px 16px; }
+body.mvc-dash .mvc-table tbody tr { background: transparent; }
+body.mvc-dash .mvc-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--LightGray);
+  font-size: 13px;
+  /* Was --Primary, which painted EVERY body cell orange - dates, IDs and all -
+     so nothing in the row stood out because everything did. Ink is the default;
+     the amount column opts into emphasis below. */
+  color: var(--Black);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+body.mvc-dash .mvc-table tbody td.mvc-td-muted { color: var(--GrayDark); }
+/* .tf-button is display:flex, so a row of them in an Actions cell stacked one
+   per line. Wrap them in an inline row instead. */
+body.mvc-dash .mvc-table tbody td .tf-button {
+  display: inline-flex;
+  padding: 6px 12px;
+  margin: 2px 4px 2px 0;
+}
+/* A pending deposit row opens its own transfer instructions. */
+body.mvc-dash .mvc-table tbody tr.is-actionable { cursor: pointer; }
+/* Expanded detail row under a pending deposit (address, memo, tx hash). */
+/* The expanded detail row: its content must WRAP rather than widen the table.
+   This is the single definition - there used to be a second copy up in the
+   modal section carrying `max-width: 0`, so each site showed a reader half the
+   rule. The max-width is gone with it: it fought `width: max-content` above,
+   the two cancelling each other out. */
+body.mvc-dash .mvc-detail-row > td {
+  padding: 0 16px 14px;
+  white-space: normal;
+}
+body.mvc-dash .mvc-detail-row.hidden { display: none; }
+body.mvc-dash .mvc-table tbody td.mvc-td-amount { font-weight: 600; }
+body.mvc-dash .mvc-table tbody td.mvc-td-amount.is-in  { color: var(--Green); }
+body.mvc-dash .mvc-table tbody td.mvc-td-amount.is-out { color: var(--Primary-Ink); }
+body.mvc-dash .mvc-table tbody tr:hover td { background: var(--Surface-Alt); }
+body.mvc-dash .mvc-table tbody tr:last-child td { border-bottom: 0; }
+body.mvc-dash .mvc-table .box-status { display: inline-block; }
+
+/* Links in a table cell. The default anchor colour is the --Primary FILL,
+   which is 2.65:1 on a light row; --Primary-Ink is the same hue darkened to
+   pass as text. */
+body.mvc-dash .mvc-table tbody a {
+  color: var(--Primary-Ink);
+  font-weight: 600;
+}
+body.mvc-dash .mvc-table tbody a:hover {
+  text-decoration: underline;
+}
+/* Safety net: neutralise the template div-grid row styling (.tf-table-item) if it
+   ever lands on a real <table> row - its position:relative/::before bar shifts the
+   whole row one column to the right in a real table. */
+body.mvc-dash .mvc-table tbody tr.tf-table-item {
+  position: static;
+  background: transparent;
+  border-radius: 0;
+}
+body.mvc-dash .mvc-table tbody tr.tf-table-item::before { content: none; display: none; }
+
+
+
+
+/* =================================================================
+ * 16. THEME TOGGLE - dashboard topbar
+ * ================================================================= */
+body.mvc-dash .theme-toggle {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--mvc-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--Black);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+body.mvc-dash .theme-toggle:hover {
+  background: rgba(255, 91, 4, 0.12);
+  border-color: var(--Primary);
+  color: var(--Primary-Ink);
+}
+
+body.mvc-dash .theme-toggle:focus-visible {
+  outline: 2px solid var(--Primary);
+  outline-offset: 2px;
+}
+
+
+/* =================================================================
+ * 17. INVEST PAGE - cadence toggle + live projection panel
+ * ================================================================= */
+body.mvc-dash .cadence-toggle {
+  display: inline-flex;
+  width: 100%;
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--mvc-border);
+  border-radius: var(--mvc-radius-pill);
+  background: var(--Surface-Alt);
+}
+
+body.mvc-dash .cadence-toggle__btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: var(--mvc-radius-pill);
+  background: transparent;
+  color: var(--GrayDark);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+body.mvc-dash .cadence-toggle__btn:hover {
+  color: var(--Black);
+}
+
+body.mvc-dash .cadence-toggle__btn.active {
+  background: var(--Primary);
+  color: var(--mvc-on-accent);
+}
+
+body.mvc-dash .cadence-toggle__btn:focus-visible {
+  outline: 2px solid var(--Primary);
+  outline-offset: 2px;
+}
+
+/* --- Invest form layout ------------------------------------------------
+ * dashboard.css:3854 turns EVERY direct child of `form.form-style-1` into a
+ * horizontal flex row, and :3864 pins the first grandchild to
+ * `width:100%; max-width:300px`. That is the purchased template's
+ * settings-page pattern (label left, control right) and this page inherited
+ * it by reusing the class.
+ *
+ * Three things fell out of it:
+ *   1. Every label sat in a 300px gutter, so the controls started at an
+ *      arbitrary x offset and the card looked half-empty.
+ *   2. The Term/Rate pair is a bootstrap `.row`, so `> * > *:first-child`
+ *      matched the first `.col-md-6` instead of a label - giving one column
+ *      max-width:300px and the other 50%, with stacked labels between two
+ *      label-left rows.
+ *   3. `.invest-preview` became a flex ROW, so its five label/value pairs
+ *      and the trailing note were laid side by side in ~1/6 of the width
+ *      each. That is the wrapped jumble at the bottom of the card.
+ *
+ * Undo the imposed axis for this form only. Everything below then falls
+ * back to `.form-style-1 label { display:block }` (dashboard.css:6842),
+ * which is the stacked layout the markup was written for. */
+body.mvc-dash .investment-form form.form-style-1 {
+  gap: 20px;
+}
+
+body.mvc-dash .investment-form form.form-style-1 > * {
+  display: block;
+}
+
+/* `form.form-style-1 > * { display:flex }` is an author rule, so it beats
+ * the UA `[hidden] { display:none }` no matter the specificity - the
+ * projection panel rendered its placeholder zeros on page load and
+ * `previewBox.hidden = true` could never hide it again. */
+body.mvc-dash .investment-form form.form-style-1 > [hidden] {
+  display: none;
+}
+
+body.mvc-dash .investment-form form.form-style-1 > * > *:first-child {
+  max-width: none;
+}
+
+/* Replaces the bootstrap `.row`/`.col-md-6` pair. A grid sidesteps
+ * `.tf-container .row { margin: -12px !important }` (dashboard.css:1151),
+ * whose negative gutters overhang the card's 24px padding. */
+body.mvc-dash .investment-form form.form-style-1 > .invest-field-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 575px) {
+  body.mvc-dash .investment-form form.form-style-1 > .invest-field-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Projection panel --- */
+body.mvc-dash .invest-preview {
+  display: block;
+  margin-bottom: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--mvc-border);
+  border-radius: var(--mvc-radius-card);
+  background: var(--Surface-Alt);
+}
+
+body.mvc-dash .invest-preview__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+body.mvc-dash .invest-preview__row span {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--GrayDark);
+}
+
+/* The value never wraps; the label absorbs any shortfall. Without this the
+ * two competed for the row and "Principal returned + payouts" broke across
+ * three lines while its figure stayed on one. */
+body.mvc-dash .invest-preview__row strong {
+  flex: 0 0 auto;
+  color: var(--Black);
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+body.mvc-dash .invest-preview__row--total {
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mvc-border);
+}
+
+body.mvc-dash .invest-preview__row--total strong {
+  color: var(--Primary-Ink);
+  font-size: 18px;
+}
+
+body.mvc-dash .invest-preview__note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--Gray);
+}
+
+body.mvc-dash .plan-card { cursor: pointer; }
+body.mvc-dash .plan-card .plan-header i { color: var(--Primary-Ink); font-size: 18px; }
+
+
+/* =================================================================
+ * 16. MOBILE DOCK
+ *
+ * Bottom tab bar for both dashboards below the sidebar breakpoint
+ * (dashboard.css switches the sidebar to an off-canvas drawer at
+ * 1200px, so the dock takes over at the same point).
+ *
+ * The dock is the only mobile nav. The hamburger used to sit beside it
+ * opening a drawer that listed the same sections again - two competing
+ * primary navs in one 390px bar - so below 1200px the trigger is hidden
+ * and the brand logo takes the top-left slot instead. The drawer JS is
+ * left alone: it is still how the sidebar collapses on desktop.
+ *
+ * Admin overflows its 5th and 6th sections into a bottom sheet because
+ * six slots do not fit a phone.
+ * ================================================================= */
+.mvc-dock {
+  display: none;
+}
+
+.mvc-sheet {
+  display: none;
+}
+
+/* Desktop keeps the sidebar logo; this one only exists for the mobile bar. */
+body.mvc-dash .header-dashboard .header-left .mvc-topbar-logo {
+  display: none;
+}
+
+/* Which mark shows is the theme's call, not JS's - the pre-paint theme script
+   has already stamped data-theme by the time this paints, so neither flashes. */
+body.mvc-dash .mvc-topbar-logo__light {
+  display: none;
+}
+
+:root[data-theme="light"] body.mvc-dash .mvc-topbar-logo__dark {
+  display: none;
+}
+
+:root[data-theme="light"] body.mvc-dash .mvc-topbar-logo__light {
+  display: block;
+}
+
+@media (max-width: 1200px) {
+  /* dashboard.css:6193 reveals the hamburger at exactly this breakpoint. */
+  body.mvc-dash .header-dashboard .button-show-hide,
+  body.mvc-dash .layout-wrap .section-content-right .header-dashboard .button-show-hide {
+    display: none !important;
+  }
+
+  body.mvc-dash .header-dashboard .header-left .mvc-topbar-logo {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  body.mvc-dash .header-dashboard .header-left .mvc-topbar-logo {
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  body.mvc-dash .header-dashboard .header-left .mvc-topbar-logo img {
+    width: auto;
+    height: 26px;
+    flex: 0 0 auto;
+  }
+
+  /* --Black inverts (#FFFFFF dark / #16232A light) while the topbar surface
+     does the opposite, so the name tracks the bar in both themes. */
+  body.mvc-dash .header-dashboard .header-left .mvc-topbar-logo__name {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--Black);
+  }
+}
+
+/* Smartsupp chat bubble vs the mobile dock.
+ *
+ * The vendor pins its widget to `position: fixed; bottom: 24px; right: 12px`
+ * with `z-index: 10000000`. Below 1200px the dock owns the bottom 65px of the
+ * viewport at z-index 60 - so the bubble landed ON TOP of the Profile item,
+ * covering a primary navigation target with something that always wins the
+ * stacking order. Measured overlap was 41px.
+ *
+ * Shifted with margin-bottom rather than overriding `bottom`, for two reasons:
+ * the vendor sets `bottom` inline (so overriding needs !important and breaks
+ * the moment they change the value), and the container holds BOTH the bubble
+ * and the greeting panel at different offsets - forcing a single `bottom`
+ * would stack them on each other. A margin moves every child by the same
+ * amount and preserves their spacing.
+ *
+ * The offset tracks the dock's own env(safe-area-inset-bottom), so it stays
+ * correct above an iPhone home indicator instead of assuming a flat 65px.
+ *
+ * Scoped to body.mvc-dash: the marketing site has no dock and keeps the
+ * vendor's default placement.
+ */
+@media (max-width: 1200px) {
+  body.mvc-dash #smartsupp-widget-container > div {
+    margin-bottom: calc(65px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 1200px) {
+  body.mvc-dash .mvc-dock {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    align-items: stretch;
+    justify-content: space-around;
+    /* Six tabs now, and the narrowest supported screen is 320px. Zero the gap
+       and let each tab own its own padding, so the row divides evenly rather
+       than losing 10px of it to gutters. */
+    gap: 0;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: var(--Surface);
+    border-top: 1px solid var(--LightGray);
+    box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, 0.4);
+    transition: background-color var(--mvc-dur-base) var(--mvc-ease-out),
+                border-color var(--mvc-dur-base) var(--mvc-ease-out);
+  }
+
+  body.mvc-dash .mvc-dock__item {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 7px 1px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--Gray);
+    /* 320px / 6 tabs = 52px each. The label has to fit that, so it steps down
+       from 11px and clips with an ellipsis rather than wrapping to a second
+       line and pushing the bar taller. */
+    font-size: 10.5px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color var(--mvc-dur-fast) var(--mvc-ease-out),
+                background-color var(--mvc-dur-fast) var(--mvc-ease-out);
+  }
+
+  body.mvc-dash .mvc-dock__item span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.mvc-dash .mvc-dock__item i {
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  body.mvc-dash .mvc-dock__item span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.mvc-dash .mvc-dock__item:hover {
+    color: var(--Black);
+  }
+
+  body.mvc-dash .mvc-dock__item.is-active {
+    color: var(--Primary-Ink);
+    background: var(--Surface-Alt);
+  }
+
+  body.mvc-dash .mvc-dock__item:focus-visible {
+    outline: 2px solid var(--Primary);
+    outline-offset: -2px;
+  }
+
+  /* Clear the dock so it never covers the last row of content. */
+  body.mvc-dash .section-content-right .main-content {
+    padding-bottom: calc(74px + env(safe-area-inset-bottom));
+  }
+
+  /* --- "More" bottom sheet --------------------------------------- */
+  body.mvc-dash .mvc-sheet {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  body.mvc-dash .mvc-sheet.is-open {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  body.mvc-dash .mvc-sheet__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(13, 13, 13, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity var(--mvc-dur-base) var(--mvc-ease-out);
+  }
+
+  body.mvc-dash .mvc-sheet.is-open .mvc-sheet__overlay {
+    opacity: 1;
+  }
+
+  body.mvc-dash .mvc-sheet__panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--Surface);
+    border-top: 1px solid var(--LightGray);
+    border-radius: 20px 20px 0 0;
+    padding: 10px 16px calc(20px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform var(--mvc-dur-base) var(--mvc-ease-out);
+  }
+
+  body.mvc-dash .mvc-sheet.is-open .mvc-sheet__panel {
+    transform: none;
+  }
+
+  body.mvc-dash .mvc-sheet__handle {
+    width: 40px;
+    height: 4px;
+    margin: 0 auto 14px;
+    border-radius: 999px;
+    background: var(--LightGray);
+  }
+
+  body.mvc-dash .mvc-sheet__item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 12px;
+    border-radius: 12px;
+    color: var(--Black);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color var(--mvc-dur-fast) var(--mvc-ease-out),
+                color var(--mvc-dur-fast) var(--mvc-ease-out);
+  }
+
+  body.mvc-dash .mvc-sheet__item i {
+    font-size: 22px;
+    color: var(--Gray);
+  }
+
+  body.mvc-dash .mvc-sheet__item:hover,
+  body.mvc-dash .mvc-sheet__item.is-active {
+    background: var(--Surface-Alt);
+    color: var(--Primary-Ink);
+  }
+
+  body.mvc-dash .mvc-sheet__item.is-active i,
+  body.mvc-dash .mvc-sheet__item:hover i {
+    color: var(--Primary-Ink);
+  }
+}
+
+@media (max-width: 1200px) and (prefers-reduced-motion: reduce) {
+  body.mvc-dash .mvc-sheet__overlay,
+  body.mvc-dash .mvc-sheet__panel {
+    transition: none;
+  }
+}
+
+
+/* =================================================================
+ * 17. WALLET - balance card + quick action row
+ * ================================================================= */
+/* Decimals de-emphasised so the whole figure reads at a glance.
+   Rendered by setSplitAmount() in assets/js/dashboard.js. */
+body.mvc-dash .wallet-hero-balance .amt-dec {
+  opacity: 0.6;
+  font-weight: 500;
+}
+
+/* Eye toggle - masks the figure without removing it from the DOM, so the
+   90s auto-refresh keeps updating behind the mask. */
+body.mvc-dash .wallet-hero-eye {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(22, 35, 42, 0.12);
+  color: var(--mvc-on-accent);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .wallet-hero-eye:hover {
+  background: rgba(22, 35, 42, 0.22);
+}
+
+body.mvc-dash .wallet-hero-eye:focus-visible {
+  outline: 2px solid var(--mvc-on-accent);
+  outline-offset: 2px;
+}
+
+body.mvc-dash .wallet-hero.is-masked .wallet-hero-balance h2,
+body.mvc-dash .wallet-hero.is-masked .wallet-hero-change,
+body.mvc-dash .wallet-hero.is-masked .wallet-substat .f14-bold,
+/* The rebuilt balance card. bindBalanceVisibility() toggles .is-masked on
+   [data-balance-card], and that used to be .wallet-hero - so when the markup
+   moved to .mvc-balance the button still set the class, still flipped its own
+   icon and aria-pressed, and blurred nothing at all. */
+body.mvc-dash .mvc-balance.is-masked .mvc-balance__value,
+body.mvc-dash .mvc-balance.is-masked .mvc-balance__change,
+body.mvc-dash .mvc-balance.is-masked .mvc-balance__sub strong {
+  filter: blur(9px);
+  user-select: none;
+}
+
+/* Wallet reference + copy affordance */
+body.mvc-dash .wallet-hero-ref {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;   /* .wallet-hero is a flex column: don't stretch */
+  gap: 7px;
+  margin-top: 12px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: var(--mvc-radius-pill);
+  background: rgba(22, 35, 42, 0.12);
+  color: var(--mvc-on-accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .wallet-hero-ref:hover {
+  background: rgba(22, 35, 42, 0.22);
+}
+
+/* --- Quick action row ------------------------------------------- */
+/* .wg-box is `flex-direction: column; gap: 24px` in dashboard.css, which
+   stacked the action buttons; both have to be overridden explicitly. */
+body.mvc-dash .wallet-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 18px 12px;
+}
+
+body.mvc-dash .wallet-action {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--Black);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+body.mvc-dash .wallet-action__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--Surface-Alt);
+  border: 1px solid var(--LightGray);
+  color: var(--Black);
+  font-size: 22px;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out),
+              color var(--mvc-dur-fast) var(--mvc-ease-out),
+              border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              transform var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .wallet-action:hover .wallet-action__icon {
+  background: var(--Primary);
+  border-color: var(--Primary);
+  color: var(--mvc-on-accent);
+  transform: translateY(-2px);
+}
+
+body.mvc-dash .wallet-action:hover .wallet-action__label {
+  color: var(--Primary-Ink);
+}
+
+body.mvc-dash .wallet-action:focus-visible .wallet-action__icon {
+  outline: 2px solid var(--Primary);
+  outline-offset: 2px;
+}
+
+body.mvc-dash .wallet-action__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+@media (max-width: 575px) {
+  body.mvc-dash .wallet-actions {
+    padding: 16px 6px;
+    gap: 4px;
+  }
+
+  body.mvc-dash .wallet-action__icon {
+    width: 46px;
+    height: 46px;
+    font-size: 20px;
+  }
+
+  body.mvc-dash .wallet-action {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.mvc-dash .wallet-action:hover .wallet-action__icon {
+    transform: none;
+  }
+}
+
+
+/* =================================================================
+ * 17b. DEPOSIT ADDRESS LIST (wallet page, read-only)
+ *
+ * One card per published chain. The address itself is monospace and
+ * allowed to wrap on any character - a chain address that overflows its
+ * container silently is an address somebody copies incompletely.
+ * ================================================================= */
+body.mvc-dash .mvc-address-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+body.mvc-dash .mvc-address {
+  background: var(--Surface-Alt);
+  border: 1px solid var(--mvc-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+body.mvc-dash .mvc-address__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+body.mvc-dash .mvc-address__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--Black);
+}
+
+body.mvc-dash .mvc-address__meta,
+body.mvc-dash .mvc-address__memo-label {
+  font-size: 12px;
+  color: var(--Gray);
+}
+
+body.mvc-dash .mvc-address__memo-label {
+  flex: 0 0 auto;
+}
+
+body.mvc-dash .mvc-address__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+body.mvc-dash .mvc-address__row + .mvc-address__row {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--mvc-border);
+}
+
+/* dashboard.css:276 gives <code> a #f5f5f5 fill, a #e0e0e0 border, 20px margin
+   and 4px/12px padding - so each address rendered as a pale bordered box with
+   white text inside it in the dark theme. Strip the lot; the card is the
+   container here. */
+body.mvc-dash .mvc-address__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow-x: visible;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--Black);
+  word-break: break-all;
+}
+
+body.mvc-dash .mvc-address__copy {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--mvc-border);
+  border-radius: 8px;
+  background: var(--Surface);
+  color: var(--Gray);
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out),
+              color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .mvc-address__copy:hover {
+  background: var(--Primary);
+  border-color: var(--Primary);
+  color: var(--mvc-on-accent);
+}
+
+body.mvc-dash .mvc-address__copy .ph {
+  color: inherit;
+}
+
+/* --- Copied confirmation -----------------------------------------
+ * dashboard.js swaps the icon to ph-check for ~1.6s after a successful copy.
+ * Green rather than the brand orange, because orange is the hover state and
+ * the pointer is still over the button at that moment - the two would be
+ * indistinguishable. Inherits the transition already declared above.
+ *
+ * `!important` on the hover pair only: .mvc-address__copy:hover is (0,3,0)
+ * and this is (0,3,0) too, so without it the hover colour wins on the very
+ * button the user just clicked. */
+body.mvc-dash .mvc-address__copy.is-copied,
+body.mvc-dash .mvc-address__copy.is-copied:hover {
+  background: var(--Green) !important;
+  border-color: var(--Green) !important;
+  color: var(--mvc-on-green) !important;
+}
+
+/* The wallet-hero reference pill carries a text label beside the icon, so only
+   the icon changes - the reference itself must stay readable. */
+body.mvc-dash .wallet-hero-ref.is-copied .ph {
+  color: var(--Green);
+}
+
+body.mvc-dash .mvc-address__note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--GrayDark);
+}
+
+
+/* =================================================================
+ * 17c. INK ON ORANGE FILLS
+ *
+ * --mvc-on-accent (#16232A) exists precisely because white on the brand
+ * orange is 2.81:1 - it fails AA at any size. But the purchased template
+ * pairs every orange fill with .text-White or var(--White), so table
+ * headers, status pills and badges were all sitting at 2.81:1 in BOTH
+ * themes. Same story for .bg-Orange (#FFA500), which is worse at 1.97:1.
+ *
+ * These are not dark-mode bugs - they were equally wrong in light mode.
+ * They only surfaced once the audit started resolving the background
+ * through ancestors instead of reading the element's own.
+ * ================================================================= */
+body.mvc-dash .mvc-table thead th,
+body.mvc-dash .mvc-table thead th *,
+body.mvc-dash .bg-Primary.list-transaction-head,
+body.mvc-dash .bg-Primary.list-transaction-head *,
+body.mvc-dash .bg-Primary.title-sort,
+body.mvc-dash .bg-Primary.title-sort *,
+body.mvc-dash .box-status.bg-Primary,
+body.mvc-dash .box-status.bg-Primary * {
+  color: var(--mvc-on-accent) !important;
+}
+
+body.mvc-dash .box-status.bg-Orange,
+body.mvc-dash .box-status.bg-Orange * {
+  /* #FFA500 is a light amber; white on it is 1.97:1. Ink, not white. */
+  color: #16232A !important;
+}
+
+body.mvc-dash .box-status.bg-Green,
+body.mvc-dash .box-status.bg-Green * {
+  color: var(--mvc-on-green) !important;
+}
+
+/* The orange hero cards and the announcements panel already declare
+   --mvc-on-accent on themselves, but every child carries .text-White or
+   .text-Gainsboro from the template markup, so the ink never reached the
+   figures - the wallet balance itself was 2.81:1. Force the descendants.
+   The exceptions below opt back out where the child owns a different fill. */
+body.mvc-dash .wallet-main,
+body.mvc-dash .wallet-main *:not(.box-status):not(.box-status *),
+body.mvc-dash .wg-box.bg-Primary,
+body.mvc-dash .wg-box.bg-Primary *:not(.box-status):not(.box-status *) {
+  color: var(--mvc-on-accent) !important;
+}
+
+/* Sub-labels were rgba(255,255,255,.6) - 1.84:1 on the fill. Same ink at the
+   same weight of emphasis, which is what the translucency was reaching for. */
+body.mvc-dash .wallet-main .f12-regular,
+body.mvc-dash .wallet-main .wallet-card-footer,
+body.mvc-dash .wg-box.bg-Primary .f12-regular,
+body.mvc-dash .wg-box.bg-Primary .text-Gainsboro,
+body.mvc-dash .wg-box.bg-Primary .text-LightGray {
+  color: rgba(22, 35, 42, 0.72) !important;
+}
+
+/* A button sitting ON the orange card needs its own surface, or it is orange
+   on orange with white text at 2.57:1. */
+body.mvc-dash .wallet-main .tf-button,
+body.mvc-dash .wallet-main .tf-button * {
+  background-color: rgba(22, 35, 42, 0.14) !important;
+  color: var(--mvc-on-accent) !important;
+  border-color: rgba(22, 35, 42, 0.18);
+}
+body.mvc-dash .wallet-main .tf-button:hover {
+  background-color: rgba(22, 35, 42, 0.24) !important;
+}
+
+
+/* =================================================================
+ * 18. ICON COLOUR INHERITANCE
+ *
+ * dashboard.css pins the colour of every Phosphor glyph in three
+ * places, none of which know about our components:
+ *   :1121  .ph                    { color: var(--Gray) }
+ *   :1130  button:hover .ph       { color: var(--White) }
+ *   :2697  .wg-box:hover .ph      { color: var(--Primary-Hover) }
+ * So a component that colours its own label ends up with a mismatched
+ * icon. .wallet-actions is itself a .wg-box, which meant hovering ONE
+ * action turned EVERY icon in the row #FF7733 on a #FF5B04 fill; the
+ * active cadence toggle had the same problem for the same reason.
+ *
+ * The fix is not a colour, it is `inherit` - the component already sets
+ * the correct value on the element the icon sits in, so the icon just
+ * has to stop being told otherwise. Any new component that colours its
+ * own text should be added to this list rather than re-specifying ink.
+ * ================================================================= */
+body.mvc-dash .wallet-action .ph,
+body.mvc-dash .wallet-action:hover .ph,
+body.mvc-dash .wg-box:hover .wallet-action .ph,
+body.mvc-dash .wallet-action__icon .ph,
+body.mvc-dash .cadence-toggle__btn .ph,
+body.mvc-dash .cadence-toggle__btn:hover .ph,
+body.mvc-dash .wg-box:hover .cadence-toggle__btn .ph,
+body.mvc-dash .mvc-segment__btn .ph,
+body.mvc-dash .mvc-segment__btn:hover .ph,
+body.mvc-dash .mvc-dock__item .ph,
+body.mvc-dash .mvc-sheet__item .ph,
+body.mvc-dash .mvc-field__chip .ph,
+body.mvc-dash .modal-actions .ph,
+body.mvc-dash .modal-confirm-btn .ph {
+  color: inherit;
+}
+
+
+/* =================================================================
+ * 19. SELECT CARET - one source of truth
+ *
+ * dashboard.css:8163 gives .modal-body select `appearance:none` plus a
+ * caret via background-image. Three rules in THIS file then repainted
+ * those controls with the `background` SHORTHAND, which resets
+ * background-image to none - so every <select> on every dashboard page
+ * was appearance:none with no dropdown indicator at all. Those three
+ * are now background-color longhands and the caret lives here.
+ *
+ * INVARIANT: never paint a form control with the `background` shorthand
+ * in this file. Use background-color.
+ *
+ * The stroke is hardcoded %238A9DA5, which is --Gray - identical in
+ * both themes, so one value stays correct either way.
+ * ================================================================= */
+body.mvc-dash select,
+body.mvc-dash .form-select,
+body.mvc-dash .custom-select,
+body.mvc-dash .modal-body select,
+body.mvc-dash .modal-body .form-group > select,
+body.mvc-dash .modal-body .form-group > select.form-control,
+body.mvc-dash .mvc-field select.mvc-field__input,
+body.mvc-dash .modal-body .mvc-field select.mvc-field__input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%238A9DA5' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m5 7.5 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 14px 14px;
+  padding-right: 26px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+
+/* The caret above bakes its stroke into a data: URI, so it cannot read a token.
+   %238A9DA5 is the DARK theme's --Gray; in light mode --Gray is #5A6C74 and the
+   caret was rendering the wrong grey on every select. Second copy for light. */
+:root[data-theme="light"] body.mvc-dash select.mvc-field__input,
+:root[data-theme="light"] body.mvc-dash .mvc-field select,
+:root[data-theme="light"] body.mvc-dash select.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%235A6C74' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m5 7.5 5 5 5-5'/%3E%3C/svg%3E");
+}
+
+/* Controls with their own padding box keep the caret inside it */
+body.mvc-dash select.form-control,
+body.mvc-dash .form-select,
+body.mvc-dash .custom-select,
+body.mvc-dash .modal-body .form-group > select {
+  background-position: right 14px center;
+}
+
+/* Inside a field card the select is a label, not a numeral. The negative
+   margin pulls back the padding so the click target fills the row while
+   the visual box stays exactly where it was. */
+body.mvc-dash .mvc-field select.mvc-field__input,
+body.mvc-dash .modal-body .mvc-field select.mvc-field__input {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  padding: 6px 26px 6px 0;
+  margin: -6px 0;
+}
+
+body.mvc-dash .mvc-field:has(select.mvc-field__input) {
+  cursor: pointer;
+}
+
+body.mvc-dash .mvc-field:has(select.mvc-field__input):hover {
+  border-color: var(--GrayDark);
+}
+
+/* Native <option> popups honour these on Windows/Linux Chrome and on
+   Firefox. macOS ignores them entirely - `color-scheme` (section 9) is
+   what makes that case readable. */
+body.mvc-dash select option {
+  background-color: var(--Surface);
+  color: var(--Black);
+}
+
+body.mvc-dash select option:disabled {
+  color: var(--Gray);
+}
+
+
+/* =================================================================
+ * 20. SCROLLBARS
+ *
+ * Nothing in this file styled a scrollbar, and dashboard.css:8080
+ * actively HID the modal one (width:0 + scrollbar-width:none), so tall
+ * dialogs scrolled with no affordance whatsoever. Everything else fell
+ * back to the OS default, which is the "html default scrollbar" showing
+ * through a dark UI.
+ *
+ * scrollbar-width and scrollbar-color are inherited properties, so the
+ * body rule alone covers every descendant on Firefox. The explicit list
+ * below exists only for elements that declare scrollbar-width DIRECTLY
+ * - a direct declaration always beats an inherited value.
+ * ================================================================= */
+body.mvc-dash {
+  --mvc-scroll-thumb:       rgba(255, 255, 255, 0.16);
+  --mvc-scroll-thumb-hover: rgba(255, 255, 255, 0.30);
+}
+
+:root[data-theme="light"] body.mvc-dash {
+  --mvc-scroll-thumb:       rgba(22, 35, 42, 0.18);
+  --mvc-scroll-thumb-hover: rgba(22, 35, 42, 0.34);
+}
+
+/* --- Firefox / standards ------------------------------------------ */
+body.mvc-dash {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mvc-scroll-thumb) transparent;
+}
+
+body.mvc-dash .modal-content,
+body.mvc-dash .modal-body,
+body.mvc-dash textarea,
+body.mvc-dash #modal-bank-dropdown,
+body.mvc-dash .dropdown-menu,
+body.mvc-dash .mvc-scroll-table,
+body.mvc-dash .offcanvas-body,
+body.mvc-dash .section-menu-left .section-menu-left-wrap {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mvc-scroll-thumb) transparent;
+  -ms-overflow-style: auto;   /* undoes dashboard.css:8081 */
+}
+
+/* --- WebKit / Blink ------------------------------------------------ */
+body.mvc-dash::-webkit-scrollbar,
+body.mvc-dash ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+body.mvc-dash::-webkit-scrollbar-track,
+body.mvc-dash ::-webkit-scrollbar-track,
+body.mvc-dash ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+body.mvc-dash::-webkit-scrollbar-thumb,
+body.mvc-dash ::-webkit-scrollbar-thumb {
+  background-color: var(--mvc-scroll-thumb);
+  border-radius: 999px;
+  /* Transparent border clipped to the padding box gives an inset thumb
+     that never touches the container edge - crisper than a track fill. */
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  transition: background-color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash::-webkit-scrollbar-thumb:hover,
+body.mvc-dash ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--mvc-scroll-thumb-hover);
+}
+
+/* dashboard.css:8080 sets width:0 on this exact element, so it needs an
+   equally direct rule rather than the descendant form above. */
+body.mvc-dash .modal-content::-webkit-scrollbar,
+body.mvc-dash .modal-body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.mvc-dash .mvc-scroll-table::-webkit-scrollbar {
+  height: 8px;
+}
+
+/* Touch platforms already draw overlay bars; a reserved gutter would
+   just steal width from the content. */
+@media (hover: none) {
+  body.mvc-dash::-webkit-scrollbar,
+  body.mvc-dash ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.mvc-dash::-webkit-scrollbar-thumb,
+  body.mvc-dash ::-webkit-scrollbar-thumb {
+    transition: none;
+  }
+}
+
+
+/* =================================================================
+ * 21. PAGINATION - .mvc-pager
+ *
+ * Replaces two dialects:
+ *   .page-btn  (dashboard.css) - styled, but hardcoded #386641, a dead
+ *              brand green with no dark-mode awareness.
+ *   .page-link - defined in NEITHER dashboard.css nor this file. The
+ *              only rule was Bootstrap's, written for `<li class="page-item">`
+ *              markup this app has never emitted, so the four admin
+ *              pagers rendered as blue Bootstrap boxes fighting
+ *              .tf-button.style-1.
+ *
+ * Every value here is a token, so both themes come free.
+ * ================================================================= */
+body.mvc-dash .mvc-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+body.mvc-dash .mvc-pager[hidden] { display: none; }
+
+body.mvc-dash .mvc-pager__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--mvc-border);
+  border-radius: 10px;
+  background: var(--Surface);
+  color: var(--Black);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out),
+              border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              color var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+
+body.mvc-dash .mvc-pager__btn--nav {
+  font-size: 18px;
+  padding: 0 8px;
+}
+
+body.mvc-dash .mvc-pager__btn:hover:not(:disabled) {
+  background: var(--Surface-Alt);
+  border-color: var(--Primary);
+  color: var(--Black);
+}
+
+body.mvc-dash .mvc-pager__btn:focus-visible {
+  outline: 2px solid var(--Primary);
+  outline-offset: 2px;
+}
+
+body.mvc-dash .mvc-pager__btn.is-current {
+  background: var(--Primary);
+  border-color: var(--Primary);
+  color: var(--mvc-on-accent);
+  cursor: default;
+}
+
+/* Three signals, not one. The class carries the look, the [disabled]
+   attribute selector guarantees the look cannot drift from the real button
+   state, and pointer-events stops a dead control from offering a hover
+   affordance. The attribute is also what takes it out of the tab order -
+   which the old `disabled` CLASS never did. */
+body.mvc-dash .mvc-pager__btn.is-disabled,
+body.mvc-dash .mvc-pager__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: var(--Surface-Alt);
+  color: var(--Gray);
+}
+
+body.mvc-dash .mvc-pager__gap {
+  min-width: 20px;
+  text-align: center;
+  color: var(--Gray);
+  font-size: 14px;
+  user-select: none;
+}
+
+/* Shown only in the narrow layout below. */
+body.mvc-dash .mvc-pager__status {
+  display: none;
+  padding: 0 10px;
+  color: var(--Gray);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Narrow: ‹ · "3 / 12" · › -------------------------------------
+ * At 390px, seven 38px chips plus gaps is ~330px and wraps to two rows that
+ * read as a broken grid. Collapsing to three items is a fixed ~180px at ANY
+ * page count. */
+@media (max-width: 479px) {
+  body.mvc-dash .mvc-pager {
+    flex-wrap: nowrap;
+  }
+  body.mvc-dash .mvc-pager__btn--num,
+  body.mvc-dash .mvc-pager__gap {
+    display: none;
+  }
+  body.mvc-dash .mvc-pager__status {
+    display: inline-flex;
+    align-items: center;
+  }
+  body.mvc-dash .mvc-pager__btn--nav {
+    min-width: 44px;   /* touch target */
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.mvc-dash .mvc-pager__btn { transition: none; }
+}
+
+
+/* =================================================================
+ * KYC - identity verification (member) + review queue (admin)
+ *
+ * Reads only the tokens declared at the top of this file, so it flips
+ * with the theme like everything else. Status colours come from the
+ * --Green / --mvc-warning / --mvc-accent-red trio rather than new
+ * literals - a badge that means "rejected" should be the same red the
+ * rest of the dashboard already uses for that.
+ * ================================================================= */
+
+body.mvc-dash .mvc-kyc-status__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mvc-space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--mvc-space-4);
+}
+
+body.mvc-dash .mvc-kyc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--mvc-radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+body.mvc-dash .mvc-kyc-badge--none     { background: var(--Surface-Alt); color: var(--GrayDark); border: 1px solid var(--LightGray); }
+/* --mvc-on-accent is pinned dark in both themes because the orange fill never
+   moves - but --mvc-warning DOES move, to #B45309 in light, where dark ink
+   measures 2.7:1. The badge needs the ink that flips with its own fill. */
+body.mvc-dash .mvc-kyc-badge--pending  { background: var(--mvc-warning); color: var(--mvc-on-warning); }
+body.mvc-dash .mvc-kyc-badge--approved { background: var(--Green);       color: var(--mvc-on-green); }
+body.mvc-dash .mvc-kyc-badge--rejected { background: var(--mvc-accent-red); color: var(--mvc-on-red); }
+
+/* Rejection reason: the one thing on the page the member must not miss. */
+body.mvc-dash .mvc-kyc-reject {
+  display: flex;
+  gap: var(--mvc-space-3);
+  padding: var(--mvc-space-4);
+  margin-bottom: var(--mvc-space-4);
+  border-radius: var(--mvc-radius-card);
+  background: var(--Surface-Alt);
+  border-left: 3px solid var(--mvc-accent-red);
+  color: var(--Black);
+}
+body.mvc-dash .mvc-kyc-reject .ph {
+  font-size: 20px;
+  color: var(--mvc-accent-red);
+  flex-shrink: 0;
+}
+
+/* --- Upload drop zones ------------------------------------------- */
+body.mvc-dash .mvc-kyc-drop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 132px;
+  padding: var(--mvc-space-4);
+  margin-bottom: var(--mvc-space-3);
+  border: 1px dashed var(--LightGray);
+  border-radius: var(--mvc-radius-card);
+  background: var(--Surface-Alt);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              background var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+body.mvc-dash .mvc-kyc-drop:hover,
+body.mvc-dash .mvc-kyc-drop:focus-visible {
+  border-color: var(--Primary);
+  background: var(--Surface);
+}
+/* Keyboard users get the same affordance as the pointer hover above -
+   the zone is a role="button" with tabindex, so it must show focus. */
+body.mvc-dash .mvc-kyc-drop:focus-visible {
+  outline: 2px solid var(--Primary);
+  outline-offset: 2px;
+}
+body.mvc-dash .mvc-kyc-drop.is-filled { border-style: solid; }
+
+body.mvc-dash .mvc-kyc-drop__empty {
+  text-align: center;
+  color: var(--Black);
+}
+body.mvc-dash .mvc-kyc-drop__empty .ph {
+  display: block;
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: var(--Primary-Ink);
+}
+body.mvc-dash .mvc-kyc-drop__preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+
+body.mvc-dash .mvc-kyc-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: var(--mvc-space-3);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--GrayDark);
+}
+body.mvc-dash .mvc-kyc-note .ph {
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* --- Admin review ------------------------------------------------- */
+body.mvc-dash .mvc-kyc-docs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--mvc-space-4);
+  margin-bottom: var(--mvc-space-5);
+}
+body.mvc-dash .mvc-kyc-doc {
+  border: 1px solid var(--LightGray);
+  border-radius: var(--mvc-radius-card);
+  overflow: hidden;
+  background: var(--Surface-Alt);
+}
+body.mvc-dash .mvc-kyc-doc__label {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--GrayDark);
+  border-bottom: 1px solid var(--LightGray);
+}
+body.mvc-dash .mvc-kyc-doc img {
+  display: block;
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  cursor: zoom-in;
+  background: var(--Bg);
+}
+/* A PDF has no thumbnail; it gets a link tile the same size as the images so
+   the row does not collapse unevenly. */
+body.mvc-dash .mvc-kyc-doc__pdf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 190px;
+  color: var(--Primary-Ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+body.mvc-dash .mvc-kyc-doc__pdf .ph { font-size: 30px; }
+
+body.mvc-dash .mvc-kyc-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--mvc-space-3) var(--mvc-space-5);
+  margin-bottom: var(--mvc-space-5);
+}
+body.mvc-dash .mvc-kyc-meta__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mvc-space-3);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--LightGray);
+  font-size: 13px;
+}
+body.mvc-dash .mvc-kyc-meta__row span   { color: var(--GrayDark); }
+body.mvc-dash .mvc-kyc-meta__row strong { color: var(--Black); text-align: right; word-break: break-word; }
+
+@media (max-width: 767px) {
+  body.mvc-dash .mvc-kyc-status__head { align-items: flex-start; }
+  body.mvc-dash .mvc-kyc-doc img,
+  body.mvc-dash .mvc-kyc-doc__pdf { height: 150px; }
+}
+
+/* Pending-count pill inside the KYC filter segment. Sized to sit on the
+   segment button without changing its height. */
+body.mvc-dash .mvc-count {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: var(--mvc-radius-pill);
+  background: var(--Primary);
+  color: var(--mvc-on-accent);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+/* Nothing to review: the pill should not shout a zero. */
+body.mvc-dash .mvc-count[data-zero="1"] {
+  background: var(--LightGray);
+  color: var(--GrayDark);
+}
+
+/* KYC prompt on the wallet page. Colour tracks the state: amber while a
+   review is in flight, brand red when it needs the member to act. */
+body.mvc-dash .mvc-kyc-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--mvc-space-4);
+  padding: var(--mvc-space-4) var(--mvc-space-5);
+  border-radius: var(--mvc-radius-card);
+  background: var(--Surface-Alt);
+  border: 1px solid var(--LightGray);
+  border-left: 3px solid var(--Primary);
+  color: var(--Black);
+}
+body.mvc-dash .mvc-kyc-banner--pending  { border-left-color: var(--mvc-warning); }
+body.mvc-dash .mvc-kyc-banner--rejected { border-left-color: var(--mvc-accent-red); }
+
+body.mvc-dash .mvc-kyc-banner > .ph {
+  font-size: 24px;
+  flex-shrink: 0;
+  color: var(--Primary-Ink);
+}
+body.mvc-dash .mvc-kyc-banner--pending  > .ph { color: var(--mvc-warning); }
+body.mvc-dash .mvc-kyc-banner--rejected > .ph { color: var(--mvc-accent-red); }
+
+body.mvc-dash .mvc-kyc-banner__body { flex: 1 1 auto; min-width: 0; }
+body.mvc-dash .mvc-kyc-banner__body .f12-regular { color: var(--GrayDark); }
+body.mvc-dash .mvc-kyc-banner .tf-button { flex-shrink: 0; white-space: nowrap; }
+
+@media (max-width: 575px) {
+  /* Stack rather than squeeze: the CTA must stay a full-width tap target. */
+  body.mvc-dash .mvc-kyc-banner { flex-wrap: wrap; }
+  body.mvc-dash .mvc-kyc-banner .tf-button { width: 100%; }
+}
+
+
+/* =================================================================
+ * DASHBOARD COMPONENTS — the rebuilt member vocabulary
+ *
+ * WHY THESE EXIST. The member pages speak the inherited admin template's
+ * utility classes: wg-box, f14-bold, mb-32, text-Gray. Those bake the
+ * decision into the markup, which is why mvc-dashboard.css had to grow to
+ * 448 rules just to repaint dashboard.css's 1,304. You cannot restructure
+ * a page whose spacing and type are written into its class names.
+ *
+ * These are semantic instead - .mvc-panel, .mvc-stat, .mvc-kv - so the
+ * markup says what a thing IS and this file decides how it looks. Every
+ * value reads a token, so both themes come along for free.
+ * ================================================================= */
+
+/* --- Panel: the one content container ---------------------------- */
+body.mvc-dash .mvc-panel {
+  background: var(--Surface);
+  border: 1px solid var(--LightGray);
+  border-radius: 14px;
+  padding: var(--mvc-space-6);
+}
+body.mvc-dash .mvc-panel + .mvc-panel { margin-top: var(--mvc-space-5); }
+
+body.mvc-dash .mvc-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mvc-space-4);
+  margin-bottom: var(--mvc-space-5);
+}
+body.mvc-dash .mvc-panel__title {
+  margin: 0;
+  font-size: 15px;
+  /* Explicit. A bare h2 inherits the legacy sheet's page-heading line-height,
+     which made a 15px title occupy 79px and read as a gap under every panel
+     heading - the same empty-band effect the old Card Details panel had. */
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--Black);
+}
+body.mvc-dash .mvc-panel__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--Primary-Ink);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+body.mvc-dash .mvc-panel__action:hover { text-decoration: underline; }
+
+/* --- Stat cards --------------------------------------------------- */
+body.mvc-dash .mvc-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--mvc-space-4);
+}
+body.mvc-dash .mvc-stat {
+  padding: var(--mvc-space-5);
+  border: 1px solid var(--LightGray);
+  border-radius: 12px;
+  background: var(--Surface-Alt);
+}
+/* Exactly one card carries the brand fill. More than one and the eye has
+   nowhere to land - which is the failure mode of the four-identical-card
+   row this replaced. */
+body.mvc-dash .mvc-stat--featured {
+  background: var(--Primary);
+  border-color: var(--Primary);
+}
+body.mvc-dash .mvc-stat__label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: .2px;
+  color: var(--GrayDark);
+}
+body.mvc-dash .mvc-stat__value {
+  display: block;
+  margin: 10px 0 8px;
+  font-size: 27px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -.6px;
+  color: var(--Black);
+  /* Balances change on refresh; tabular figures stop the row twitching. */
+  font-variant-numeric: tabular-nums;
+}
+body.mvc-dash .mvc-stat__meta {
+  display: block;
+  font-size: 11px;
+  font-family: var(--mvc-font-body);
+  letter-spacing: .3px;
+  color: var(--Gray);
+}
+/* On the filled card everything flips to the ink that reads on orange. */
+body.mvc-dash .mvc-stat--featured .mvc-stat__label,
+body.mvc-dash .mvc-stat--featured .mvc-stat__value,
+body.mvc-dash .mvc-stat--featured .mvc-stat__meta { color: var(--mvc-on-accent); }
+body.mvc-dash .mvc-stat--featured .mvc-stat__label,
+body.mvc-dash .mvc-stat--featured .mvc-stat__meta { opacity: .78; }
+
+/* --- Key/value list ----------------------------------------------- */
+body.mvc-dash .mvc-kv { margin: 0; padding: 0; list-style: none; }
+body.mvc-dash .mvc-kv li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mvc-space-4);
+  padding: 13px 0;
+  border-bottom: 1px solid var(--LightGray);
+  font-size: 13px;
+}
+body.mvc-dash .mvc-kv li:last-child { border-bottom: 0; }
+body.mvc-dash .mvc-kv span   { color: var(--GrayDark); }
+body.mvc-dash .mvc-kv strong { color: var(--Black); font-weight: 600; text-align: right; word-break: break-word; }
+
+/* --- Split: detail beside a visual --------------------------------- */
+body.mvc-dash .mvc-split {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: var(--mvc-space-8);
+  /* start, not center: the chart column is much taller than the detail list,
+     and centring pushed the list halfway down the panel so it read as a gap
+     under the heading - the same empty-band effect this rebuild set out to
+     remove. */
+  align-items: start;
+}
+
+body.mvc-dash .mvc-chart { text-align: center; }
+body.mvc-dash .mvc-chart canvas { max-width: 100%; height: auto; }
+body.mvc-dash .mvc-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px var(--mvc-space-4);
+  margin: var(--mvc-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--GrayDark);
+}
+body.mvc-dash .mvc-chart__legend li { display: inline-flex; align-items: center; gap: 7px; }
+body.mvc-dash .mvc-chart__legend strong { color: var(--Black); font-variant-numeric: tabular-nums; }
+body.mvc-dash .mvc-chart__dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+/* --- Notices ------------------------------------------------------- */
+body.mvc-dash .mvc-notice {
+  display: flex;
+  gap: var(--mvc-space-4);
+  padding: var(--mvc-space-4) 0;
+  border-bottom: 1px solid var(--LightGray);
+}
+body.mvc-dash .mvc-notice:last-child { border-bottom: 0; padding-bottom: 0; }
+body.mvc-dash .mvc-notice__icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 9px;
+  background: var(--mvc-accent-soft);
+  color: var(--mvc-on-accent-soft);
+  font-size: 17px;
+}
+body.mvc-dash .mvc-notice__title { font-size: 14px; font-weight: 600; color: var(--Black); margin-bottom: 3px; }
+body.mvc-dash .mvc-notice__body  { font-size: 12.5px; line-height: 1.55; color: var(--GrayDark); }
+
+/* Announcement date line, and the quiet state when nothing is published.
+   Both are written by mvcRenderAnnouncements() in assets/js/dashboard.js. */
+body.mvc-dash .mvc-notice__meta {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--GrayDark);
+  opacity: .72;
+  margin-top: 5px;
+}
+body.mvc-dash .mvc-notice--empty .mvc-notice__body { opacity: .8; }
+
+/* Explanatory line under a panel title (admin Settings). */
+body.mvc-dash .mvc-panel__lede {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--GrayDark);
+  margin: 0 0 16px;
+  max-width: 62ch;
+}
+
+/* --- Page rhythm ---------------------------------------------------- */
+body.mvc-dash .mvc-stack { display: grid; gap: var(--mvc-space-5); }
+body.mvc-dash .mvc-cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--mvc-space-5); }
+/* Columns size to their own content. Stretching made the balance card grow to
+   match whatever sat beside it, which left a large empty field of brand orange
+   under the sub-stats. */
+body.mvc-dash .mvc-cols-2 > * { align-self: start; }
+
+/* --- Grid blowout guard ---------------------------------------------
+ * A grid (and flex) item defaults to `min-width: auto`, which means a track can
+ * never shrink below its content's MIN-CONTENT width. `1fr` then loses: the
+ * track resolves to whatever the widest unbreakable thing inside it needs and
+ * the item overflows its container, silently, with no warning anywhere.
+ *
+ * Measured on /dashboard.wallet at a 320px viewport: .mvc-cols-2 had already
+ * collapsed to a single column exactly as its media query intended, and that
+ * one column still computed to 746px against a 290px .tf-container - 442px of
+ * overflow. The media queries were never the problem.
+ *
+ * This is invisible in a document-level check, because body and .layout-wrap
+ * are overflow:hidden - the content is CLIPPED, so document.scrollWidth never
+ * grows and every scrollWidth-based test passes on a completely broken layout.
+ * It has to be measured with getBoundingClientRect per element.
+ *
+ * min-width: 0 lets the track shrink and hands control back to 1fr. Applied to
+ * every grid primitive on the dashboard, and to the nested children that form
+ * their own formatting contexts.
+ * ------------------------------------------------------------------- */
+body.mvc-dash .mvc-stack > *,
+body.mvc-dash .mvc-cols-2 > *,
+body.mvc-dash .mvc-split > *,
+body.mvc-dash .mvc-grid-2 > *,
+body.mvc-dash .mvc-form-grid > *,
+body.mvc-dash .mvc-stats > *,
+body.mvc-dash .mvc-quick > *,
+body.mvc-dash .mvc-plans > *,
+body.mvc-dash .mvc-uploads > *,
+body.mvc-dash .mvc-kyc-docs > *,
+body.mvc-dash .mvc-kyc-meta > *,
+body.mvc-dash .mvc-alloc > *,
+body.mvc-dash .mvc-balance__sub > *,
+body.mvc-dash .mvc-plan__meta > * {
+  min-width: 0;
+}
+
+/* The panels and cards these grids contain are themselves grid/flex parents,
+   so the same floor applies one level in. */
+body.mvc-dash .mvc-panel,
+body.mvc-dash .mvc-balance,
+body.mvc-dash .mvc-stat,
+body.mvc-dash .mvc-plan,
+body.mvc-dash .mvc-field,
+body.mvc-dash .mvc-field__row,
+body.mvc-dash .mvc-panel__head {
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  body.mvc-dash .mvc-split  { grid-template-columns: 1fr; }
+  body.mvc-dash .mvc-cols-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 575px) {
+  body.mvc-dash .mvc-panel { padding: var(--mvc-space-4); }
+  body.mvc-dash .mvc-stat__value { font-size: 23px; }
+}
+
+
+/* --- Quiet table -------------------------------------------------
+ * .mvc-table paints its header bar in full brand orange, which works in
+ * the admin tables where the table IS the page. Inside a member panel it
+ * shouts over the content it is labelling, and a wall of orange bars down
+ * the dashboard is precisely the template look this rebuild is undoing.
+ * ----------------------------------------------------------------- */
+body.mvc-dash .mvc-table--quiet thead th {
+  background: transparent;
+  color: var(--GrayDark) !important;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .3px;
+  /* Was `0 ... 10px`. With no top padding the labels sat flush against
+     .mvc-scroll-table's top border and read as clipped rather than quiet. */
+  padding: var(--mvc-space-3) var(--mvc-space-4) 10px;
+  border-bottom: 1px solid var(--LightGray);
+}
+body.mvc-dash .mvc-table--quiet thead th * { color: var(--GrayDark) !important; }
+body.mvc-dash .mvc-table--quiet td { padding: 13px var(--mvc-space-4); }
+body.mvc-dash .mvc-table--quiet tbody tr:last-child td { border-bottom: 0; }
+
+/* --- Selectable plan cards (invest page) --------------------------
+ * The shelf used to live only in a <select>. Three plans is not a list you
+ * hide in a dropdown - it is the product, and it should be readable and
+ * comparable at a glance.
+ * ----------------------------------------------------------------- */
+body.mvc-dash .mvc-plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--mvc-space-4);
+}
+body.mvc-dash .mvc-plan {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--mvc-space-5);
+  border: 1px solid var(--LightGray);
+  border-radius: 12px;
+  background: var(--Surface-Alt);
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              transform var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+body.mvc-dash .mvc-plan:hover { border-color: var(--Primary); transform: translateY(-2px); }
+body.mvc-dash .mvc-plan:focus-visible { outline: 2px solid var(--Primary); outline-offset: 2px; }
+/* Selection is carried by a border and a tint rather than a full fill: the
+   card has to stay readable while it is chosen. */
+body.mvc-dash .mvc-plan.is-selected {
+  border-color: var(--Primary);
+  box-shadow: inset 0 0 0 1px var(--Primary);
+  background: var(--mvc-accent-soft);
+}
+
+body.mvc-dash .mvc-plan__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mvc-space-3);
+  margin-bottom: 10px;
+}
+body.mvc-dash .mvc-plan__name { font-size: 14px; font-weight: 600; color: var(--Black); }
+body.mvc-dash .mvc-plan__tag {
+  padding: 3px 9px;
+  border-radius: var(--mvc-radius-pill);
+  background: var(--Primary);
+  color: var(--mvc-on-accent);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+body.mvc-dash .mvc-plan__rate {
+  display: block;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -1px;
+  color: var(--Primary-Ink);
+  font-variant-numeric: tabular-nums;
+}
+body.mvc-dash .mvc-plan__rate span {
+  display: inline-block;
+  margin-left: 7px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--GrayDark);
+}
+body.mvc-dash .mvc-plan__desc {
+  display: block;
+  margin: 10px 0 var(--mvc-space-4);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--GrayDark);
+}
+body.mvc-dash .mvc-plan__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px var(--mvc-space-4);
+  padding-top: var(--mvc-space-4);
+  border-top: 1px solid var(--LightGray);
+}
+body.mvc-dash .mvc-plan__meta > span { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+body.mvc-dash .mvc-plan__meta span span { color: var(--Gray); }
+body.mvc-dash .mvc-plan__meta strong { color: var(--Black); font-weight: 600; }
+
+
+/* =================================================================
+ * VERIFICATION — the identity flow
+ *
+ * The first version put five form fields in one column and two upload
+ * tiles in another, so the columns ended 130px apart and the submit
+ * button floated in the gap. It also had no sense of progress, which on
+ * a multi-part identity form is the one thing a member wants: how much
+ * of this is left.
+ *
+ * This is a single narrow flow with an explicit step rail instead. It is
+ * a form to be completed, not a dashboard to be scanned.
+ * ================================================================= */
+
+body.mvc-dash .mvc-verify { max-width: 780px; }
+
+/* --- Form grid -----------------------------------------------------
+ * For forms inside a FULL-WIDTH panel. .mvc-grid-2 is a hard two columns, so
+ * on a wide panel it produces two very long inputs; this flows instead - three
+ * across on a desktop, two on a tablet, one on a phone - and the fields stay
+ * the width their content justifies. The floor is min()-guarded so a single
+ * column can still shrink below it rather than overflowing a 320px screen.
+ * ------------------------------------------------------------------- */
+body.mvc-dash .mvc-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 0 var(--mvc-space-4);
+}
+/* Opt out for the long-form fields - an address or a street line wants the
+   whole row, not a third of it. */
+body.mvc-dash .mvc-form-grid > .mvc-field--full { grid-column: 1 / -1; }
+
+/* --- Status strip -------------------------------------------------- */
+body.mvc-dash .mvc-verify-status {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mvc-space-4);
+  padding: var(--mvc-space-5);
+  margin-bottom: var(--mvc-space-5);
+  border: 1px solid var(--LightGray);
+  border-left: 3px solid var(--Primary);
+  border-radius: 12px;
+  background: var(--Surface);
+}
+body.mvc-dash .mvc-verify-status--pending  { border-left-color: var(--mvc-warning); }
+body.mvc-dash .mvc-verify-status--approved { border-left-color: var(--Green); }
+body.mvc-dash .mvc-verify-status--rejected { border-left-color: var(--mvc-accent-red); }
+
+body.mvc-dash .mvc-verify-status__icon { font-size: 21px; color: var(--Primary-Ink); flex: none; line-height: 1.3; }
+body.mvc-dash .mvc-verify-status--pending  .mvc-verify-status__icon { color: var(--mvc-warning); }
+body.mvc-dash .mvc-verify-status--approved .mvc-verify-status__icon { color: var(--Green); }
+body.mvc-dash .mvc-verify-status--rejected .mvc-verify-status__icon { color: var(--mvc-accent-red); }
+
+body.mvc-dash .mvc-verify-status__body { flex: 1 1 auto; min-width: 0; }
+body.mvc-dash .mvc-verify-status__title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--Black);
+  margin-bottom: 4px;
+}
+body.mvc-dash .mvc-verify-status__text { font-size: 12.5px; line-height: 1.55; color: var(--GrayDark); }
+
+/* --- Step rail ------------------------------------------------------ */
+body.mvc-dash .mvc-steps {
+  display: flex;
+  align-items: center;
+  gap: var(--mvc-space-3);
+  margin-bottom: var(--mvc-space-6);
+}
+body.mvc-dash .mvc-steps__item { display: flex; align-items: center; gap: 9px; }
+body.mvc-dash .mvc-steps__n {
+  display: grid;
+  place-items: center;
+  width: 25px; height: 25px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--LightGray);
+  background: var(--Surface-Alt);
+  color: var(--GrayDark);
+  font-size: 12px;
+  font-weight: 600;
+}
+body.mvc-dash .mvc-steps__item.is-current .mvc-steps__n {
+  background: var(--Primary);
+  border-color: var(--Primary);
+  color: var(--mvc-on-accent);
+}
+body.mvc-dash .mvc-steps__label { font-size: 12.5px; color: var(--GrayDark); white-space: nowrap; }
+body.mvc-dash .mvc-steps__item.is-current .mvc-steps__label { color: var(--Black); font-weight: 600; }
+/* The connector is a flexible rule, so the rail spreads to the container
+   width without the steps needing fixed widths. */
+body.mvc-dash .mvc-steps__line { flex: 1 1 auto; height: 1px; background: var(--LightGray); min-width: 14px; }
+
+/* --- Field group ---------------------------------------------------- */
+body.mvc-dash .mvc-fieldset { margin-bottom: var(--mvc-space-6); }
+/* .mt-16 is used at kyc.php:261 and invest.php:152 and is defined in NO
+   stylesheet - not here, not dashboard.css, not bootstrap. Both primary submit
+   buttons were sitting flush against the note above them. dashboard.css has an
+   .mt-3/.mt-4/.mt-24 family but skips 16, so this fills the gap rather than
+   inventing a parallel one. */
+body.mvc-dash .mt-16 { margin-top: 16px; }
+
+/* Separate the fieldset legends and their fields: the legend is a section
+   heading and was sitting as close to the first field as the fields sit to
+   each other. */
+body.mvc-dash .mvc-fieldset + .mvc-fieldset { margin-top: var(--mvc-space-6); }
+
+body.mvc-dash .mvc-fieldset__legend {
+  display: block;
+  margin-bottom: var(--mvc-space-5);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--Primary-Ink);
+}
+body.mvc-dash .mvc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--mvc-space-4); }
+
+/* --- Upload tiles ---------------------------------------------------- */
+body.mvc-dash .mvc-uploads {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--mvc-space-4);
+}
+body.mvc-dash .mvc-upload {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  /* Deliberately not tall. The previous tiles were 132px of mostly empty
+     space each, which made the form look emptier the more of it there was. */
+  min-height: 108px;
+  padding: var(--mvc-space-4);
+  border: 1px dashed var(--LightGray);
+  border-radius: 12px;
+  background: var(--Surface-Alt);
+  cursor: pointer;
+  overflow: hidden;
+  text-align: center;
+  transition: border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              background var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+body.mvc-dash .mvc-upload:hover { border-color: var(--Primary); background: var(--Surface); }
+body.mvc-dash .mvc-upload:focus-visible { outline: 2px solid var(--Primary); outline-offset: 2px; }
+body.mvc-dash .mvc-upload.is-filled { border-style: solid; border-color: var(--Primary); padding: 0; }
+
+/* The gap on .mvc-upload spaces the tile's direct children, and everything
+   visible is nested one level deeper inside __empty - so without this the
+   icon, label and hint sat flush against each other. */
+body.mvc-dash .mvc-upload__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+body.mvc-dash .mvc-upload__icon { font-size: 22px; color: var(--Primary-Ink); line-height: 1; }
+body.mvc-dash .mvc-upload__name { font-size: 12.5px; font-weight: 600; color: var(--Black); }
+body.mvc-dash .mvc-upload__hint { font-size: 11px; color: var(--Gray); }
+body.mvc-dash .mvc-upload__preview { display: block; width: 100%; height: 108px; object-fit: cover; }
+/* A tick in the corner is what tells you a tile is done at a glance, which
+   matters when three of them sit side by side. */
+body.mvc-dash .mvc-upload__done {
+  position: absolute;
+  top: 7px; right: 7px;
+  display: grid;
+  place-items: center;
+  width: 21px; height: 21px;
+  border-radius: 50%;
+  background: var(--Primary);
+  color: var(--mvc-on-accent);
+  font-size: 12px;
+}
+
+body.mvc-dash .mvc-verify-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: var(--mvc-space-4);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--GrayDark);
+}
+body.mvc-dash .mvc-verify-note .ph { font-size: 15px; flex: none; margin-top: 1px; color: var(--Primary-Ink); }
+
+@media (max-width: 640px) {
+  body.mvc-dash .mvc-grid-2 { grid-template-columns: 1fr; }
+  /* The rail's labels do not fit three-across on a phone; the numbers alone
+     still carry the progress. */
+  body.mvc-dash .mvc-steps__label { display: none; }
+}
+
+/* --- Toolbar: search, filter, export ------------------------------
+ * transaction.js binds .form-search, .form-search input, .dropdown-menu a
+ * and .tf-button.style-2 by selector, so those class names are load-bearing
+ * and stay. Only the surrounding structure and styling change.
+ * ----------------------------------------------------------------- */
+body.mvc-dash .mvc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--mvc-space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--mvc-space-5);
+}
+body.mvc-dash .mvc-toolbar .form-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+body.mvc-dash .mvc-toolbar .form-search input {
+  width: 100%;
+  padding: 10px 40px 10px 38px;
+  border: 1px solid var(--LightGray);
+  border-radius: var(--mvc-radius-pill);
+  background: var(--Surface-Alt);
+  color: var(--Black);
+  font: inherit;
+  font-size: 13.5px;
+}
+body.mvc-dash .mvc-toolbar .form-search input::placeholder { color: var(--Gray); }
+body.mvc-dash .mvc-toolbar .form-search input:focus {
+  outline: none;
+  border-color: var(--Primary);
+  box-shadow: 0 0 0 3px var(--mvc-accent-soft);
+}
+body.mvc-dash .mvc-toolbar .form-search .button-submit {
+  position: absolute;
+  left: 4px;
+  display: grid;
+  place-items: center;
+}
+body.mvc-dash .mvc-toolbar .form-search .button-submit button {
+  border: 0;
+  background: none;
+  color: var(--Gray);
+  font-size: 16px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+body.mvc-dash .mvc-toolbar__right { display: flex; align-items: center; gap: var(--mvc-space-3); flex-wrap: wrap; }
+
+/* --- Avatar + form actions ---------------------------------------- */
+body.mvc-dash .mvc-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--mvc-space-6);
+  flex-wrap: wrap;
+}
+body.mvc-dash .mvc-avatar {
+  width: 88px;
+  height: 88px;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--LightGray);
+  background: var(--Surface-Alt);
+}
+body.mvc-dash .mvc-avatar-actions { flex: 1 1 260px; min-width: 0; }
+body.mvc-dash .mvc-actions {
+  display: flex;
+  gap: var(--mvc-space-3);
+  flex-wrap: wrap;
+  margin-top: var(--mvc-space-4);
+}
+body.mvc-dash .mvc-actions--end { justify-content: flex-end; }
+body.mvc-dash .mvc-actions .tf-button { width: auto; }
+
+@media (max-width: 575px) {
+  /* Full-width buttons on a phone; a right-aligned pair ends up as two small
+     targets in the corner otherwise. */
+  body.mvc-dash .mvc-actions { flex-direction: column; }
+  body.mvc-dash .mvc-actions .tf-button { width: 100%; }
+}
+
+/* A read-only field usually holds something long and unchangeable - an email,
+   a reference - and the 16px/600 display size clips it in a half-width column.
+   These are for reading, not for drawing the eye. */
+body.mvc-dash .mvc-field__input[readonly] {
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+/* =================================================================
+ * WALLET
+ * ================================================================= */
+
+/* --- Balance hero -------------------------------------------------- */
+body.mvc-dash .mvc-balance {
+  padding: var(--mvc-space-6);
+  border-radius: 14px;
+  background: var(--Primary);
+  color: var(--mvc-on-accent);
+}
+body.mvc-dash .mvc-balance__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mvc-space-3);
+  margin-bottom: var(--mvc-space-5);
+}
+body.mvc-dash .mvc-balance__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  opacity: .8;
+}
+body.mvc-dash .mvc-balance__eye {
+  display: grid;
+  place-items: center;
+  width: 30px; height: 30px;
+  /* The generic button rule in dashboard.css supplies `padding: 14px 22px`.
+     As a flex item with the default `min-width: auto` this button could not
+     shrink below its own min-content - 44px of horizontal padding - so a
+     30x30 border-radius:50% control rendered as a 44x30 OVAL. Zero the
+     padding and take it out of flex sizing entirely. */
+  padding: 0;
+  flex: none;
+  min-width: 0;
+  border: 0;
+  border-radius: 50%;
+  /* A DARK circle carrying dark ink on an orange card left the icon barely
+     visible, so this was lightened - but to .82, a near-solid white disc that
+     read as a button pasted onto the card rather than part of it, and out of
+     step with the copy pill's .16 tint right below it. Same token as that pill
+     now; the ink still measures 5.97:1. */
+  background: var(--mvc-on-accent-tint);
+  color: var(--mvc-on-accent);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+body.mvc-dash .mvc-balance__eye:hover { background: var(--mvc-on-accent-tint-hover); }
+body.mvc-dash .mvc-balance__eye:focus-visible { outline: 2px solid var(--mvc-on-accent); outline-offset: 2px; }
+
+body.mvc-dash .mvc-balance__value {
+  font-size: clamp(30px, 4.4vw, 42px);
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -1.4px;
+  font-variant-numeric: tabular-nums;
+}
+body.mvc-dash .mvc-balance__change {
+  margin-top: 8px;
+  font-size: 13px;
+  opacity: .82;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* The reference is a copy button, so it needs to look pressable rather than
+   like a caption sitting under the balance. */
+body.mvc-dash .mvc-balance__ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: var(--mvc-space-5);
+  padding: 6px 12px;
+  border: 0;
+  border-radius: var(--mvc-radius-pill);
+  /* Tinted with WHITE, not ink. A dark tint on an orange card moves the pill
+     toward the colour of the text sitting on it - measured 4.23:1 at 12%
+     alpha and worse as the tint deepened, because ink and background were
+     converging. Lightening separates them: 5.99:1 here. */
+  background: var(--mvc-on-accent-tint);
+  color: var(--mvc-on-accent);
+  font-family: var(--mvc-font-body);
+  font-size: 11.5px;
+  letter-spacing: .4px;
+  cursor: pointer;
+  transition: background var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+body.mvc-dash .mvc-balance__ref:hover { background: var(--mvc-on-accent-tint-hover); }
+body.mvc-dash .mvc-balance__sub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--mvc-space-4);
+  margin-top: var(--mvc-space-6);
+  padding-top: var(--mvc-space-5);
+  border-top: 1px solid rgba(255, 255, 255, .24);
+}
+body.mvc-dash .mvc-balance__sub > div > span { display: block; font-size: 12px; opacity: .8; }
+body.mvc-dash .mvc-balance__sub strong { display: block; margin-top: 4px; font-size: 16px; font-weight: 600; }
+
+/* --- Quick actions -------------------------------------------------- */
+body.mvc-dash .mvc-quick {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--mvc-space-3);
+}
+body.mvc-dash .mvc-quick__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: var(--mvc-space-4) var(--mvc-space-2);
+  border: 1px solid var(--LightGray);
+  border-radius: 12px;
+  background: var(--Surface-Alt);
+  color: var(--Black);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--mvc-dur-fast) var(--mvc-ease-out),
+              transform var(--mvc-dur-fast) var(--mvc-ease-out);
+}
+body.mvc-dash .mvc-quick__item:hover { border-color: var(--Primary); transform: translateY(-2px); }
+body.mvc-dash .mvc-quick__item:focus-visible { outline: 2px solid var(--Primary); outline-offset: 2px; }
+body.mvc-dash .mvc-quick__icon {
+  display: grid;
+  place-items: center;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--mvc-accent-soft);
+  color: var(--mvc-on-accent-soft);
+  font-size: 17px;
+}
+
+/* --- Allocation rows ------------------------------------------------- */
+body.mvc-dash .mvc-alloc { margin: 0; padding: 0; list-style: none; }
+body.mvc-dash .mvc-alloc a {
+  display: flex;
+  align-items: center;
+  gap: var(--mvc-space-4);
+  padding: 13px 0;
+  border-bottom: 1px solid var(--LightGray);
+  text-decoration: none;
+  color: inherit;
+}
+body.mvc-dash .mvc-alloc li:last-child a { border-bottom: 0; }
+body.mvc-dash .mvc-alloc a:hover .mvc-alloc__name { color: var(--Primary-Ink); }
+body.mvc-dash .mvc-alloc__icon {
+  display: grid;
+  place-items: center;
+  width: 34px; height: 34px;
+  flex: none;
+  border-radius: 9px;
+  background: var(--Surface-Alt);
+  color: var(--Primary-Ink);
+  font-size: 16px;
+}
+body.mvc-dash .mvc-alloc__meta { flex: 1 1 auto; min-width: 0; }
+body.mvc-dash .mvc-alloc__name { display: block; font-size: 13.5px; font-weight: 600; color: var(--Black); }
+body.mvc-dash .mvc-alloc__note { display: block; margin-top: 2px; font-size: 12px; color: var(--GrayDark); }
+body.mvc-dash .mvc-alloc__value { font-size: 14px; font-weight: 600; color: var(--Black); font-variant-numeric: tabular-nums; }
+body.mvc-dash .mvc-alloc__arrow { color: var(--Gray); font-size: 14px; flex: none; }
+
+@media (max-width: 575px) {
+  body.mvc-dash .mvc-quick { grid-template-columns: repeat(2, 1fr); }
+  body.mvc-dash .mvc-balance__sub { grid-template-columns: 1fr; }
+}

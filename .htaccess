@@ -1,0 +1,257 @@
+# ===============================
+# Maveren Capital .htaccess
+# Unified Auto-Detect - Local + Production
+# ===============================
+
+# -------------------------------
+# FILE EXPOSURE (must stay at the top)
+# -------------------------------
+# The catch-all 404 near the bottom of this file is guarded by
+# `RewriteCond %{REQUEST_FILENAME} !-f`, so ANY real file on disk bypasses
+# routing and is served verbatim. Before these rules, this was true:
+#
+#   GET /.env                       -> 200, full file
+#   GET /.env.local                 -> 200, full file
+#   GET /composer.lock              -> 200
+#   GET /dbschema/*.sql             -> 200, full schema
+#   GET /logs/security.log          -> 200
+#   GET /.user.ini                  -> 200
+#
+# .env carries DB_PASS, SMTP_PASS, ADMIN_INVITE_CODE, NOWPAYMENTS_API_KEY and
+# NOWPAYMENTS_IPN_SECRET. `Options -Indexes` further down stops directory
+# LISTING but does nothing about a direct GET.
+#
+# These are <Files>/<Directory>-style denies rather than rewrites because a
+# rewrite can be bypassed if mod_rewrite is ever unavailable, and because
+# `Require all denied` also covers HEAD and Range requests.
+
+# Every dotfile: .env, .env.local, .git*, .user.ini, .hintrc, .htpasswd ...
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Dependency manifests and lockfiles - version fingerprinting.
+<FilesMatch "^(composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|Gemfile.*|\.env.*)$">
+    Require all denied
+</FilesMatch>
+
+# Server-side source and data that is never fetched by a browser.
+# Note assets/, uploads/ and pages/ are deliberately NOT here - the first two
+# are fetched directly, and pages/ is reachable through the rewrites below.
+RedirectMatch 403 ^/(logs|dbschema|config|vendor|scripts|node_modules|_planning)(/|$)
+
+# Backup/editor leftovers that sometimes get rsync'd up.
+<FilesMatch "\.(sql|log|bak|old|orig|save|swp|swo|dist|ini|sh)$">
+    Require all denied
+</FilesMatch>
+
+# PHP's default error_log setting on this host is the bare relative name
+# "error_log", so it drops a log file into whatever directory the entry script
+# lives in - inside the web root, and with NO extension, so the pattern above
+# does not match it. config/env.php now redirects logging to logs/, but this
+# stays as a backstop for any path where that ini_set does not take effect.
+<FilesMatch "^(error_log|php_errorlog|access_log)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# -------------------------------
+# ENVIRONMENT DETECTION
+# -------------------------------
+# Localhost (Laragon or XAMPP)
+RewriteCond %{HTTP_HOST} ^localhost [NC]
+SetEnv MVC_ENV dev
+
+# Production
+RewriteCond %{HTTP_HOST} !^localhost [NC]
+SetEnv MVC_ENV prod
+
+# -------------------------------
+# REDIRECT RULES (env-aware)
+# -------------------------------
+
+# Force HTTPS + non-www on production
+RewriteCond %{ENV:MVC_ENV} =prod
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteCond %{HTTP_HOST} ^(?:www\.)?(.*)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+# Skip HTTPS redirect in dev
+RewriteCond %{ENV:MVC_ENV} =dev
+RewriteRule ^ - [L]
+
+# -------------------------------
+# DO NOT rewrite static assets
+# -------------------------------
+RewriteCond %{REQUEST_URI} ^/assets/ [NC,OR]
+RewriteCond %{REQUEST_URI} \.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot|mp4)$ [NC]
+RewriteRule ^ - [L]
+
+# -------------------------------
+# INTERNAL DOCS ARE NOT PUBLIC
+# -------------------------------
+# Internal design notes live in /_planning, which the RedirectMatch above
+# already denies wholesale. This rule stays as a second line of defence for any
+# .md that lands elsewhere in the tree: they are real files, so the catch-all
+# below (which requires !-f) would otherwise serve them verbatim.
+#
+# The directory was renamed from /plans for a second reason: as a real
+# directory it made mod_dir 301 every request for the /plans PAGE to /plans/
+# before the rewrite could run, so the public plans route cost an extra hop.
+RewriteRule \.md$ pages/public/error.php [L,QSA]
+
+# -------------------------------
+# API ROUTES
+# -------------------------------
+RewriteCond %{REQUEST_URI} ^/api/ [NC]
+RewriteRule ^api/(.*)$ api/$1 [L,QSA]
+
+# -------------------------------
+# PUBLIC ROUTES
+# -------------------------------
+RewriteRule ^$ pages/public/index.php [L,QSA]
+RewriteRule ^(about|contact|login|register|forgotpassword|platform|solutions|plans)/?$ pages/public/$1.php [L,QSA]
+
+# -------------------------------
+# USER ROUTES
+# -------------------------------
+RewriteRule ^dashboard/?$ pages/user/dashboard.php [L,QSA]
+RewriteRule ^dashboard\.(invest|wallet|transactions|profile|kyc|logout)/?$ pages/user/$1.php [L,QSA]
+
+# -------------------------------
+# ADMIN ROUTES
+# -------------------------------
+RewriteRule ^admin/?$ pages/admin/dashboard.php [L,QSA]
+RewriteRule ^admin\.(dashboard|users|wallets|transactions|announcements|plans|kyc|settings|login|register|forgotpassword|logout)/?$ pages/admin/$1.php [L,QSA]
+# Hyphen in the URL, underscore on disk - the group above cannot express that.
+RewriteRule ^admin\.deposit-addresses/?$ pages/admin/deposit_addresses.php [L,QSA]
+
+# -------------------------------
+# CATCH-ALL → 404
+# -------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ pages/public/error.php [L,QSA]
+</IfModule>
+
+# ===============================
+# Security & Headers
+# ===============================
+<IfModule mod_headers.c>
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+# script-src no longer carries 'unsafe-inline'.
+#
+# Every inline event handler has been removed (the four password toggles and
+# two refreshDashboard() links are delegated listeners in assets/js/api.js; the
+# two avatar onerror fallbacks use data-fallback-src; the four
+# rel=preload/onload stylesheet swaps are now plain stylesheets). That left
+# exactly five inline <script> blocks, all of them STATIC - no PHP
+# interpolation - so they are allow-listed by sha256 hash instead.
+#
+# Hashes are used rather than a nonce deliberately: a nonce has to change per
+# request, which means CSP would have to move out of .htaccess and into PHP,
+# and every response that is not a PHP page would silently lose its policy.
+# Static hashes keep one policy covering every response.
+#
+#   IF YOU EDIT AN INLINE <script> BLOCK, ITS HASH CHANGES AND THE SCRIPT WILL
+#   BE BLOCKED. Recompute with:
+#     php -r '$s=file_get_contents("page.php");
+#             preg_match_all("/<script>(.*?)<\/script>/s",$s,$m);
+#             foreach($m[1] as $b) echo "sha256-".base64_encode(hash("sha256",$b,true))."\n";'
+#
+#   1pFct... pages/public/_partials/head.php   pre-paint theme script
+#   kH7VA... pages/user|admin/_partials/head.php  pre-paint theme script (identical)
+#   Mwjuc... pages/user/invest.php
+#   HYKzX... pages/user/dashboard.php
+#
+# style-src keeps 'unsafe-inline': the dashboard template sets element.style
+# in many places and there is no equivalent hash mechanism for style
+# attributes. That is a much weaker vector than inline script.
+#
+# style-src MUST also carry the Smartsupp origins. When the allowlist was first
+# widened, script-src, connect-src, frame-src and font-src were updated and
+# style-src was missed - so every Smartsupp script loaded with a 200 while
+# widget-v3.smartsuppcdn.com/assets/style-*.css was blocked. The chat then
+# failed to render: empty container on production, an unstyled stub locally.
+#
+# That went unnoticed because the check used a `securitypolicyviolation`
+# listener on the top-level document, and the widget loads its stylesheet
+# inside its own IFRAME - a separate document whose violation events never
+# reach a parent listener. Browser-level Log.entryAdded is what surfaced it.
+# Any future CSP change involving the widget must be verified that way, not
+# with a document-level event listener.
+#
+# Third-party allowlist: Smartsupp (live chat) only. Fonts (Switzer), icons
+# (Phosphor) and chart.js are all self-hosted under /assets, so no external
+# style, font or script CDN is permitted -- a CDN outage cannot blank the UI,
+# and there is no third-party origin that can inject styles or glyphs.
+# Third-party allowlist: Smartsupp (live chat) only. Fonts (Switzer), icons
+# (Phosphor) and chart.js are all self-hosted under /assets, so no external
+# style, font or script CDN is permitted -- a CDN outage cannot blank the UI,
+# and there is no third-party origin that can inject styles or glyphs.
+#
+# NOTE ON TRANSLATION: this policy was briefly relaxed with 'unsafe-inline' to
+# accommodate Google's Website Translator widget, which injects its own inline
+# scripts. That was reverted - the widget is retired and no longer populates
+# its language list, verified against Google's own documented snippet on a bare
+# page with no CSP at all. Translation is now done SERVER-SIDE (see
+# api/utilities/i18n.php), so no third-party script runs in the browser and the
+# four inline-script hashes stay enforced on every surface.
+# NOTE ON THESE HASHES: they pin the inline scripts by CONTENT, so editing an
+# inline script - even renaming a variable inside it - invalidates its hash and
+# the browser silently refuses to run it. That happened during the Aldernorth
+# rebrand: renaming the localStorage key anc-theme to mvc-theme inside the
+# theme bootstrap changed its hash, and the bootstrap (which sets the theme
+# before first paint) was blocked on every page until these were recomputed.
+# Recompute with scripts/csp_hashes.php after ANY change to an inline <script>.
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-DMg7bWoEU8PKc4GoFQ/0AWbblMU9DJqp1ZmzAsgypQA=' 'sha256-+dV20z1PMEqF+jT5/QZ7o4F0XYULWaf1s/UgUOklWBE=' 'sha256-ZpKRNQGbZUnFQX0fnSLSwAA9s+yyfSxkd5wbDM5mojg=' https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; style-src 'self' 'unsafe-inline' https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; font-src 'self' data: https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; img-src 'self' data: https:; connect-src 'self' https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com wss://*.smartsupp.com wss://*.smartsuppchat.com; frame-src 'self' https://*.smartsupp.com https://*.smartsuppchat.com https://*.smartsuppcdn.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests;"
+# Strip the PHP version banner (info disclosure). The "Server: LiteSpeed" banner
+# must be removed in the LiteSpeed admin (Server Signature = off).
+Header always unset X-Powered-By
+Header unset X-Powered-By
+</IfModule>
+
+# ===============================
+# Upload limits (avatar images, 10 MB)
+#
+# The app checks 10 MB in assets/js/profile.js and
+# api/backend/upload_avatar.php, but PHP's own limits sit UNDERNEATH both:
+# the stock 2M/8M would have rejected the request before either check ran.
+# Headroom above 10 MB covers multipart overhead, and post_max_size must
+# exceed upload_max_filesize or the body is discarded first.
+#
+# The <IfModule> guard is not optional. This host runs mod_php, but a bare
+# php_value on a PHP-FPM or CGI host is a fatal .htaccess error that 500s
+# the entire site. .user.ini in the web root covers those hosts instead.
+# ===============================
+<IfModule mod_php.c>
+  php_value upload_max_filesize 12M
+  php_value post_max_size 14M
+</IfModule>
+<IfModule mod_php7.c>
+  php_value upload_max_filesize 12M
+  php_value post_max_size 14M
+</IfModule>
+
+# ===============================
+# Caching & Index Protection
+# ===============================
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType application/font-woff2 "access plus 1 year"
+</IfModule>
+
+Options -Indexes

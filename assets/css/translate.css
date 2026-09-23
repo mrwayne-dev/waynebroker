@@ -1,0 +1,288 @@
+/* =================================================================
+ * Maveren language switcher
+ *
+ * Loaded by BOTH the public site and the member dashboard, which run
+ * different token sets (.mvc-redesign vs body.mvc-dash). So every colour
+ * here reads a local --lang-* variable, and the two blocks at the top map
+ * those onto whichever system is actually present. Nothing below needs to
+ * know which one it is.
+ * ================================================================= */
+
+/* Public marketing pages */
+.mvc-redesign {
+  --lang-surface:  var(--color-surface-card);
+  --lang-raised:   var(--color-surface-warm-alt);
+  --lang-ink:      var(--color-ink-primary);
+  --lang-muted:    var(--color-ink-muted);
+  --lang-border:   var(--color-border);
+  --lang-accent:   var(--color-accent);
+  --lang-on-accent:var(--color-ink-on-accent);
+  --lang-radius:   var(--radius-card, 8px);
+}
+/* Member dashboard */
+body.mvc-dash {
+  --lang-surface:  var(--Surface);
+  --lang-raised:   var(--Surface-Alt);
+  --lang-ink:      var(--Black);
+  --lang-muted:    var(--GrayDark);
+  --lang-border:   var(--LightGray);
+  --lang-accent:   var(--Primary);
+  --lang-on-accent:var(--mvc-on-accent);
+  --lang-radius:   var(--mvc-radius-card, 8px);
+}
+
+/* --- Trigger ---------------------------------------------------- */
+.mvc-lang-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--lang-border);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;                 /* tracks the navbar's own ink state */
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+.mvc-lang-trigger:hover,
+.mvc-lang-trigger:focus-visible {
+  background: var(--lang-raised);
+  border-color: var(--lang-accent);
+}
+.mvc-lang-trigger:focus-visible { outline: 2px solid var(--lang-accent); outline-offset: 2px; }
+.mvc-lang-trigger .ph { font-size: 17px; }
+.mvc-lang-trigger__code { letter-spacing: .4px; }
+
+@media (max-width: 480px) {
+  /* Keep the globe, drop the code - the navbar is tight at this width. */
+  .mvc-lang-trigger { padding: 7px 9px; }
+  .mvc-lang-trigger__code { display: none; }
+}
+
+/* --- Modal ------------------------------------------------------ */
+.mvc-lang[hidden] { display: none; }
+.mvc-lang {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;               /* above the mobile nav overlay and the dock */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+body.mvc-lang-open { overflow: hidden; }
+
+.mvc-lang__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(14, 24, 29, 0.62);
+  backdrop-filter: blur(2px);
+}
+
+.mvc-lang__panel {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  max-height: min(80vh, 680px);
+  display: flex;
+  flex-direction: column;
+  background: var(--lang-surface);
+  border: 1px solid var(--lang-border);
+  border-radius: calc(var(--lang-radius) * 2);
+  box-shadow: 0 24px 60px rgba(14, 24, 29, .45);
+  overflow: hidden;
+  animation: mvc-lang-in .22s cubic-bezier(.16,1,.3,1);
+}
+@keyframes mvc-lang-in {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mvc-lang__panel { animation: none; }
+}
+
+.mvc-lang__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid var(--lang-border);
+}
+.mvc-lang__title { font-size: 17px; font-weight: 600; color: var(--lang-ink); }
+.mvc-lang__sub   { font-size: 12px; color: var(--lang-muted); margin-top: 3px; }
+
+.mvc-lang__close {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 1px solid var(--lang-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--lang-ink);
+  cursor: pointer;
+}
+.mvc-lang__close:hover { background: var(--lang-raised); }
+.mvc-lang__close:focus-visible { outline: 2px solid var(--lang-accent); outline-offset: 2px; }
+
+.mvc-lang__searchwrap {
+  position: relative;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--lang-border);
+}
+.mvc-lang__searchwrap .ph {
+  position: absolute;
+  left: 34px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--lang-muted);
+  font-size: 17px;
+  pointer-events: none;
+}
+.mvc-lang__search {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  border: 1px solid var(--lang-border);
+  border-radius: var(--lang-radius);
+  background: var(--lang-raised);
+  color: var(--lang-ink);
+  font: inherit;
+  font-size: 15px;
+}
+.mvc-lang__search::placeholder { color: var(--lang-muted); }
+.mvc-lang__search:focus {
+  outline: none;
+  border-color: var(--lang-accent);
+  box-shadow: 0 0 0 3px rgba(255, 91, 4, .16);
+}
+
+.mvc-lang__list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 6px 22px 22px;
+  overscroll-behavior: contain;   /* stop the page scrolling behind the modal */
+}
+.mvc-lang__group {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 14px 0 8px;
+  background: var(--lang-surface);
+  color: var(--lang-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+.mvc-lang__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 6px;
+}
+
+.mvc-lang__opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--lang-radius);
+  background: transparent;
+  color: var(--lang-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background .14s ease;
+}
+.mvc-lang__opt:hover { background: var(--lang-raised); }
+.mvc-lang__opt:focus-visible { outline: 2px solid var(--lang-accent); outline-offset: -2px; }
+.mvc-lang__opt.is-current {
+  background: var(--lang-accent);
+  color: var(--lang-on-accent);
+  font-weight: 600;
+}
+.mvc-lang__name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mvc-lang__code {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  color: var(--lang-muted);
+}
+.mvc-lang__opt.is-current .mvc-lang__code { color: var(--lang-on-accent); opacity: .75; }
+
+.mvc-lang__none { padding: 28px 0; text-align: center; color: var(--lang-muted); font-size: 14px; }
+
+@media (max-width: 560px) {
+  .mvc-lang { padding: 0; }
+  /* Full-bleed sheet on a phone rather than a card floating in 12px of gutter. */
+  .mvc-lang__panel { max-width: none; max-height: 100%; height: 100%; border: 0; border-radius: 0; }
+  .mvc-lang__grid  { grid-template-columns: 1fr 1fr; }
+}
+
+/* =================================================================
+ * Suppress Google's own chrome.
+ *
+ * element.js injects a top banner iframe that shifts the whole document
+ * down by 40px, plus a hover balloon. Our modal replaces all of it, so
+ * every part is hidden and the body offset it sets is forced back to 0.
+ * ================================================================= */
+/* The host must stay RENDERED. Google's TranslateElement will not build its
+   .goog-te-combo inside a display:none container, and that combo is the only
+   handle we have on the engine - so hide it off-screen instead of removing it
+   from layout. aria-hidden is set on it in translate.js. */
+#mvc-translate-host {
+  position: absolute !important;
+  left: -9999px !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+/* Google's own chrome: the banner iframe it injects at the top of the document
+   and the hover balloon. NOT .goog-te-gadget - that lives inside our host and
+   carries the combo we drive. */
+.goog-te-banner-frame,
+iframe.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame { display: none !important; }
+body { top: 0 !important; position: static !important; }
+.goog-text-highlight { background: none !important; box-shadow: none !important; }
+
+/* --- No-JS fallback ---------------------------------------------- */
+/* Rendered only inside <noscript>, so it never appears for a reader who has
+   JavaScript. It exists because the translation is server-side and therefore
+   genuinely works without JS - the switcher had to as well. */
+.mvc-lang-noscript {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+.mvc-lang-noscript select,
+.mvc-lang-noscript button {
+  padding: 6px 10px;
+  border: 1px solid var(--lang-border);
+  border-radius: 999px;
+  background: var(--lang-raised);
+  color: var(--lang-ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+/* Available to a screen reader, invisible on screen. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,794 @@
+/* =================================================================
+ * Maveren — section archetypes
+ *
+ * WHY THIS FILE EXISTS. The marketing site was built from one recipe:
+ * eyebrow → section-header → grid of .card-feature. Across six pages that
+ * recipe ran 15 times, .card-feature appeared 28 times, and all five heroes
+ * were the same component with a different photo behind them. The result read
+ * as the template it came from, because structurally it was.
+ *
+ * The fix is not new colours - the palette is fine and already verified for
+ * AA. It is giving each section a DIFFERENT SHAPE, so scrolling moves through
+ * different kinds of information rather than restating one card grid.
+ *
+ * Every value below reads an existing --color-* / --space-* token from
+ * mvc-design.css. Nothing here introduces a hex literal, so both themes and
+ * the verified contrast come along for free.
+ * ================================================================= */
+
+
+/* =================================================================
+ * DEVICE — browser chrome for real product screenshots
+ *
+ * The screenshots are of the actual member dashboard. Framing them in a
+ * window is what stops a reader parsing them as decorative artwork: the
+ * chrome says "this is the software", which is the whole point of using
+ * our own UI instead of a stock photograph of a skyscraper.
+ * ================================================================= */
+.mvc-redesign .device {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-strong);
+  /* The one place the design uses a real shadow. A product window has to sit
+     ABOVE the page or it reads as an inline figure. */
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .55),
+              0 0 0 1px rgba(255, 255, 255, .02) inset;
+}
+
+.mvc-redesign .device__bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 14px;
+  background: var(--color-surface-warm-alt);
+  border-bottom: 1px solid var(--color-border);
+}
+.mvc-redesign .device__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-ink-muted);
+  opacity: .35;
+  flex: none;
+}
+.mvc-redesign .device__url {
+  margin-left: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .3px;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mvc-redesign .device img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Bleeds off the bottom of its section: the window is taller than the space
+   given to it, so it is cut by the section edge rather than floating in a
+   tidy box. That is what makes it read as a window ONTO something rather
+   than a picture OF something. */
+.mvc-redesign .device--bleed {
+  margin-bottom: calc(var(--section-py) * -1 - 40px);
+}
+
+
+/* =================================================================
+ * HERO — product reveal
+ *
+ * Replaces .hero (stock photo + dark overlay) on the homepage. Centred
+ * type, then the real dashboard rising from the bottom edge.
+ * ================================================================= */
+/* THE HERO AND THE BAND ARE ALWAYS DARK, IN BOTH THEMES.
+ *
+ * That makes every theme-flipping token inside them wrong in light mode:
+ * --color-ink-muted resolves to #526670, which is dark grey text on a
+ * near-black ground, and the announcement pill's --color-ink-body did the
+ * same. Rather than override colour on each descendant, redeclare the tokens
+ * on the container - everything inside then inherits the dark-theme values in
+ * both themes, and future components dropped in here are correct for free.
+ *
+ * The values used are the ones that do NOT flip: --color-ink-white is always
+ * #FFFFFF and --brand-gray is always #9FB3BA, so this stays token-driven. */
+.mvc-redesign .hero-x,
+.mvc-redesign .band {
+  --color-ink-primary:      var(--color-ink-white);
+  --color-ink-body:         var(--color-ink-white);
+  --color-ink-muted:        var(--brand-gray);
+  --color-border:           rgba(255, 255, 255, .10);
+  --color-border-strong:    rgba(255, 255, 255, .18);
+  --color-surface-card:     var(--color-bg-dark);
+  --color-surface-warm-alt: rgba(255, 255, 255, .06);
+  --color-accent-text:      var(--color-accent);
+}
+
+/* The sticky navbar's backdrop is the PAGE background, not the hero - it sits
+   above the hero in the document, so at scroll 0 a light-theme page painted a
+   white strip behind the nav's dark scrim and produced a grey bar sitting on
+   top of a dark hero. Pages that open on a dark hero declare it, and the body
+   ground matches. */
+.mvc-redesign[data-hero="dark"] { background: var(--color-bg-dark); }
+
+.mvc-redesign .hero-x {
+  position: relative;
+  padding-top: 132px;
+  padding-bottom: 0;
+  background: var(--color-bg-dark);
+  color: var(--color-ink-white);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Ambient wash behind the type. Two radial gradients in the brand colours,
+   no image, so it costs nothing and never pixelates. */
+.mvc-redesign .hero-x__wash {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 780px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 52% at 50% 8%,  var(--color-accent-soft) 0%, transparent 70%),
+    radial-gradient(38% 44% at 82% 4%,  rgba(7, 80, 86, .38)     0%, transparent 72%);
+}
+
+/* The mountain motif from the logo, drawn once, very large, very quiet.
+   Ties the page to the mark without printing the logo six more times. */
+.mvc-redesign .hero-x__motif {
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  width: min(1180px, 130%);
+  transform: translateX(-50%);
+  z-index: -1;
+  opacity: .032;
+  pointer-events: none;
+  /* Without a mask the chevron's straight edges read as a stray dark wedge
+     rather than as texture - the shape is large enough that the eye finds the
+     boundary before it finds the form. Fading it out at the edges is what
+     turns it from an object into ambience. */
+  -webkit-mask-image: radial-gradient(58% 62% at 50% 34%, #000 0%, transparent 78%);
+          mask-image: radial-gradient(58% 62% at 50% 34%, #000 0%, transparent 78%);
+}
+.mvc-redesign .hero-x__motif svg { display: block; width: 100%; height: auto; }
+
+.mvc-redesign .hero-x__inner {
+  text-align: center;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* Announcement pill. A real <a>, so it is focusable and translatable. */
+.mvc-redesign .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px 7px 7px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, .04);
+  color: var(--color-ink-body);
+  font-size: 13px;
+  text-decoration: none;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+}
+.mvc-redesign .pill:hover { border-color: var(--color-accent); background: var(--color-accent-soft); }
+.mvc-redesign .pill__tag {
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-ink-on-accent);
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.mvc-redesign .hero-x__title {
+  margin: var(--space-6) 0 var(--space-5);
+  font-family: var(--font-display);
+  /* Deliberately larger than --text-h1: this is the one line on the site
+     allowed to be loud. */
+  font-size: clamp(40px, 7vw, 76px);
+  line-height: 1.03;
+  letter-spacing: -2px;
+  font-weight: var(--fw-medium);
+  color: var(--color-ink-white);
+}
+.mvc-redesign .hero-x__title em {
+  font-style: normal;
+  color: var(--color-accent);
+}
+
+.mvc-redesign .hero-x__lead {
+  max-width: 620px;
+  margin: 0 auto var(--space-8);
+  font-size: var(--text-body-lg);
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.mvc-redesign .hero-x__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+/* Small reassurance line under the buttons - the things a first-time visitor
+   is actually anxious about. */
+.mvc-redesign .hero-x__trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-5);
+  margin-bottom: var(--space-10);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+.mvc-redesign .hero-x__trust span { display: inline-flex; align-items: center; gap: 7px; }
+.mvc-redesign .hero-x__trust .ph { color: var(--color-accent); font-size: 15px; }
+
+.mvc-redesign .hero-x__shot {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+/* Compact variant for the five inner pages: same language, no product shot. */
+.mvc-redesign .hero-x--compact { padding-top: 128px; padding-bottom: var(--space-20); }
+.mvc-redesign .hero-x--compact .hero-x__title { font-size: clamp(34px, 5vw, 54px); }
+.mvc-redesign .hero-x--compact .hero-x__inner { max-width: 820px; }
+
+
+/* =================================================================
+ * BENTO — asymmetric tile grid
+ * Replaces a 4-up row of identical icon cards.
+ * ================================================================= */
+.mvc-redesign .bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-4);
+}
+.mvc-redesign .bento__tile {
+  position: relative;
+  grid-column: span 2;
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-card);
+  overflow: hidden;
+  transition: border-color var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out);
+}
+.mvc-redesign .bento__tile:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-3px);
+}
+/* Two sizes only. More than that and the grid stops reading as deliberate. */
+.mvc-redesign .bento__tile--wide  { grid-column: span 4; }
+.mvc-redesign .bento__tile--full  { grid-column: span 6; }
+
+.mvc-redesign .bento__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--space-4);
+  border-radius: 10px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+  font-size: 20px;
+}
+.mvc-redesign .bento__title {
+  margin: 0 0 var(--space-2);
+  font-size: 17px;
+  font-weight: var(--fw-semibold);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .bento__body {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-ink-muted);
+}
+/* A tile carrying a product crop: image flush to the bottom-right corner,
+   cropped by the tile, so the tile feels like a window too. */
+.mvc-redesign .bento__shot {
+  margin: var(--space-5) calc(var(--space-6) * -1) calc(var(--space-6) * -1) 0;
+  border-top-left-radius: 10px;
+  overflow: hidden;
+  border-top: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
+}
+.mvc-redesign .bento__shot img { display: block; width: 100%; height: auto; }
+
+
+/* =================================================================
+ * STICKY SPLIT — copy pins while the visual beside it changes
+ * ================================================================= */
+.mvc-redesign .sticky-split {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: var(--space-20);
+  align-items: start;
+}
+.mvc-redesign .sticky-split__aside {
+  position: sticky;
+  top: 120px;
+  align-self: start;
+}
+.mvc-redesign .sticky-split__steps { display: grid; gap: var(--space-10); }
+
+.mvc-redesign .sticky-step {
+  padding-left: var(--space-6);
+  border-left: 2px solid var(--color-border);
+  transition: border-color var(--dur-base) var(--ease-out),
+              opacity var(--dur-base) var(--ease-out);
+}
+/* Un-focused steps dim rather than hide, so the whole argument stays
+   readable with JS off and for anyone who scrolls fast. */
+.mvc-redesign .sticky-step:not(.is-active) { opacity: .45; }
+.mvc-redesign .sticky-step.is-active { border-left-color: var(--color-accent); opacity: 1; }
+
+.mvc-redesign .sticky-step__n {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--color-accent-text);
+}
+.mvc-redesign .sticky-step__title {
+  margin: 0 0 var(--space-3);
+  font-size: 22px;
+  font-weight: var(--fw-medium);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .sticky-step__body { margin: 0; color: var(--color-ink-muted); line-height: 1.65; }
+
+
+/* =================================================================
+ * PROCESS RAIL — numbered steps on a connecting line
+ * ================================================================= */
+.mvc-redesign .rail { position: relative; display: grid; gap: var(--space-8); }
+.mvc-redesign .rail--h {
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-6);
+}
+/* The connecting line. A pseudo-element carrying no text, so the translator
+   has nothing to miss here. */
+.mvc-redesign .rail--h::before {
+  content: "";
+  position: absolute;
+  top: 21px;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border-strong) 12%,
+                              var(--color-border-strong) 88%, transparent);
+}
+.mvc-redesign .rail__step { position: relative; }
+.mvc-redesign .rail__n {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: var(--space-4);
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-card);
+  color: var(--color-accent-text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+}
+.mvc-redesign .rail__step:first-child .rail__n {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-ink-on-accent);
+}
+.mvc-redesign .rail__title {
+  margin: 0 0 var(--space-2);
+  font-size: 17px;
+  font-weight: var(--fw-semibold);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .rail__body { margin: 0; font-size: var(--text-sm); line-height: 1.6; color: var(--color-ink-muted); }
+
+
+/* =================================================================
+ * DATA BAND — full-bleed dark strip, oversized figures
+ * ================================================================= */
+.mvc-redesign .band {
+  background: var(--color-bg-dark);
+  color: var(--color-ink-white);
+  padding-top: var(--space-20);
+  padding-bottom: var(--space-20);
+}
+.mvc-redesign .band__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-10) var(--space-8);
+}
+.mvc-redesign .band__item { border-top: 1px solid rgba(228, 238, 240, .16); padding-top: var(--space-5); }
+.mvc-redesign .band__figure {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  font-weight: var(--fw-medium);
+  color: var(--color-ink-white);
+  /* Reserve the width the final counted-up value needs, so the row does not
+     reflow as the numbers tick. */
+  font-variant-numeric: tabular-nums;
+}
+.mvc-redesign .band__figure em { font-style: normal; color: var(--color-accent); }
+.mvc-redesign .band__label {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: rgba(228, 238, 240, .68);
+}
+
+
+/* =================================================================
+ * COMPARE TABLE — a real table, not cards pretending to be one
+ * ================================================================= */
+.mvc-redesign .compare-wrap { overflow-x: auto; border-radius: var(--radius-card); border: 1px solid var(--color-border); }
+.mvc-redesign .compare {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  background: var(--color-surface-card);
+}
+.mvc-redesign .compare th,
+.mvc-redesign .compare td {
+  padding: var(--space-4) var(--space-5);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  color: var(--color-ink-body);
+}
+.mvc-redesign .compare thead th {
+  background: var(--color-surface-warm-alt);
+  color: var(--color-ink-primary);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+.mvc-redesign .compare tbody tr:last-child td { border-bottom: 0; }
+.mvc-redesign .compare th[scope="row"] { color: var(--color-ink-muted); font-weight: var(--fw-regular); }
+.mvc-redesign .compare .is-figure {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--color-ink-primary);
+}
+/* One highlighted column, marked in the markup rather than by position, so
+   changing which plan is featured is a class change and not a CSS edit. */
+.mvc-redesign .compare .is-featured {
+  background: var(--color-accent-soft);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .compare thead .is-featured { background: var(--color-accent); color: var(--color-ink-on-accent); }
+
+
+/* =================================================================
+ * PULL QUOTE — full-bleed oversized type, no card
+ * ================================================================= */
+.mvc-redesign .quote-xl { max-width: 960px; margin: 0 auto; text-align: center; }
+.mvc-redesign .quote-xl__mark {
+  font-family: var(--font-display);
+  font-size: 72px;
+  line-height: 1;
+  color: var(--color-accent);
+  opacity: .5;
+}
+.mvc-redesign .quote-xl__text {
+  margin: var(--space-4) 0 var(--space-6);
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3.4vw, 40px);
+  line-height: 1.26;
+  letter-spacing: -1px;
+  font-weight: var(--fw-regular);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .quote-xl__text em { font-style: normal; color: var(--color-accent-text); }
+.mvc-redesign .quote-xl__by { font-size: var(--text-sm); color: var(--color-ink-muted); }
+
+
+/* =================================================================
+ * SPLIT ROW — alternating image / text
+ * ================================================================= */
+.mvc-redesign .split-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-15);
+  align-items: center;
+}
+.mvc-redesign .split-row + .split-row { margin-top: var(--space-20); }
+/* nth-child rather than a modifier class: the alternation is a property of
+   the sequence, so it should not need remembering when a row is inserted. */
+.mvc-redesign .split-row:nth-child(even) .split-row__media { order: -1; }
+.mvc-redesign .split-row__title {
+  margin: var(--space-3) 0 var(--space-4);
+  font-size: clamp(24px, 2.6vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -.6px;
+  font-weight: var(--fw-medium);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .split-row__body { margin: 0 0 var(--space-5); color: var(--color-ink-muted); line-height: 1.7; }
+.mvc-redesign .split-row__list { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-3); }
+.mvc-redesign .split-row__list li {
+  display: flex;
+  gap: 10px;
+  font-size: var(--text-sm);
+  color: var(--color-ink-body);
+}
+.mvc-redesign .split-row__list .ph { color: var(--color-accent); flex: none; margin-top: 2px; }
+
+
+/* =================================================================
+ * TIMELINE
+ * ================================================================= */
+.mvc-redesign .timeline { position: relative; display: grid; gap: var(--space-10); padding-left: var(--space-8); }
+.mvc-redesign .timeline::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--color-border-strong);
+}
+.mvc-redesign .timeline__item { position: relative; }
+.mvc-redesign .timeline__item::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--space-8) * -1);
+  top: 7px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-surface-warm);
+  border: 2px solid var(--color-accent);
+}
+.mvc-redesign .timeline__when {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--color-accent-text);
+}
+.mvc-redesign .timeline__title {
+  margin: var(--space-2) 0 var(--space-2);
+  font-size: 19px;
+  font-weight: var(--fw-semibold);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .timeline__body { margin: 0; color: var(--color-ink-muted); line-height: 1.7; }
+
+
+/* =================================================================
+ * TABS
+ * ================================================================= */
+.mvc-redesign .tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-card);
+  width: fit-content;
+  max-width: 100%;
+}
+.mvc-redesign .tabs__btn {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.mvc-redesign .tabs__btn:hover { color: var(--color-ink-primary); }
+.mvc-redesign .tabs__btn[aria-selected="true"] {
+  background: var(--color-accent);
+  color: var(--color-ink-on-accent);
+}
+.mvc-redesign .tabs__panel[hidden] { display: none; }
+
+
+/* =================================================================
+ * MARQUEE
+ * ================================================================= */
+.mvc-redesign .marquee {
+  display: flex;
+  overflow: hidden;
+  gap: var(--space-10);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.mvc-redesign .marquee__track {
+  display: flex;
+  gap: var(--space-10);
+  flex: none;
+  min-width: 100%;
+  animation: mvc-marquee 38s linear infinite;
+}
+@keyframes mvc-marquee { to { transform: translateX(calc(-100% - var(--space-10))); } }
+.mvc-redesign .marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+.mvc-redesign .marquee__item .ph { color: var(--color-accent); }
+
+
+/* =================================================================
+ * SECTION EYEBROW — smaller, quieter replacement
+ *
+ * The old .eyebrow ran 32 times with a filled dot each time. This is the
+ * same idea at a third of the volume, and only some sections get one now.
+ * ================================================================= */
+.mvc-redesign .kicker {
+  display: block;
+  margin-bottom: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--color-accent-text);
+}
+.mvc-redesign .lede {
+  max-width: 720px;
+  margin: 0 0 var(--space-10);
+}
+.mvc-redesign .lede h2 {
+  margin: 0 0 var(--space-4);
+  font-size: clamp(26px, 3.2vw, 40px);
+  line-height: 1.16;
+  letter-spacing: -1px;
+  font-weight: var(--fw-medium);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .lede p { margin: 0; font-size: var(--text-body-lg); line-height: 1.6; color: var(--color-ink-muted); }
+.mvc-redesign .lede--center { margin-left: auto; margin-right: auto; text-align: center; }
+
+
+/* =================================================================
+ * RESPONSIVE
+ *
+ * The sticky and multi-column archetypes collapse below 900px. Sticky
+ * positioning on a phone pins content over the very thing the reader is
+ * scrolling to reach, which is worse than not having it.
+ * ================================================================= */
+@media (max-width: 900px) {
+  .mvc-redesign .sticky-split { grid-template-columns: 1fr; gap: var(--space-10); }
+  .mvc-redesign .sticky-split__aside { position: static; }
+  .mvc-redesign .sticky-step:not(.is-active) { opacity: 1; }
+  .mvc-redesign .sticky-step { border-left-color: var(--color-accent); }
+
+  .mvc-redesign .split-row { grid-template-columns: 1fr; gap: var(--space-8); }
+  .mvc-redesign .split-row:nth-child(even) .split-row__media { order: 0; }
+
+  .mvc-redesign .rail--h { grid-auto-flow: row; }
+  .mvc-redesign .rail--h::before { display: none; }
+
+  .mvc-redesign .bento { grid-template-columns: repeat(2, 1fr); }
+  .mvc-redesign .bento__tile,
+  .mvc-redesign .bento__tile--wide,
+  .mvc-redesign .bento__tile--full { grid-column: span 2; }
+}
+
+@media (max-width: 560px) {
+  .mvc-redesign .bento { grid-template-columns: 1fr; }
+  .mvc-redesign .bento__tile,
+  .mvc-redesign .bento__tile--wide,
+  .mvc-redesign .bento__tile--full { grid-column: span 1; }
+  .mvc-redesign .hero-x { padding-top: 108px; }
+  .mvc-redesign .device--bleed { margin-bottom: -60px; }
+}
+
+
+/* =================================================================
+ * RATE STRIP — the live plan rates, in a hero
+ *
+ * Puts the actual numbers above the fold instead of asking the reader to
+ * scroll for them. Values come from the `plans` table, so this cannot
+ * disagree with the shelf further down the page.
+ * ================================================================= */
+.mvc-redesign .rate-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-3);
+  max-width: 820px;
+  margin: var(--space-10) auto 0;
+}
+.mvc-redesign .rate-strip__item {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, .03);
+  text-align: left;
+}
+.mvc-redesign .rate-strip__name {
+  display: block;
+  font-size: 12px;
+  letter-spacing: .4px;
+  color: var(--color-ink-muted);
+}
+.mvc-redesign .rate-strip__rate {
+  display: block;
+  margin: 6px 0 2px;
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+.mvc-redesign .rate-strip__note { font-size: 12px; color: var(--color-ink-muted); }
+
+
+/* =================================================================
+ * FIGURES — a worked example, laid out as numbers rather than prose
+ * ================================================================= */
+.mvc-redesign .figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-6);
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-card);
+}
+.mvc-redesign .figures__item + .figures__item {
+  border-left: 1px solid var(--color-border);
+  padding-left: var(--space-6);
+}
+.mvc-redesign .figures__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.1;
+  letter-spacing: -1px;
+  color: var(--color-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+.mvc-redesign .figures__value--accent { color: var(--color-accent-text); }
+.mvc-redesign .figures__label {
+  display: block;
+  margin-top: 8px;
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+.mvc-redesign .figures__note {
+  margin: var(--space-5) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+@media (max-width: 700px) {
+  /* The divider between figures only reads as a divider in a row. Stacked, it
+     becomes a stray vertical line beside the first column. */
+  .mvc-redesign .figures__item + .figures__item { border-left: 0; padding-left: 0; }
+}

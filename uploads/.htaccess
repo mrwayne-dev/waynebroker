@@ -1,0 +1,16 @@
+# ============================================================
+# Defense-in-depth: NEVER execute scripts from the uploads tree.
+# The avatar/reward uploaders already force image extensions, but if any
+# script ever lands here it must be served inert, not executed.
+# ============================================================
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule lsapi_module>
+    php_flag engine off
+</IfModule>
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps .pht .phar .cgi .pl .py
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .phps .pht .phar
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|pht|phar|cgi|pl|py|sh)$">
+    Require all denied
+</FilesMatch>

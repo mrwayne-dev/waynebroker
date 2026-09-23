@@ -1,0 +1,1932 @@
+/* =================================================================
+ * Maveren Capital Design System
+ *
+ * Activation: add class="mvc-redesign" to <body> on any page that
+ * should pick up this design system. Pages without the class stay
+ * on the legacy main.css styles.
+ *
+ * THEMING: dark is the default. `<html data-theme="light">` flips
+ * the palette; the toggle lives in assets/js/theme.js. Only the
+ * colour tokens below change between themes - every component rule
+ * further down reads from var(), so nothing else needs a light
+ * variant.
+ * ================================================================= */
+
+/* Fonts are self-hosted in assets/fonts/font.css (Switzer + Host Grotesk).
+   No @import here: the CSP allows no font CDN. */
+
+/* =================================================================
+ * DESIGN TOKENS - scoped to .mvc-redesign so legacy pages untouched
+ * Brand palette:
+ *   #FF5B04 Blaze Orange · #16232A Mirage (ink / dark page)
+ *   #075056 Deep Sea Green · #E4EEF0 Wild Sand (light accent surface)
+ *   #9FB3BA cool gray     · #FFFFFF white
+ *
+ * Orange is a FILL colour, not an ink: #FF5B04 carries dark text at
+ * 5.16:1 but is only 3.11:1 as text on white, which is why
+ * --color-accent-text exists and darkens to #B04102 in the light theme.
+ * ================================================================= */
+/* main.css:88 and :96 read the page font from these two names but nothing ever
+   declared them, so `font-family` was invalid at computed-value time and fell
+   back to inherit - which is why the preloaded Switzer woff2 was reported as
+   unused. Declared on :root so a bare `body` selector resolves them. */
+:root {
+  --mvc-font-body:    'Switzer', 'Host Grotesk', system-ui, -apple-system, sans-serif;
+  --mvc-font-display: 'Switzer', 'Host Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+.mvc-redesign {
+  /* --- Brand constants (identical in both themes) ---------------- */
+  --brand-orange:           #FF5B04;
+  --brand-orange-hover:     #FF7733;
+  --brand-teal:             #075056;
+  --brand-ink:              #16232A;
+  --brand-gray:             #9FB3BA;
+
+  /* --- Colour: surfaces (DARK - default) ------------------------ */
+  --color-bg-page:          #16232A;
+  --color-bg-dark:          #0E181D;
+  --color-bg-dark-40:       rgba(14, 24, 29, 0.40);
+  --color-surface-warm:     #1D2E36;
+  --color-surface-warm-alt: #22353E;
+  --color-surface-card:     #1D2E36;
+  /* Cards that sit ON a warm section need to be lighter than it, or the only
+     thing defining them is a hairline at ~1.1:1. Matches --color-surface-warm-alt. */
+  --color-surface-card-raised: #22353E;
+  --color-surface-raised:   #075056;
+
+  /* --- Colour: ink ---------------------------------------------- */
+  --color-ink-primary:      #FFFFFF;
+  --color-ink-body:         #E4EEF0;
+  --color-ink-muted:        #9FB3BA;
+  --color-ink-white:        #FFFFFF;
+  --color-ink-on-accent:    #16232A;
+
+  /* --- Colour: accents ------------------------------------------ */
+  --color-accent:           #FF5B04;   /* primary CTA + active state */
+  --color-accent-hover:     #FF7733;
+  --color-accent-text:      #FF5B04;   /* accent used AS text/links */
+  --color-accent-soft:      rgba(255, 91, 4, 0.14);
+  --color-accent-dark:      #FF5B04;   /* legacy alias: CTA pill primary */
+  --color-accent-red:       #FF5B04;   /* legacy alias: brand mark */
+
+  /* --- Borders / hairlines -------------------------------------- */
+  --color-border:           rgba(255, 255, 255, 0.10);
+  --color-border-strong:    rgba(255, 255, 255, 0.18);
+
+  /* --- Status semantics ----------------------------------------- */
+  --status-success:         #4ADE80;
+  --status-warning:         #FBBF24;
+  --status-danger:          #F87171;
+
+  /* --- Typography ---------------------------------------------- */
+  --font-display: 'Switzer', 'Host Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body:    'Switzer', 'Host Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono:    ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Type scale (px values from spec, kept literal) */
+  --text-h1:      58px;
+  --text-h2:      32px;
+  --text-h3:      28px;
+  --text-stat:    56px;
+  --text-body-lg: 20px;
+  --text-body:    16px;
+  --text-sm:      14px;
+
+  /* Line-heights computed per spec */
+  --lh-h1:        68px;
+  --lh-h2:        40px;
+  --lh-h3:        32px;
+  --lh-stat:      61.6px;
+  --lh-body-lg:   24px;
+  --lh-body:      22.4px;
+  --lh-sm:        16.8px;
+
+  /* Tracking */
+  --tracking-h1:       -1.1px;
+  --tracking-h2:       -1px;
+  --tracking-eyebrow:  0.5px;
+
+  /* Weights - 400 / 500 / 600 only */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold: 600;
+
+  /* --- Spacing (4px base unit) -------------------------------- */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-15:  60px;
+  --space-20:  80px;
+  --space-30:  120px;
+
+  /* Section + container */
+  --section-py:        60px;
+  --section-py-hero:   120px;
+  --container-max:     1200px;
+  --container-px:      40px;
+  --container-px-sm:   16px;
+
+  /* --- Radii ---------------------------------------------------- */
+  --radius-card:   8px;
+  --radius-input:  4px;
+  --radius-pill:   30px;
+  --radius-circle: 50%;
+
+  /* --- Motion --------------------------------------------------- */
+  --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:   180ms;
+  --dur-base:   240ms;
+  --dur-slow:   400ms;
+
+  /* No shadows in spec - depth via contrast only. */
+  --shadow-none: none;
+}
+
+
+/* =================================================================
+ * LIGHT THEME OVERRIDES
+ *
+ * Only colour tokens are redeclared - every component rule in this
+ * file reads from var(), so the whole system flips from here.
+ *
+ * Note --color-accent-text: #FF5B04 on white is 3.11:1 and fails
+ * WCAG AA for text. In light mode, accent-as-text darkens to
+ * #B04102 (5.83:1) while fills/icons keep the true brand orange.
+ * ================================================================= */
+:root[data-theme="light"] .mvc-redesign {
+  --color-bg-page:          #FFFFFF;
+  --color-bg-dark:          #16232A;
+  --color-bg-dark-40:       rgba(22, 35, 42, 0.40);
+  --color-surface-warm:     #F4F8F9;
+  --color-surface-warm-alt: #E4EEF0;
+  --color-surface-card:     #FFFFFF;
+  --color-surface-card-raised: #FFFFFF;
+  --color-surface-raised:   #EDF4F5;
+
+  --color-ink-primary:      #16232A;
+  --color-ink-body:         #22353E;
+  --color-ink-muted:        #526670;
+  --color-ink-white:        #FFFFFF;
+  /* Stays dark: the accent fill is the same orange in both themes, and
+     #16232A on #FF5B04 is 5.16:1 where white is only 3.11:1. */
+  --color-ink-on-accent:    #16232A;
+
+  --color-accent:           #FF5B04;
+  --color-accent-hover:     #E64F00;
+  --color-accent-text:      #B04102;
+  --color-accent-soft:      rgba(255, 91, 4, 0.10);
+  --color-accent-dark:      #FF5B04;
+  --color-accent-red:       #B04102;
+
+  --color-border:           rgba(22, 35, 42, 0.10);
+  --color-border-strong:    rgba(22, 35, 42, 0.18);
+
+  --status-success:         #15803D;
+  --status-warning:         #B45309;
+  --status-danger:          #B91C1C;
+}
+
+
+/* =================================================================
+ * GLOBAL BASE - body, headings, links
+ * ================================================================= */
+.mvc-redesign {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-body);
+  color: var(--color-ink-body);
+  background: var(--color-bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  margin: 0;
+}
+
+/* =================================================================
+ * MOTION - theme flip + page transitions
+ *
+ * Flipping data-theme rewrites the tokens above. Without this the page
+ * and all its text snap instantly while the components that carry their
+ * own transition lag behind, which reads as tearing.
+ * ================================================================= */
+.mvc-redesign,
+.mvc-redesign .section,
+.mvc-redesign .plan-card,
+.mvc-redesign .card-feature,
+.mvc-redesign .form-card,
+.mvc-redesign .footer {
+  transition: background-color var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out),
+              color var(--dur-base) var(--ease-out);
+}
+
+/* Cross-document view transitions: Chrome/Edge and Safari 18+ crossfade
+   between navigations, Firefox ignores the at-rule entirely. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-base);
+  animation-timing-function: var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mvc-redesign,
+  .mvc-redesign .section,
+  .mvc-redesign .plan-card,
+  .mvc-redesign .card-feature,
+  .mvc-redesign .form-card,
+  .mvc-redesign .footer {
+    transition: none;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+.mvc-redesign *,
+.mvc-redesign *::before,
+.mvc-redesign *::after {
+  box-sizing: border-box;
+}
+
+.mvc-redesign h1,
+.mvc-redesign h2,
+.mvc-redesign h3,
+.mvc-redesign h4,
+.mvc-redesign h5,
+.mvc-redesign h6 {
+  font-family: var(--font-display);
+  color: var(--color-ink-primary);
+  margin: 0;
+  font-weight: var(--fw-medium);
+}
+
+.mvc-redesign h1 {
+  font-size: var(--text-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: var(--tracking-h1);
+  font-weight: var(--fw-regular);
+}
+
+.mvc-redesign h2 {
+  font-size: var(--text-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--tracking-h2);
+}
+
+.mvc-redesign h3 {
+  font-size: var(--text-h3);
+  line-height: var(--lh-h3);
+  font-weight: var(--fw-semibold);
+}
+
+.mvc-redesign p {
+  margin: 0;
+  color: var(--color-ink-body);
+}
+
+.mvc-redesign a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mvc-redesign img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mvc-redesign ul,
+.mvc-redesign ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mvc-redesign button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+
+/* =================================================================
+ * LAYOUT PRIMITIVES - container + section
+ * ================================================================= */
+.mvc-redesign .container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--container-px);
+  padding-right: var(--container-px);
+  width: 100%;
+}
+
+.mvc-redesign .section {
+  padding-top: var(--section-py);
+  padding-bottom: var(--section-py);
+  /* Paint the page ground explicitly. A bare .section used to be transparent
+     and simply showed whatever the body was - which was fine until pages that
+     open on a dark hero started setting a dark body to fix the strip behind
+     the sticky navbar. In the light theme that left dark ink sitting on a dark
+     body: measured 1.14:1 on section headings. Every section now owns its
+     background, so the body colour only ever shows behind the navbar. */
+  background: var(--color-bg-page);
+}
+
+.mvc-redesign .section--warm {
+  background: var(--color-surface-warm);
+}
+
+.mvc-redesign .section--white {
+  background: var(--color-bg-page);
+}
+
+.mvc-redesign .section--dark {
+  background: var(--color-bg-dark);
+  color: var(--color-ink-white);
+}
+
+.mvc-redesign .section--dark h1,
+.mvc-redesign .section--dark h2,
+.mvc-redesign .section--dark h3,
+.mvc-redesign .section--dark p {
+  color: var(--color-ink-white);
+}
+
+
+/* =================================================================
+ * RESPONSIVE
+ * The inherited spec used a fixed-width transform:scale() - we use real
+ * breakpoints per the spec's rebuild guidance (Section H).
+ * ================================================================= */
+@media (max-width: 768px) {
+  .mvc-redesign {
+    --text-h1:    40px;
+    --text-h2:    26px;
+    --text-stat:  44px;
+    --lh-h1:      48px;
+    --lh-h2:      32px;
+    --lh-stat:    48px;
+    --section-py: 48px;
+    --section-py-hero: 80px;
+  }
+
+  .mvc-redesign .container {
+    padding-left: var(--container-px-sm);
+    padding-right: var(--container-px-sm);
+  }
+}
+
+
+/* =================================================================
+ * COMPONENTS
+ * ================================================================= */
+
+
+/* --- Button (D.3 / D.4) ------------------------------------------- */
+.mvc-redesign .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1;
+  font-weight: var(--fw-regular);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--dur-base) var(--ease-out),
+              color var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out);
+  min-height: 42px;
+}
+
+.mvc-redesign .btn:focus-visible {
+  outline: 2px solid var(--color-accent-red);
+  outline-offset: 2px;
+}
+
+/* Primary CTA - dark pill (used everywhere except nav) */
+.mvc-redesign .btn--primary {
+  background: var(--color-accent);
+  color: var(--color-ink-on-accent);
+}
+.mvc-redesign .btn--primary:hover {
+  background: var(--color-accent-hover);
+}
+
+/* Nav CTA - white pill */
+.mvc-redesign .btn--nav {
+  background: var(--color-accent);
+  color: var(--color-ink-on-accent);
+}
+.mvc-redesign .btn--nav:hover {
+  background: var(--color-accent-hover);
+}
+
+/* Ghost - for dark-bg secondary actions (404, hero secondary) */
+.mvc-redesign .btn--ghost {
+  background: transparent;
+  color: var(--color-ink-white);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+.mvc-redesign .btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Form-style submit (D.14) - rectangular, muted */
+.mvc-redesign .btn--submit {
+  background: var(--color-ink-muted);
+  color: var(--color-ink-white);
+  padding: 12px 28px;
+  border-radius: var(--radius-input);
+  min-height: 46px;
+  width: 100%;
+}
+.mvc-redesign .btn--submit:hover {
+  background: var(--color-ink-primary);
+}
+
+
+/* --- Eyebrow Label (D.1, with MVC mono divergence) ---------------- */
+.mvc-redesign .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-sm);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.mvc-redesign .eyebrow__icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent-red);
+}
+
+.mvc-redesign .eyebrow__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+
+/* --- Section Header Block (D.2) ----------------------------------- */
+.mvc-redesign .section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  max-width: 760px;
+}
+
+.mvc-redesign .section-header--center {
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.mvc-redesign .section-header__title {
+  /* inherits h2 styles */
+}
+
+.mvc-redesign .section-header__body {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--color-ink-muted);
+}
+
+.mvc-redesign .section-header__cta {
+  margin-top: var(--space-2);
+}
+
+/* When the header sits in a 2-col layout with grid on the right,
+   stretch helper drops the max-width cap. */
+.mvc-redesign .section-header--wide {
+  max-width: none;
+}
+
+
+/* --- Card: Icon-Top Feature (D.5) --------------------------------- */
+/* Raised fill + the stronger hairline. See the note on --color-surface-card-raised:
+   in the dark theme --color-surface-warm and --color-surface-card are the SAME
+   value (#1D2E36), so a card with neither a raised fill nor a border is literally
+   invisible on a .section--warm. This component had it worse than most - its
+   background token was identical to the warm section's, so it was flat in BOTH
+   themes. Same pattern as .plan-card. */
+.mvc-redesign .card-feature {
+  background: var(--color-surface-card-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow: clip;
+}
+
+.mvc-redesign .card-feature__icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-ink-primary);
+}
+
+.mvc-redesign .card-feature__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mvc-redesign .card-feature__title {
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-body-lg);
+  color: var(--color-ink-primary);
+}
+
+.mvc-redesign .card-feature__desc {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--color-ink-muted);
+}
+
+
+/* --- Card: Image-Top Feature (D.6) -------------------------------- */
+.mvc-redesign .card-image {
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+  border-radius: var(--radius-card);
+}
+
+.mvc-redesign .card-image__media {
+  width: 100%;
+  aspect-ratio: 470 / 250;
+  overflow: clip;
+  background: var(--color-surface-warm);
+}
+
+.mvc-redesign .card-image__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mvc-redesign .card-image__body {
+  background: var(--color-surface-warm);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.mvc-redesign .card-image__icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-ink-primary);
+}
+
+.mvc-redesign .card-image__title {
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-body-lg);
+  color: var(--color-ink-primary);
+}
+
+.mvc-redesign .card-image__desc {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--color-ink-muted);
+}
+
+
+/* --- Card: Stat Counter (D.7) ------------------------------------- */
+/* Sits on .section--warm on the home page - see the .card-feature note. */
+.mvc-redesign .card-stat {
+  background: var(--color-surface-card-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 234px;
+  position: relative;
+  overflow: clip;
+}
+
+.mvc-redesign .card-stat__icon {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-6);
+  width: 24px;
+  height: 35px;
+  color: var(--color-ink-body);
+}
+
+.mvc-redesign .card-stat__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mvc-redesign .card-stat__desc {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--color-ink-muted);
+  max-width: calc(100% - 40px);  /* avoid clashing with the absolute icon */
+}
+
+.mvc-redesign .card-stat__value {
+  font-family: var(--font-display);
+  font-size: var(--text-stat);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-stat);
+  color: var(--color-ink-primary);
+  letter-spacing: -0.5px;
+}
+
+
+/* --- Grid utilities ----------------------------------------------- */
+.mvc-redesign .grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+.mvc-redesign .grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+@media (max-width: 768px) {
+  .mvc-redesign .grid-2,
+  .mvc-redesign .grid-3 {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+
+
+/* --- Testimonial Block (D.13) ------------------------------------- */
+.mvc-redesign .testimonial {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-10);
+  align-items: flex-start;
+}
+
+.mvc-redesign .testimonial__quote {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--tracking-h2);
+  color: var(--color-ink-primary);
+}
+
+.mvc-redesign .testimonial__attribution {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mvc-redesign .testimonial__portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-input);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.mvc-redesign .testimonial__name {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  font-weight: var(--fw-regular);
+  color: var(--color-ink-primary);
+}
+
+.mvc-redesign .testimonial__role {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  color: var(--color-ink-muted);
+}
+
+@media (max-width: 768px) {
+  .mvc-redesign .testimonial {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  .mvc-redesign .testimonial__quote {
+    font-size: 24px;
+    line-height: 30px;
+  }
+}
+
+
+/* --- FAQ Accordion (D.10) ----------------------------------------- */
+.mvc-redesign .accordion {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Sits on .section--warm - see the .card-feature note. The border lives on the
+   item, not the trigger, so it wraps the answer too when the item is open. */
+.mvc-redesign .accordion__item {
+  background: var(--color-surface-card-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.mvc-redesign .accordion__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 60px;
+  padding: var(--space-5);
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-regular);
+  color: var(--color-ink-primary);
+  /* Transparent so the item's raised fill shows through - two stacked opaque
+     fills would hide the item's border-radius at the corners. */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Separate the question from its answer once open. Without this the open item
+   is one undifferentiated slab. */
+.mvc-redesign .accordion__item[open] .accordion__trigger {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mvc-redesign .accordion__icon {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-circle);
+  background: var(--color-ink-primary);
+  color: var(--color-bg-page);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* The strokes must be the INVERSE of the circle fill.
+   The circle is --color-ink-primary, which inverts (#FFFFFF dark / #16232A light).
+   These used --color-ink-white, which is literal #FFFFFF in BOTH themes - so in
+   dark mode it was white-on-white and the +/x glyph was completely invisible,
+   leaving a bare white dot that never appeared to change on open/close.
+   --color-bg-page is the exact inverse of --color-ink-primary in both themes. */
+.mvc-redesign .accordion__icon::before,
+.mvc-redesign .accordion__icon::after {
+  content: '';
+  position: absolute;
+  background: var(--color-bg-page);
+  border-radius: 1px;
+}
+.mvc-redesign .accordion__icon::before { width: 10px; height: 2px; }
+.mvc-redesign .accordion__icon::after  { width: 2px;  height: 10px;
+  transition: transform var(--dur-base) var(--ease-out); }
+
+.mvc-redesign .accordion__item[open] .accordion__icon::after,
+.mvc-redesign .accordion__trigger[aria-expanded="true"] .accordion__icon::after {
+  transform: rotate(90deg);  /* + becomes × visually (- + crossed bar) */
+}
+
+.mvc-redesign .accordion__body {
+  padding: 0 var(--space-5) var(--space-5);
+  color: var(--color-ink-muted);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+}
+
+
+/* --- Navbar (D.12) ------------------------------------------------ */
+.mvc-redesign .navbar {
+  /* display is declared explicitly: main.css used to hide .navbar outright
+     below 992px, which blanked the whole public header on phones. */
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  /* Fixed dark scrim, not a theme token: the nav sits over hero photography
+     in both themes and the links/wordmark on top of it are always white.
+     0.40 was too light to carry white text over bright hero images. */
+  background: rgba(14, 24, 29, 0.58);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background-color var(--dur-base) var(--ease-out),
+              backdrop-filter var(--dur-base) var(--ease-out);
+}
+
+/* When scrolled past hero - toggled by JS adding .is-scrolled */
+.mvc-redesign .navbar.is-scrolled {
+  background: var(--color-bg-page);
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* When page has no hero behind (about, contact, etc.), solid from start */
+.mvc-redesign .navbar--solid {
+  background: var(--color-bg-page);
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Mobile menu open. Two things have to happen here:
+   1. backdrop-filter must go. It makes the navbar a containing block for
+      position:fixed descendants, which collapsed the overlay's `inset: 0`
+      down to the 66px bar instead of the viewport.
+   2. the translucent hero scrim must go solid, so the bar reads as part of
+      the overlay rather than a dark stripe across a light-theme menu.
+   Needs .navbar twice to outrank .navbar.is-scrolled above. */
+.mvc-redesign .navbar.navbar--open {
+  background: var(--color-bg-page);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom-color: transparent;
+}
+
+.mvc-redesign .navbar.navbar--open .navbar__brand {
+  color: var(--color-ink-primary);
+}
+
+.mvc-redesign .navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  min-height: 66px;
+  padding: var(--space-3) 0;
+}
+
+.mvc-redesign .navbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-ink-white);
+}
+
+/* --color-ink-primary is white in dark theme and ink in light, so this
+   tracks the nav background correctly in both. */
+.mvc-redesign .navbar.is-scrolled .navbar__brand,
+.mvc-redesign .navbar--solid .navbar__brand {
+  color: var(--color-ink-primary);
+}
+
+/* The mark is a square leaf icon, not the old 1714x308 wordmark strip, so it
+   needs more height to read at the same optical weight beside the name. */
+.mvc-redesign .navbar__brand img {
+  height: 30px;
+  width: auto;
+}
+
+/* Company name as live text rather than baked into the image: it inherits the
+   colour from .navbar__brand, which already tracks nav state and theme, so it
+   can never end up invisible the way a second hardcoded image could. */
+/* px, not rem: main.css sets `html { font-size: 10px }`, so a rem value here
+   lands at ~2/3 the intended size. The whole type scale is px for this reason. */
+.mvc-redesign .navbar__wordmark {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  white-space: nowrap;
+  color: inherit;
+}
+
+/* Mark swaps with whatever is actually BEHIND it, which depends on
+   both the nav state and the theme:
+     - over a hero (default state) the nav is a dark scrim -> white mark
+     - scrolled/solid, the nav is --color-bg-page, which is dark in the
+       dark theme and white in the light theme -> follow the theme
+   Keying only off the state (as this did before) left the ink wordmark
+   invisible on every solid-nav page in the dark theme. */
+.mvc-redesign .navbar__logo { display: block; }
+.mvc-redesign .navbar__logo--dark { display: none; }
+
+/* Light theme: solid/scrolled nav is white, so switch to the ink mark. */
+:root[data-theme="light"] .mvc-redesign .navbar.is-scrolled .navbar__logo--light,
+:root[data-theme="light"] .mvc-redesign .navbar--solid .navbar__logo--light { display: none; }
+:root[data-theme="light"] .mvc-redesign .navbar.is-scrolled .navbar__logo--dark,
+:root[data-theme="light"] .mvc-redesign .navbar--solid .navbar__logo--dark { display: block; }
+/* Dark theme keeps the white mark in every nav state. */
+
+.mvc-redesign .navbar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0;
+}
+
+.mvc-redesign .navbar__link {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--color-ink-white);
+  transition: color var(--dur-base) var(--ease-out),
+              opacity var(--dur-base) var(--ease-out);
+}
+
+.mvc-redesign .navbar.is-scrolled .navbar__link,
+.mvc-redesign .navbar--solid .navbar__link {
+  color: var(--color-ink-body);
+}
+
+.mvc-redesign .navbar__link:hover {
+  opacity: 0.7;
+}
+
+/* The nav's two icon controls follow the LINKS, not the page.
+ *
+ * Both resolved `currentColor` up to the body, so in the light theme they came
+ * out as dark ink sitting on the navbar's dark scrim - a barely-visible "EN"
+ * and sun icon over a dark hero. They need the same two-state treatment every
+ * other navbar child already has: white while the bar is transparent over the
+ * hero, ink once it turns solid on scroll. */
+.mvc-redesign .theme-toggle,
+.mvc-redesign .mvc-lang-trigger {
+  color: var(--color-ink-white);
+}
+.mvc-redesign .navbar.is-scrolled .theme-toggle,
+.mvc-redesign .navbar--solid .theme-toggle,
+.mvc-redesign .navbar.is-scrolled .mvc-lang-trigger,
+.mvc-redesign .navbar--solid .mvc-lang-trigger {
+  color: var(--color-ink-body);
+}
+
+.mvc-redesign .navbar__cta {
+  /* dark pill on dark nav doesn't pop; nav uses white pill (D.4) */
+}
+
+/* Set by main.js while the mobile overlay is open. */
+body.mvc-redesign.has-nav-open {
+  overflow: hidden;
+}
+
+/* Mobile-only CTA that lives inside the overlay; the desktop CTA is
+   .navbar__cta over in .navbar__actions. */
+.mvc-redesign .navbar__links-cta {
+  display: none;
+}
+
+.mvc-redesign .navbar__toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* Sits on the dark hero scrim by default, so white; tracks the theme once
+     the nav goes solid. Matches the .navbar__link treatment below. */
+  color: var(--color-ink-white);
+}
+
+.mvc-redesign .navbar.is-scrolled .navbar__toggle,
+.mvc-redesign .navbar--solid .navbar__toggle {
+  color: var(--color-ink-primary);
+}
+
+.mvc-redesign .navbar__toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.mvc-redesign .navbar__toggle svg line {
+  transform-box: view-box;
+  transform-origin: center;
+  transition: transform var(--dur-fast) var(--ease-out),
+              opacity var(--dur-fast) var(--ease-out);
+}
+
+/* Hamburger folds into an X while the overlay is open. */
+.mvc-redesign .navbar--open .navbar__toggle svg line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.mvc-redesign .navbar--open .navbar__toggle svg line:nth-child(2) {
+  opacity: 0;
+}
+.mvc-redesign .navbar--open .navbar__toggle svg line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+@media (max-width: 768px) {
+  .mvc-redesign .navbar__toggle {
+    display: inline-flex;
+  }
+
+  /* Desktop pill is replaced by the full-width button inside the overlay. */
+  .mvc-redesign .navbar__cta {
+    display: none;
+  }
+
+  /* The link list becomes the full-screen menu. z-index is below the nav's
+     own 100 on purpose, so the brand, theme toggle and close button stay
+     above it and stay clickable; the top padding clears the 66px bar. */
+  .mvc-redesign .navbar__links {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: var(--space-1);
+    padding: 90px var(--container-px-sm) var(--space-10);
+    background: var(--color-bg-page);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity var(--dur-base) var(--ease-out),
+                transform var(--dur-base) var(--ease-out),
+                visibility var(--dur-base) linear;
+  }
+
+  .mvc-redesign .navbar--open .navbar__links {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  /* The overlay is --color-bg-page, not the hero scrim, so links must track
+     the theme rather than staying white. Extra .navbar in the selector beats
+     the .is-scrolled / --solid link colours above. */
+  .mvc-redesign .navbar .navbar__links .navbar__link {
+    display: block;
+    padding: var(--space-4) var(--space-3);
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: var(--fw-medium);
+    color: var(--color-ink-primary);
+    border-radius: var(--radius-input);
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+
+  .mvc-redesign .navbar .navbar__links .navbar__link:hover,
+  .mvc-redesign .navbar .navbar__links .navbar__link:focus-visible {
+    background: var(--color-accent-soft);
+    opacity: 1;
+  }
+
+  .mvc-redesign .navbar__links-cta {
+    display: block;
+    margin-top: var(--space-6);
+  }
+
+  .mvc-redesign .navbar__links-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Keep the toggle above the overlay it controls. */
+  .mvc-redesign .navbar--open .navbar__toggle,
+  .mvc-redesign .navbar--open .navbar__brand,
+  .mvc-redesign .navbar--open .theme-toggle {
+    position: relative;
+    z-index: 91;
+  }
+
+  /* Overlay fill is --color-bg-page, so the ink wordmark is the readable one
+     in the light theme even when the nav itself is the dark hero scrim. */
+  :root[data-theme="light"] .mvc-redesign .navbar--open .navbar__logo--light {
+    display: none;
+  }
+  :root[data-theme="light"] .mvc-redesign .navbar--open .navbar__logo--dark {
+    display: block;
+  }
+
+  .mvc-redesign .navbar--open .navbar__toggle,
+  .mvc-redesign .navbar--open .theme-toggle {
+    color: var(--color-ink-primary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mvc-redesign .navbar__links,
+  .mvc-redesign .navbar__toggle svg line {
+    transition: none;
+  }
+}
+
+
+/* --- Forms (D.14 adapted) ----------------------------------------- */
+/* The auth pages put this on .auth-page, whose fill is --color-surface-warm -
+   identical to --color-surface-card in the dark theme, so the card had no edge
+   at all. See the .card-feature note. */
+.mvc-redesign .form-card {
+  background: var(--color-surface-card-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: var(--space-8);
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.mvc-redesign .form-card--wide {
+  max-width: 760px;
+}
+
+.mvc-redesign .form-card__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+}
+
+.mvc-redesign .form-card__header h1 {
+  font-size: 28px;
+  line-height: 32px;
+  letter-spacing: -0.4px;
+  font-weight: var(--fw-medium);
+}
+
+.mvc-redesign .form-card__header p {
+  color: var(--color-ink-muted);
+}
+
+.mvc-redesign .form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.mvc-redesign .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mvc-redesign .form-field__label {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--color-ink-body);
+}
+
+/* `border: 1px solid transparent` at rest meant the only thing separating a
+   field from its card was a fill difference - and in the dark theme
+   --color-surface-warm equals the card's fill exactly, so the inputs had no
+   visible edge at all until focused. A real hairline at rest, the ink border
+   still marking focus.
+
+   background-color, not the `background` shorthand: the select rule below sets
+   a caret via background-image, and the shorthand would wipe it. */
+.mvc-redesign .form-field__input {
+  background-color: var(--color-surface-warm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-input);
+  padding: 12px 16px;
+  height: 48px;
+  font-family: inherit;
+  font-size: var(--text-body);
+  color: var(--color-ink-body);
+  width: 100%;
+  transition: border-color var(--dur-base) var(--ease-out),
+              background-color var(--dur-base) var(--ease-out);
+}
+
+.mvc-redesign .form-field__input:hover:not(:focus) {
+  border-color: var(--color-ink-muted);
+}
+
+.mvc-redesign .form-field__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background-color: var(--color-bg-page);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.mvc-redesign .form-field__input::placeholder {
+  color: var(--color-ink-muted);
+}
+
+.mvc-redesign textarea.form-field__input {
+  min-height: 120px;
+  resize: vertical;
+  padding: 12px 16px;
+  height: auto;
+  line-height: 1.5;
+}
+
+/* --- Select ------------------------------------------------------
+   These had NO styling at all, so both contact selects rendered the OS
+   dropdown arrow - a dark glyph on a dark field in the dark theme. The caret
+   is an inline SVG data URI (no external asset: the CSP blocks CDNs), drawn in
+   currentColor via a `stroke` the token can't reach, so it is duplicated per
+   theme below. */
+.mvc-redesign select.form-field__input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 44px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%239FB3BA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
+
+:root[data-theme="light"] .mvc-redesign select.form-field__input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%23526670' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* The native <option> popup is drawn by the UA, which needs to be told which
+   palette to use - this is the only handle CSS has on it. */
+.mvc-redesign select.form-field__input option {
+  background-color: var(--color-surface-warm);
+  color: var(--color-ink-body);
+}
+
+/* --- File input --------------------------------------------------
+   Had no CSS anywhere in any stylesheet, so it rendered the raw UA
+   "Choose File / No file chosen" chip - a light-grey native control on a dark
+   card. Both vendor pseudo-elements are needed: Chrome/Edge and Firefox 82+
+   support ::file-selector-button, older WebKit only the -webkit- one. */
+.mvc-redesign input[type="file"].form-field__input {
+  height: auto;
+  padding: 8px;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.mvc-redesign input[type="file"].form-field__input::file-selector-button,
+.mvc-redesign input[type="file"].form-field__input::-webkit-file-upload-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin-right: 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-input);
+  background-color: var(--color-surface-card-raised);
+  color: var(--color-ink-primary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background-color var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out);
+}
+
+.mvc-redesign input[type="file"].form-field__input::file-selector-button:hover,
+.mvc-redesign input[type="file"].form-field__input::-webkit-file-upload-button:hover {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-ink-on-accent);
+}
+
+/* --- Checkbox ----------------------------------------------------
+   Raw <input type="checkbox"> on the auth pages had no styling anywhere, so it
+   rendered the native control on a dark card. accent-color is the one-line
+   answer and is supported everywhere this site targets. */
+.mvc-redesign input[type="checkbox"] {
+  accent-color: var(--color-accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* --- Two-up field pair -------------------------------------------
+   contact.php had these as inline `display:grid; grid-template-columns:1fr 1fr`
+   with no media query, so they stayed two-up at 320px. */
+.mvc-redesign .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .mvc-redesign .form-row { grid-template-columns: 1fr; }
+}
+
+.mvc-redesign .form-field__hint {
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+.mvc-redesign .form-field--with-action {
+  position: relative;
+}
+
+.mvc-redesign .form-field__action {
+  position: absolute;
+  right: 12px;
+  top: 38px;
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.mvc-redesign .form-link {
+  font-size: var(--text-sm);
+  color: var(--color-ink-primary);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color var(--dur-base) var(--ease-out);
+}
+.mvc-redesign .form-link:hover {
+  text-decoration-color: var(--color-ink-primary);
+}
+
+.mvc-redesign .form-footer {
+  text-align: center;
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+.mvc-redesign .form-footer a {
+  color: var(--color-ink-primary);
+  font-weight: var(--fw-medium);
+}
+
+
+/* --- Auth Page Shell ---------------------------------------------- */
+.mvc-redesign .auth-page {
+  min-height: calc(100vh - 66px);
+  background: var(--color-surface-warm);
+  display: flex;
+  align-items: center;
+  padding: var(--space-10) 0;
+}
+
+/* Auth lockup - mark + name, mirroring the navbar and footer. A single
+   hardcoded ink logo was invisible against the dark .form-card, which is
+   exactly what the three admin auth pages were shipping. */
+.mvc-redesign .auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  color: var(--color-ink-primary);
+  text-decoration: none;
+}
+
+.mvc-redesign .auth-wordmark {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  white-space: nowrap;
+  color: inherit;
+}
+
+.mvc-redesign .auth-logo { display: block; height: 32px; width: auto; }
+.mvc-redesign .auth-logo--dark { display: none; }
+
+:root[data-theme="light"] .mvc-redesign .auth-logo--light { display: none; }
+:root[data-theme="light"] .mvc-redesign .auth-logo--dark { display: block; }
+
+/* The admin auth pages have no navbar, so the theme toggle floats. Public auth
+   pages keep theirs in the navbar and never render this. */
+.mvc-redesign .auth-theme-toggle {
+  position: fixed;
+  top: var(--space-5);
+  right: var(--space-5);
+  z-index: 20;
+  background: var(--color-surface-card-raised);
+  color: var(--color-ink-primary);
+}
+
+
+/* --- Hero (C.2) --------------------------------------------------- */
+.mvc-redesign .hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-dark);
+  color: var(--color-ink-white);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Kill the legacy main.css `.hero::after` overlay that paints over the
+   hero text/buttons and blocks clicks. The redesign uses .hero__bg::after. */
+.mvc-redesign .hero::after {
+  content: none;
+}
+
+.mvc-redesign .hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mvc-redesign .hero__bg img,
+.mvc-redesign .hero__bg video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mvc-redesign .hero__bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg,
+      rgba(13, 13, 13, 0.55) 0%,
+      rgba(13, 13, 13, 0.35) 35%,
+      rgba(13, 13, 13, 0.85) 100%);
+}
+
+.mvc-redesign .hero__inner {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: var(--section-py-hero);
+  padding-bottom: var(--space-15);
+}
+
+.mvc-redesign .hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 760px;
+}
+
+.mvc-redesign .hero .eyebrow {
+  color: var(--color-ink-white);
+}
+
+.mvc-redesign .hero .eyebrow__icon {
+  color: var(--color-ink-white);
+}
+
+.mvc-redesign .hero__title {
+  color: var(--color-ink-white);
+}
+
+.mvc-redesign .hero__subtitle {
+  font-size: var(--text-body-lg);
+  line-height: var(--lh-body-lg);
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 640px;
+}
+
+.mvc-redesign .hero__cta-row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.mvc-redesign .hero__divider {
+  position: relative;
+  z-index: 1;
+  background: var(--color-bg-page);
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mvc-redesign .hero__arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-circle);
+  background: var(--color-ink-primary);
+  color: var(--color-ink-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .mvc-redesign .hero { min-height: 88vh; }
+  .mvc-redesign .hero__subtitle { font-size: 16px; line-height: 22px; }
+}
+
+
+/* --- Footer ------------------------------------------------------- */
+.mvc-redesign .footer {
+  background: var(--color-bg-page);
+  padding-top: var(--space-10);
+}
+
+.mvc-redesign .footer__top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.mvc-redesign .footer__nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-5);
+  font-size: var(--text-body);
+  color: var(--color-ink-body);
+}
+
+.mvc-redesign .footer__nav a {
+  color: var(--color-ink-body);
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.mvc-redesign .footer__nav a:hover { opacity: 0.6; }
+
+.mvc-redesign .footer__sep {
+  color: var(--color-ink-body);
+  opacity: 0.5;
+}
+
+/* Social links were removed, so the copyright is the only child. Centred
+   rather than space-between, which would have pinned it to the left edge. */
+.mvc-redesign .footer__credits {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-5) 0;
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+  text-align: center;
+}
+
+/* Footer lockup - mark + name, mirroring the navbar. The footer sits on
+   --color-bg-page: near-black in dark, white in light. */
+.mvc-redesign .footer__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-ink-primary);
+  text-decoration: none;
+}
+
+.mvc-redesign .footer__wordmark {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  white-space: nowrap;
+  color: inherit;
+}
+
+.mvc-redesign .footer__logo { display: block; height: 32px; width: auto; }
+.mvc-redesign .footer__logo--dark { display: none; }
+
+:root[data-theme="light"] .mvc-redesign .footer__logo--light { display: none; }
+:root[data-theme="light"] .mvc-redesign .footer__logo--dark { display: block; }
+
+
+/* --- Utility: hidden ---------------------------------------------- */
+.mvc-redesign .hidden { display: none !important; }
+
+
+/* --- Loader (auth pages) ------------------------------------------ */
+.mvc-redesign #loader {
+  position: fixed;
+  inset: 0;
+  z-index: 13000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 13, 13, 0.55);
+  opacity: 1;
+  transition: opacity 0.3s var(--ease-out);
+}
+.mvc-redesign #loader.hidden { display: none !important; }
+.mvc-redesign #loader.fade-out { opacity: 0; pointer-events: none; }
+
+.mvc-redesign .line-loader {
+  display: flex;
+  gap: 4px;
+  height: 40px;
+  align-items: flex-end;
+}
+.mvc-redesign .line-loader div {
+  width: 6px;
+  height: 10px;
+  background: var(--color-accent);
+  border-radius: 4px;
+  animation: mvcWave 1s ease-in-out infinite;
+}
+.mvc-redesign .line-loader div:nth-child(2) { animation-delay: 0.1s; }
+.mvc-redesign .line-loader div:nth-child(3) { animation-delay: 0.2s; }
+.mvc-redesign .line-loader div:nth-child(4) { animation-delay: 0.3s; }
+.mvc-redesign .line-loader div:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes mvcWave {
+  0%, 100% { height: 10px; opacity: 0.6; }
+  50% { height: 30px; opacity: 1; }
+}
+
+
+/* --- Toast (auth pages) - on-brand dark card + accent bar --------- */
+.mvc-redesign #toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 13001;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.mvc-redesign .toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+  max-width: 360px;
+  padding: 14px 18px 14px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink-white);
+  background: var(--brand-ink);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  animation: mvcToastIn 0.4s ease forwards, mvcToastOut 0.4s ease 3.6s forwards;
+}
+.mvc-redesign .toast::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+}
+.mvc-redesign .toast.success::before { background: var(--status-success); }
+.mvc-redesign .toast.success i { color: var(--status-success); }
+.mvc-redesign .toast.error::before { background: var(--status-danger); }
+.mvc-redesign .toast.error i { color: var(--status-danger); }
+.mvc-redesign .toast.info::before { background: var(--color-accent); }
+.mvc-redesign .toast.info i { color: var(--color-accent); }
+.mvc-redesign .toast.warning::before { background: var(--status-warning); }
+.mvc-redesign .toast.warning i { color: var(--status-warning); }
+.mvc-redesign .toast i { font-size: 22px; flex-shrink: 0; }
+.mvc-redesign .toast-message { flex: 1; line-height: 1.4; }
+
+@keyframes mvcToastIn {
+  from { opacity: 0; transform: translateY(-15px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes mvcToastOut {
+  to { opacity: 0; transform: translateY(-15px); }
+}
+
+
+/* =================================================================
+ * Plan cards (public catalog) - defined plan/pricing cards
+ * Tokens only; sits on .section--warm / --white.
+ * ================================================================= */
+.mvc-redesign .plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  /* Raised fill + the stronger hairline: the card sits on .section--warm,
+     which is the same colour as --color-surface-card in the dark theme. */
+  background: var(--color-surface-card-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  height: 100%;
+}
+.mvc-redesign .plan-card__tier {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+.mvc-redesign .plan-card__roi {
+  font-family: var(--font-display);
+  font-size: var(--text-stat);
+  line-height: 1;
+  font-weight: var(--fw-regular);
+  color: var(--color-ink-primary);
+  overflow-wrap: anywhere;
+}
+.mvc-redesign .plan-card__roi small {
+  font-size: var(--text-h3);
+  color: var(--color-ink-muted);
+}
+.mvc-redesign .plan-card__name {
+  font-size: var(--text-body-lg);
+  font-weight: var(--fw-medium);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .plan-card__meta {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-3) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+.mvc-redesign .plan-card__meta li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+.mvc-redesign .plan-card__meta li strong {
+  color: var(--color-ink-primary);
+  font-weight: var(--fw-medium);
+  text-align: right;
+}
+.mvc-redesign .plan-card__summary {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+  margin-top: auto;
+}
+
+/* Product variant */
+.mvc-redesign .plan-card--product {
+  padding: 0;
+  overflow: hidden;
+}
+.mvc-redesign .plan-card--product .plan-card__media {
+  aspect-ratio: 470 / 300;
+  background: var(--color-surface-warm);
+}
+.mvc-redesign .plan-card--product .plan-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.mvc-redesign .plan-card--product .plan-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+.mvc-redesign .plan-card__badge {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--color-accent-red);
+  border: 1px solid var(--color-accent-red);
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+}
+.mvc-redesign .plan-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+.mvc-redesign .plan-card__price-member {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  color: var(--color-ink-primary);
+}
+.mvc-redesign .plan-card__price-retail {
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+  text-decoration: line-through;
+}
+
+
+/* =================================================================
+ * THEME TOGGLE - sits beside the nav CTA
+ * ================================================================= */
+.mvc-redesign .navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mvc-redesign .theme-toggle {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: currentColor;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+
+.mvc-redesign .theme-toggle:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.mvc-redesign .theme-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+
+/* =================================================================
+ * PLAN CARD ADDITIONS - cadence tier chip, per-period note, total
+ * ================================================================= */
+.mvc-redesign .plan-card__tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mvc-redesign .plan-card__tier i {
+  font-size: 15px;
+  color: var(--color-accent-text);
+}
+
+.mvc-redesign .plan-card__roi-note {
+  display: block;
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  font-weight: var(--fw-regular);
+  letter-spacing: 0;
+  color: var(--color-ink-muted);
+}
+
+.mvc-redesign .plan-card__total {
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  text-align: center;
+}

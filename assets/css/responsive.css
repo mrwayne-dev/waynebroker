@@ -1,0 +1,900 @@
+/* ==============================
+   Responsive Media Queries
+   ============================== */
+
+/* Tablet and below (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 1.5rem;
+    max-width: 100%;
+  }
+
+  /* Header */
+  .header .container {
+    gap: 1rem;
+  }
+  .hero-dots{
+    display: none;
+  }
+
+  /* Hero */
+  .hero-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 1.5rem 4rem;
+    gap: 3rem;
+  }
+  .hero-main {
+    max-width: 100%;
+    gap: 1.5rem;
+  }
+  .hero-title {
+    font-size: 5.6rem;
+    line-height: 1.1;
+  }
+  .hero-subtitle {
+    font-size: 1.8rem;
+  }
+
+  /* Detail */
+  .detail-content {
+    flex-direction: column;
+    gap: 3rem;
+    text-align: center;
+  }
+  .detail-text,
+  .detail-list {
+    min-width: auto;
+  }
+  .detail-visual img {
+    max-width: 60%;
+  }
+  .section-title {
+    font-size: 3.6rem;
+  }
+  .sub-section-title {
+    font-size: 2.4rem;
+  }
+
+  /* Platforms */
+  .platform-cards {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .platform-card {
+    min-height: auto;
+    padding: 2rem 1.5rem;
+  }
+  .platform-card-title {
+    font-size: 2rem;
+  }
+
+  /* Impact Stats */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  .stat-number {
+    font-size: 3.6rem;
+  }
+
+  /* Why HRC */
+  .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .comparison-card {
+    padding: 2rem;
+  }
+  .card-title {
+    font-size: 2.2rem;
+  }
+
+  /* Testimonials */
+  .testimonial-item {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .testimonial-sidebar {
+    flex: none;
+    width: 100%;
+  }
+  .testimonial-card {
+    padding: 2rem;
+  }
+  .testimonial-quote {
+    font-size: 1.8rem;
+  }
+
+  /* CTA Visual */
+  .cta-visual {
+    height: 500px;
+    padding: 0 1.5rem;
+  }
+  .cta-title {
+    font-size: 3rem;
+  }
+
+  /* Vision */
+  .vision-content {
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .vision-text {
+    max-width: 100%;
+  }
+  .vision-text .section-title {
+    font-size: 3.6rem;
+  }
+  .vision-image {
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Difference */
+  .difference-cards {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .difference-header .section-title {
+    font-size: 3.6rem;
+  }
+
+  /* User Journeys */
+  .user-journeys-cards {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .user-journey-image-wrapper {
+    height: 250px;
+  }
+
+  /* Circle of Care */
+  .circle-image-wrapper img {
+    width: 80%;
+  }
+
+  /* Trust */
+  .trust-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  /* Wing */
+  .wing-card {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  .wing-card-image {
+    flex: none;
+    width: 100%;
+  }
+  .wing-card-content {
+    padding-left: 0;
+  }
+
+  /* Workflow Maturity */
+  .workflow-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .workflow-left {
+    flex: none;
+    width: 100%;
+  }
+  .workflow-services {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+    gap: 1.5rem;
+  }
+
+  /* Use Cases */
+  .usecase-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  /* Security Cards */
+  .security-card-wrapper {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .security-visual {
+    flex: none;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+  }
+  .security-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .security-title {
+    font-size: 3.6rem;
+  }
+
+  /* Logo Wall */
+  .logo-row {
+    gap: 2rem;
+  }
+  .logo-row img {
+    max-height: 80px;
+  }
+
+  /* Smart Workflows */
+  .workflow-tabs {
+    justify-content: flex-start;
+  }
+  .workflow-content-card {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .workflow-visual {
+    flex: none;
+    width: 100%;
+  }
+  .workflow-content-title {
+    font-size: 2.8rem;
+  }
+
+  /* Solutions by Role */
+  .solutions-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  /* Impact Journey */
+  .impact-step {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+  }
+  .impact-icon {
+    flex: none;
+  }
+
+  /* About HRC */
+  .about-details {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  /* Founders Mission */
+  .founders-mission .container {
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .founders-column {
+    flex: none;
+    width: 100%;
+  }
+  .founders-title {
+    font-size: 3.6rem;
+  }
+  .mission-card {
+    max-width: 100%;
+  }
+
+  /* Contact */
+  .contact-form-wrapper {
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .contact-form {
+    flex: none;
+    width: 100%;
+  }
+  .contact-info {
+    flex: none;
+    width: 100%;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-group.full-width {
+    grid-column: span 1;
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  .footer-bottom-row {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+}
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  html {
+    font-size: 9px;
+  }
+
+  .container {
+    padding: 0 2rem;
+  }
+
+  /* Header */
+  .header {
+    padding: 1rem 0;
+  }
+  .logo {
+    font-size: 2rem;
+  }
+  .logo img {
+    width: 32px;
+  }
+  .header .container {
+    justify-content: space-between;
+  }
+
+  /* Hero */
+  .hero-main {
+    gap: 1rem;
+  }
+  .hero-title {
+    font-size: 4rem;
+  }
+  .hero-subtitle {
+    font-size: 1.6rem;
+  }
+  .hero-dots {
+    bottom: 1rem;
+  }
+  .hero-dots button {
+    width: 6px;
+    height: 6px;
+  }
+
+  /* Detail */
+  .section-title {
+    font-size: 2.8rem;
+  }
+  .sub-section-title {
+    font-size: 2rem;
+  }
+  .section-description {
+    font-size: 1.6rem;
+  }
+  .detail-list li {
+    font-size: 1.6rem;
+    gap: 1rem;
+  }
+  .detail-list i {
+    font-size: 2rem;
+    width: 2.4rem;
+  }
+  .detail-visual img {
+    max-width: 80%;
+  }
+
+  /* Platforms */
+  .platform-cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .platform-card {
+    padding: 1.5rem 1rem;
+  }
+  .platform-icon {
+    font-size: 3rem;
+  }
+  .platform-card-title {
+    font-size: 1.8rem;
+  }
+  .platform-card-desc {
+    font-size: 1.4rem;
+  }
+
+  /* Impact Stats */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .stat-number {
+    font-size: 2.8rem;
+  }
+  .stat-label {
+    font-size: 1.4rem;
+  }
+  .comparison-card {
+    padding: 1.5rem;
+  }
+  .card-title {
+    font-size: 2rem;
+  }
+  .comparison-features {
+    gap: 1rem;
+    font-size: 1.4rem;
+  }
+
+  /* Testimonials */
+  .testimonial-grid {
+    gap: 2rem;
+  }
+  .testimonial-item {
+    gap: 1.5rem;
+  }
+  .testimonial-sidebar,
+  .testimonial-card {
+    padding: 1.5rem;
+  }
+  .testimonial-quote {
+    font-size: 1.6rem;
+  }
+
+  /* FAQ */
+  .faq-list {
+    max-width: 100%;
+  }
+  .faq-question {
+    font-size: 1.6rem;
+    padding: 1.2rem 1.5rem;
+  }
+  .faq-answer {
+    font-size: 1.4rem;
+    padding: 0 1.5rem;
+  }
+  .faq-item.active .faq-answer {
+    padding: 1.2rem 1.5rem;
+  }
+  .faq-cta {
+    padding: 2rem 1.5rem;
+  }
+  .faq-cta-title {
+    font-size: 2rem;
+  }
+
+  /* CTA Visual */
+  .cta-visual {
+    height: 400px;
+  }
+  .cta-content {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+  .cta-title {
+    font-size: 2.4rem;
+  }
+  .cta-subtitle {
+    font-size: 1.4rem;
+  }
+
+  /* Auth */
+  .auth-container {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+  }
+  .auth-title {
+    font-size: 2rem;
+  }
+  .auth-input-wrapper {
+    padding: 1rem 1rem;
+  }
+
+  /* Vision */
+  .vision-text .section-title {
+    font-size: 2.8rem;
+  }
+  .vision-image {
+    aspect-ratio: 1 / 1;
+  }
+
+  /* Difference */
+  .difference-header .section-title {
+    font-size: 2.8rem;
+  }
+  .difference-card {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem 1.5rem;
+  }
+  .difference-icon-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+  .difference-icon {
+    font-size: 2.4rem;
+  }
+  .difference-card-title {
+    font-size: 2rem;
+  }
+
+  /* User Journeys */
+  .user-journey-card {
+    padding: 2rem 1.5rem;
+  }
+  .user-journey-image-wrapper {
+    height: 200px;
+  }
+
+  /* Circle of Care */
+  .circle-of-care-header .section-title {
+    font-size: 2.8rem;
+  }
+  .circle-image-wrapper img {
+    width: 100%;
+  }
+
+  /* Trust */
+  .trust-cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .trust-card {
+    padding: 2rem 1.5rem;
+  }
+  .trust-card i {
+    font-size: 2.5rem;
+  }
+
+  /* Wing */
+  .wing-header .section-title {
+    font-size: 3.6rem;
+  }
+  .wing-card {
+    padding: 1.5rem 1rem;
+  }
+  .wing-card-title {
+    font-size: 2rem;
+  }
+  .wing-card-desc {
+    font-size: 1.4rem;
+  }
+
+  /* Workflow Maturity */
+  .workflow-title {
+    font-size: 3.6rem;
+  }
+  .workflow-service-card {
+    padding: 1.5rem;
+  }
+  .workflow-service-title {
+    font-size: 1.8rem;
+  }
+
+  /* Use Cases */
+  .usecase-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .usecase-icon-wrapper {
+    height: 100px;
+  }
+  .usecase-icon {
+    font-size: 2.8rem;
+  }
+  .usecase-card-content {
+    padding: 1.5rem;
+  }
+  .usecase-title {
+    font-size: 2rem;
+  }
+
+  /* Security Cards */
+  .security-card-wrapper {
+    padding: 2rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .security-visual {
+    height: 250px;
+    padding: 1.5rem;
+    overflow: hidden;
+  }
+  .security-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .security-content {
+    padding: 2rem 1.5rem;
+  }
+  .security-title {
+    font-size: 2.8rem;
+  }
+  .security-point-text,
+  .security-list li {
+    font-size: 1.4rem;
+  }
+
+  /* Logo Wall */
+  .logo-wall-header .section-title {
+    font-size: 3.6rem;
+  }
+  .logo-row {
+    gap: 1.5rem;
+  }
+  .logo-row img {
+    max-height: 60px;
+  }
+
+  /* Smart Workflows */
+  .smart-workflows-header .section-title {
+    font-size: 3.6rem;
+  }
+  .workflow-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .workflow-tab {
+    min-width: auto;
+    text-align: left;
+  }
+  .workflow-content-card {
+    padding: 2rem 1.5rem;
+  }
+  .workflow-content-title {
+    font-size: 2.4rem;
+  }
+  .workflow-arrow-btn {
+    right: 1rem;
+    width: 50px;
+    height: 50px;
+  }
+  .workflow-arrow-btn i {
+    font-size: 1.6rem;
+  }
+
+  /* Solutions by Role */
+  .solutions-header .section-title {
+    font-size: 3.6rem;
+  }
+  .solution-content {
+    padding: 2rem 1.5rem;
+  }
+  .solution-title {
+    font-size: 2.2rem;
+  }
+  .solution-visual {
+    padding: 2rem 1rem;
+  }
+
+  /* Impact Journey */
+  .impact-header .section-title {
+    font-size: 3.6rem;
+  }
+  .impact-flow {
+    gap: 2rem;
+  }
+  .impact-step {
+    padding: 2rem 1.5rem;
+  }
+  .impact-title {
+    font-size: 2.2rem;
+  }
+  .impact-icon {
+    width: 60px;
+    height: 60px;
+  }
+  .impact-icon span {
+    font-size: 2rem;
+  }
+
+  /* About HRC */
+  .about-header .section-title {
+    font-size: 3.6rem;
+  }
+  .about-details {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .about-detail-card {
+    padding: 2rem 1.5rem;
+  }
+  .about-detail-title {
+    font-size: 2rem;
+  }
+
+  /* Founders Mission */
+  .founders-title {
+    font-size: 2.8rem;
+  }
+  .mission-title {
+    font-size: 2.8rem;
+  }
+  .mission-card {
+    padding: 3rem 2rem;
+  }
+
+  /* Contact */
+  .contact-form {
+    padding: 2rem 1.5rem;
+  }
+  .form-grid {
+    gap: 1.5rem;
+  }
+  .input-wrapper {
+    padding: 0.8rem 1rem;
+  }
+  .contact-info {
+    padding: 2rem 1.5rem;
+  }
+  .contact-info li {
+    font-size: 1.4rem;
+  }
+
+  /* Modal */
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+  .modal-title {
+    font-size: 2rem;
+  }
+  .modal-description {
+    font-size: 1.5rem;
+  }
+  .modal-features-list li {
+    font-size: 1.4rem;
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .footer-column h4 {
+    font-size: 1.4rem;
+  }
+  .footer-column a {
+    font-size: 1.2rem;
+  }
+  .footer-bottom-row {
+    padding: 1.5rem;
+  }
+  .footer-logo .logo-text {
+    font-size: 1.6rem;
+  }
+  .footer-stamp {
+    padding: 4rem 1rem 2rem;
+  }
+  .footer-stamp span {
+    font-size: 6rem;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.4rem;
+  }
+  .btn--auth {
+    padding: 1rem;
+  }
+  .detail-buttons {
+    justify-content: center;
+  }
+
+  /* General */
+  .section-padding {
+    padding: 50px 0 !important;
+  }
+
+}
+
+/* Small Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  html {
+    font-size: 8px;
+  }
+
+  /* Hero */
+  .hero-title {
+    font-size: 3.2rem;
+  }
+  .hero-explore {
+    font-size: 1.4rem;
+  }
+  .hero-explore i {
+    font-size: 1.8rem;
+  }
+
+  /* Detail */
+  .section-title {
+    font-size: 2.4rem;
+  }
+  .detail-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Platforms */
+  .platforms-header .section-title {
+    font-size: 2.8rem;
+  }
+
+  /* Impact Stats */
+  .impact-stats-header .section-title {
+    font-size: 3.6rem;
+  }
+
+  /* Testimonials */
+  .testimonials-header .section-title {
+    font-size: 2.8rem;
+  }
+
+  /* FAQ */
+  .faq-header .section-title {
+    font-size: 2.8rem;
+  }
+
+  /* CTA */
+  .cta-title {
+    font-size: 2rem;
+  }
+
+  /* Auth */
+  .auth-container {
+    padding: 1.5rem 1rem;
+  }
+
+  /* All section titles */
+  .section-title,
+  .wing-header .section-title,
+  .usecases-header .section-title,
+  .solutions-header .section-title,
+  .impact-header .section-title,
+  .about-header .section-title,
+  .smart-workflows-header .section-title,
+  .logo-wall-header .section-title,
+  .difference-header .section-title,
+  .circle-of-care-header .section-title,
+  .user-journeys .section-title {
+    font-size: 2.4rem !important;
+  }
+
+  /* Grids to single column */
+  .about-details,
+  .usecase-grid,
+  .trust-cards,
+  .platforms-cards,
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Flex to column */
+  .detail-content,
+  .vision-content,
+  .security-card-wrapper,
+  .workflow-content-card,
+  .impact-step {
+    flex-direction: column !important;
+  }
+
+  /* Reduce paddings */
+  .platform-card,
+  .comparison-card,
+  .testimonial-card,
+  .faq-item,
+  .cta-visual,
+  .auth-container,
+  .difference-card,
+  .user-journey-card,
+  .trust-card,
+  .wing-card,
+  .workflow-service-card,
+  .usecase-card-content,
+  .solution-content,
+  .about-detail-card,
+  .mission-card,
+  .contact-form,
+  .contact-info {
+    padding: 1.5rem !important;
+  }
+
+  /* Footer */
+  .footer-social {
+    gap: 1rem;
+  }
+  .footer-social a {
+    font-size: 1.6rem;
+  }
+
+}
+
