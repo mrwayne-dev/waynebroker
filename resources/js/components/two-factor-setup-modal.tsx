@@ -75,6 +75,10 @@ function TwoFactorSetupStep({
                     <div className="mx-auto flex max-w-md overflow-hidden">
                         <div className="mx-auto aspect-square w-64 rounded-lg border border-border">
                             <div className="z-10 flex h-full w-full items-center justify-center p-5">
+                                {/* QR quiet zone: scanners need a light field
+                                    behind the modules and fail against a dark
+                                    one, so this stays white on a dark surface
+                                    by requirement of the medium — do not theme */}
                                 {qrCodeSvg ? (
                                     <div
                                         className="aspect-square w-full rounded-lg bg-white p-2 [&_svg]:size-full"
