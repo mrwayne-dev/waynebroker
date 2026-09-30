@@ -624,7 +624,7 @@ Every ID from the Maveren audit maps to a Gotham design decision.
 | M-3 (wallets not unique) | `UNIQUE(user_id)` on `wallets` and one canonical wallet creation path |
 | M-6 (email change requires nothing) | Email change requires current password and a fresh verification of the new address before it becomes primary |
 | M-7 (email inside DB transaction) | Emails are queued jobs, dispatched after commit |
-| M-11 (`.env.dbpass` shipped) | Docker image and deploy pipeline exclude secrets by construction |
+| M-11 (`.env.dbpass` shipped) | Deploy pipeline is a locally-built asset bundle rsynced over SSH; the release excludes .env, .git, tests/, and _legacy/ by construction. No image, no shared secret in the transport. |
 | M-12 (no backup before migration) | `spatie/laravel-backup` scheduled every 6h off-site, and a snapshot before every deploy |
 | M-13 (payout destination hidden in admin) | Withdrawals show destination in the admin queue |
 | M-17 (webhook not asserting type) | IPN handler asserts the referenced deposit invoice is in the correct state and kind |
@@ -655,7 +655,7 @@ No single measure stops a determined cloner. Layered defence raises the cost pas
 
 **Runtime layer**
 - Client fingerprint (canvas, WebGL, timezone, screen) hashed and sent as a header on every request; anomalous fingerprints get a Turnstile challenge from Cloudflare.
-- WebSocket connections require a short-lived signed token issued on page load; token bound to session and fingerprint.
+- Signed short-lived tokens bind every state-changing API request and every polling endpoint to a session and fingerprint pair. The token is issued on page load, refreshed on each Inertia navigation, and required by rate limiter and CSRF middleware together. Tick and event polling endpoints have their own aggressive per-fingerprint rate limits, tighter than the general API — that's the anti-scrape wall now, since polling is the only transport.
 - API endpoints reject requests that do not present the fingerprint and CSRF header pair.
 - Static image assets (chart glyphs, brand marks) served with a signed URL query param that expires.
 - Right-click and text selection disabled on member data surfaces (not on marketing pages, they're SEO territory).
@@ -668,7 +668,6 @@ No single measure stops a determined cloner. Layered defence raises the cost pas
 **Bot mitigation**
 - Cloudflare Turnstile on register, login, password reset, contact.
 - Bot Fight Mode on.
-- Aggressive rate limits on the price feed endpoints. WebSocket ticks are the free path; HTTP polling of `/api/ticks` is throttled.
 
 **Legal/organisational**
 - `LICENSE` file (proprietary), `TERMS` in the footer, DMCA process documented.
