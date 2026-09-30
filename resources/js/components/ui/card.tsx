@@ -7,7 +7,10 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        // Gotham: rounded-lg is the plan's 6px card radius, and the shadow is
+        // gone — Section 15.3 makes hairlines the structural device and keeps
+        // the one shadow in the system for modals.
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-lg border py-6",
         className
       )}
       {...props}
