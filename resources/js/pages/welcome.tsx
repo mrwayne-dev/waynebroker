@@ -26,7 +26,7 @@ export default function Welcome() {
                         {/* The reserved gesture from Section 15.2: the display
                             face, heaviest weight, largest step, tight tracking.
                             Nothing else in the system is allowed to do this. */}
-                        <h1 className="text-4xl font-bold tracking-tight text-ink-primary sm:text-5xl">
+                        <h1 className="font-display text-4xl font-bold tracking-tight text-ink-primary sm:text-5xl">
                             Gotham Investments
                         </h1>
 

@@ -40,9 +40,19 @@
     --color-signal-loss: #b84b5c;
     --color-signal-gain: #4a9f7e;
 
-    /* --- Typography (Section 15.2) ----------------------------------- */
-    /* Inter carries display and body; JetBrains Mono carries every number.
-     * Fetched by laravel-vite-plugin/fonts — see vite.config.ts. */
+    /* --- Typography (Section 15.2, ADR-0004) -------------------------- */
+    /* Three faces, one job each. Space Grotesk is display only: hero scale
+     * and display-scale headings, never body copy. Inter is the body face
+     * and stays on --font-sans, which is what Tailwind's `font-sans` and the
+     * <body> class resolve to. JetBrains Mono carries every number.
+     * Fetched by laravel-vite-plugin/fonts — see vite.config.ts.
+     *
+     * ADR-0004's consequences name this pair as --font-display alongside
+     * --font-body; the body token is --font-sans here because renaming it
+     * would mean sweeping `font-sans` out of the starter kit's components
+     * and the Blade <body> tag for no gain. Same face, Tailwind's name. */
+    --font-display:
+        'Space Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
     --font-sans:
         'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';

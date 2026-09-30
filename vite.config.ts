@@ -12,12 +12,16 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
-            // Plan Section 15.2: two families, no third. Inter carries
-            // display and body; JetBrains Mono carries every number so
-            // tabular figures line up in tables and tickers.
-            // 700 on Inter exists for the one reserved gesture — hero
-            // display type at very large size.
+            // Plan Section 15.2 / ADR-0004: three families, each with one
+            // job. Space Grotesk is the display face (hero scale, headings);
+            // Inter carries body copy, forms and tables; JetBrains Mono
+            // carries every number so tabular figures line up in tables and
+            // tickers. Self-hosted into the build by this provider, so no
+            // request reaches Google at runtime.
             fonts: [
+                google('Space Grotesk', {
+                    weights: [500, 700],
+                }),
                 google('Inter', {
                     weights: [400, 500, 600, 700],
                 }),
