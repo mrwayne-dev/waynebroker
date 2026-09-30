@@ -56,6 +56,33 @@ Sections rewritten: A5 (host correction), 4 (cotenancy note retracted), 21 (in-p
 
 ---
 
+## R5 — Phase 0 reality reconciliation
+
+R5 folds in what Phase 0 taught us and clears the R1 debris the
+R2 pass missed. No architecture changes; the plan text now
+matches what actually got built.
+
+- Sections 3, 6, 12, 13 stop referring to Redis for sessions.
+  The .env, the scaffold and Section 3 all agree on the
+  database session driver; other sections are amended to match.
+- Sections 11, 18, 19 stop referring to Reverb, WebSockets,
+  Horizon or Pusher. Realtime is HTTP polling per Section 16.
+- Section 6's KYC object-storage line is retracted. Documents
+  live on the local private disk under storage/app/private/kyc
+  per Sections 3 and 4.
+- Section 3 version pins update: Laravel 13, Inertia 3.
+- Section 15.2 typography: Space Grotesk + Inter + JetBrains Mono.
+- Section 19 PHPStan: level 7 in Phase 0, level 8 from Phase 1.
+- Section 24 Phase 0 gate: closed; docker-compose deliverable
+  retracted (see ADR-0003).
+
+All decisions above are recorded as ADRs in docs/decisions/
+and are authoritative going forward. If a future contradiction
+appears, add an ADR, do not amend a section that already refers
+to one.
+
+---
+
 ## 0. How to read this document
 
 This is a scoping and architecture plan, not a task list yet. Every section closes with a "Decisions needed" block. Read top-to-bottom once, mark disagreements in the margin, then we condense the accepted plan into the Claude Code kickoff prompt.
@@ -153,7 +180,7 @@ If any of A1 through A8 is wrong, say which — several later sections change.
 **R2:** Rewritten for shared-hosting constraints (no root, no background processes, MySQL only, single PHP runtime per request, cron as the only scheduler).
 
 **Backend**
-- **Laravel 12** (PHP 8.3+, whatever the shared host provides — most cPanel hosts now offer 8.3). Framework replaces the 232-file procedural sprawl.
+- **Laravel 13** (PHP 8.3+, whatever the shared host provides — most cPanel hosts now offer 8.3). Framework replaces the 232-file procedural sprawl.
 - **MySQL 8.0.16+** or **MariaDB 10.6+**. Real `CHECK` constraints exist here since MySQL 8.0.16, so the non-negative-balance invariant (Maveren C-1) is enforceable at the storage layer. All money is `BIGINT` minor units — this sidesteps DECIMAL rounding regardless of engine.
 - **File cache driver** for cache (`storage/framework/cache`). Sufficient for the volume; adds no infra dependency.
 - **Database session driver**. Rows in a `sessions` table, cleaned by Laravel's built-in GC. Path-based file sessions on shared disk are the Maveren surface we avoid.
@@ -164,7 +191,7 @@ If any of A1 through A8 is wrong, say which — several later sections change.
 - **`spatie/laravel-backup`** scheduled via Laravel's task scheduler (also driven by the minutely cron), writing weekly dumps to a Google Drive or Dropbox target via `league/flysystem` adapters. cPanel backups are the belt; this is the braces.
 
 **Frontend**
-- **React 19 + TypeScript** via **Inertia 2** (Laravel-driven routing, no separate API surface for the app).
+- **React 19 + TypeScript** via **Inertia 3** (Laravel-driven routing, no separate API surface for the app).
 - **Tailwind CSS 4** with a custom Gotham design system layer.
 - **shadcn/ui** as the component base, restyled with Gotham tokens.
 - **TradingView Lightweight Charts v5** for the terminal (45KB gzipped, MIT with attribution requirement).
@@ -173,9 +200,10 @@ If any of A1 through A8 is wrong, say which — several later sections change.
 - **Zustand** for local terminal state (selected symbol, timeframe).
 - **Vite** for the frontend build; production build includes JavaScript obfuscation and content-hashed asset filenames.
 - **All assets pre-built locally and rsynced.** The shared host is not expected to run Node.
+- **Tooling**: vite-plus (build), Wayfinder (typed routes), Chisel (dev orchestrator), Pao (dev tunnel). These ship with the current starter kit and we keep them.
 
 **Infra and tooling**
-- **Local dev**: Docker Compose (php-fpm, mysql, mailpit). Dev is containerised even though prod is not.
+- **Local dev**: `php artisan serve` against host MySQL. The Docker Compose stack was retracted from the Phase 0 gate (see ADR-0003); dev and prod both run PHP directly.
 - **CI**: GitHub Actions runs tests and builds the production asset bundle. On green, a deploy job rsyncs to the shared host over SSH (or triggers a cPanel git deploy hook).
 - **Cloudflare** in front of the app — DNS-level, works fine with shared hosting — for WAF, Turnstile, bot mitigation and edge caching of public marketing pages.
 - **Sentry** for backend + frontend errors (external SaaS, no infra needed on host).
@@ -317,11 +345,11 @@ Core principles that were violated in Maveren and are enforced here:
 
 `plays`, `agent_configs`, `play_executions`, `agent_sessions` — see Section 8.
 
-`kyc_submissions`, `kyc_documents` — documents stored in object storage; only `object_key` in DB.
+`kyc_submissions`, `kyc_documents` — documents stored on the private local disk under `storage/app/private/kyc/`, served through a signed-URL streamer controller. Only the storage path in the DB.
 
 `admin_audit_events` — every admin write, actor, before/after, IP, session id.
 
-`sessions` — Redis-backed via Laravel session driver; DB fallback table for auditing "sessions active" per user.
+`sessions` — database-driver session table (Laravel's default). One row per active session; Section 12 lists sessions in a user's profile using this same table.
 
 `login_attempts`, `mfa_factors`, `mfa_backup_codes`, `password_reset_tokens`, `email_verification_tokens` — hashed tokens, not plaintext OTPs.
 
@@ -534,7 +562,7 @@ Cross-cutting UX rules:
 
 Modernised with the same Gotham tokens but tuned for density.
 
-- **Home** — live metrics: active users, open positions, agent P/L today, pending deposits, pending withdrawals, KYC queue, IPN failures last hour. All WebSocket-updated.
+- **Home** — live metrics: active users, open positions, agent P/L today, pending deposits, pending withdrawals, KYC queue, IPN failures last hour. All polled via `/api/admin/pulse` per Section 16.
 - **Users** — searchable, filterable, role editing, disable/anonymise (no hard delete), impersonate with audit trail, per-user session list.
 - **Wallets** — read balance, view ledger, post an audited adjustment entry (never absolute overwrite — Maveren H-2 fix).
 - **Transactions** — full ledger with faceted filters, export the full filtered set to CSV.
@@ -557,7 +585,7 @@ Admin auth: mandatory TOTP MFA; no self-service registration; provisioning by su
 
 ## 12. Authentication and authorization
 
-- **Session store**: Redis. `SESSION_LIFETIME` honoured. Rolling refresh, absolute cap 30 days.
+- **Session store**: database (Laravel's session table). `SESSION_LIFETIME` honoured. Rolling refresh, absolute cap 30 days.
 - **Cookies**: `HttpOnly`, `Secure`, `SameSite=Lax` for member (needed for OAuth returns later), `SameSite=Strict` for admin.
 - **Password policy**: minimum 10, checked against a bloom filter of the top 100k breached passwords bundled with the app; Argon2id.
 - **Session regeneration** on every privilege change, including admin registration (Maveren M-5 fix) and MFA success.
@@ -585,7 +613,7 @@ Every ID from the Maveren audit maps to a Gotham design decision.
 | H-2 (absolute balance override) | Removed. Adjustments only via a signed ledger entry with a reason |
 | H-3 (hard user deletion) | Disable + anonymise flow; ledger retained; KYC files retained under retention policy or purged with an audited job |
 | H-4 (executeQuery swallowing) | No helper hides exceptions; all queries go through Eloquent or DB facade with framework exception handling |
-| H-5 (shared DB user across sites) | Dedicated DB, dedicated DB user, dedicated Redis, no co-tenancy |
+| H-5 (shared DB user across sites) | Dedicated DB, dedicated DB user, no co-tenancy |
 | H-6 (deploy re-applies deposit addresses) | Deposit addresses live only in the DB and are edited through the admin UI. No deploy-time SQL for them |
 | H-7 (GET-accepted state changes) | Every state-changing action requires POST/PATCH/DELETE. Enforced by tests |
 | H-8 (KYC role mismatch) | Role names come from constants; a single test asserts every role gate references a real role |
@@ -685,13 +713,17 @@ Dark by default and only. No light mode in v1. Financial terminals are dark; for
 
 ### 15.2 Typography
 
-Two families:
-- **Display / body**: `Neue Haas Grotesk Display` (or the open-source `Söhne`-like `Sohne Buch` alternative — depends on licensing budget; free fallback: `Inter Display`).
-- **Numeric / monospace**: `JetBrains Mono` for all numbers, table cells, order tickets, and code. Tabular figures on.
+Two families, both free:
+- Display / body: Space Grotesk (display, hero-scale) and Inter
+  (body copy, forms, tables). Both loaded via Google Fonts,
+  self-hosted at build.
+- Numeric / monospace: JetBrains Mono for all numbers, order
+  tickets, code, and tabular figures. Font-variant-numeric:
+  tabular-nums enabled.
 
-No secondary decorative face. No serif display. That said, one reserved treatment: hero pages may use a heavier weight of the display face at very large size, with tight tracking, as the single distinctive gesture. No "one-word-in-italic" or per-letter accent tricks.
-
-Type scale: 12, 14, 16, 18, 21, 28, 36, 48, 64. Line-heights follow: 16, 20, 24, 28, 30, 36, 44, 56, 72. Numbers use `font-variant-numeric: tabular-nums`.
+Type scale unchanged (12/14/16/18/21/28/36/48/64). Hero pages use
+Space Grotesk at the largest step with tight tracking as the single
+distinctive gesture. No other decorative face.
 
 ### 15.3 Layout and structure
 
@@ -773,7 +805,7 @@ Cost of this design: ~30 requests per minute per active member per open tab. Clo
 ## 18. Notifications
 
 - **Email** via queued jobs; templates in Blade + MJML for consistent rendering across clients.
-- **In-app** via a `notifications` table and a Reverb channel; bell icon in the app chrome with unread count.
+- **In-app** via a `notifications` table read by the `/api/events?since=` polling endpoint from Section 16; bell icon in the app chrome with unread count.
 - **Push** deferred to v1.1.
 - **Templates**: welcome, verify, reset, deposit-initiated, deposit-completed, withdrawal-requested, withdrawal-completed, withdrawal-cancelled, investment-started, roi-credited, principal-released, agent-position-opened (opt-in), agent-position-closed (opt-in), kyc-approved, kyc-rejected, security-alert (new device, password-change), broadcast.
 - Every template escapes user data by default; the two intentionally-raw slots (`details_html`, `message_body`) are wrapped in a value object that carries pre-escaped HTML and refuses raw strings.
@@ -790,7 +822,7 @@ Cost of this design: ~30 requests per minute per active member per open tab. Clo
 - **Playwright** for E2E: register → verify → deposit → invest → agent-trade → withdraw.
 
 **Quality gates in CI**
-- PHPStan level 8 (Larastan).
+- PHPStan level 7 in Phase 0, level 8 from Phase 1 onward (see ADR-0002).
 - Laravel Pint.
 - Rector for automated modernisation on PRs.
 - ESLint, Prettier, TypeScript strict.
@@ -800,10 +832,10 @@ Cost of this design: ~30 requests per minute per active member per open tab. Clo
 **Observability**
 - **Sentry** for backend + frontend errors.
 - **Laravel Telescope** in staging only.
-- **Horizon** dashboard behind admin auth for queue health.
+- A simple failed-jobs admin view over Laravel's `failed_jobs` table; no external queue dashboard on shared hosting.
 - Structured JSON logs shipped to Better Stack or self-hosted Loki.
 - Business metrics: active positions, agent P/L today, deposit success rate, IPN success rate, exposed as a `/metrics` endpoint scraped by a lightweight Prometheus.
-- Uptime: external monitor pings the app and Reverb, pages on 3-strike failures.
+- Uptime: external monitor pings the app and its `/healthz` endpoint, pages on 3-strike failures.
 - Reconciliation alerts (Section 17) go to a dedicated Slack/webhook.
 
 **CI/CD (R2: shared-hosting flavour)**
@@ -907,17 +939,16 @@ Everything else in R2's Section 23 is answered by the R3 note at the top.
 
 **R2:** Tightened. No Reverb/Redis/PostgreSQL to set up, no legal review to wait on. Estimate down to ~9 weeks.
 
-**Phase 0 — Local setup and repo re-layout (1 week)**
+**Phase 0 — Local setup and repo re-layout (1 week) — closed on 2026-09-30.**
 - On a `gotham` branch off `main`, one dedicated commit moves every existing Maveren file into `_legacy/` via `git mv` so history is preserved.
-- Fresh Laravel 12 install scaffolds at the repo root beside `_legacy/`. React 19 + Inertia 2 starter kit applied. Tailwind 4 + shadcn/ui wired to the Gotham token layer.
+- Fresh Laravel 13 install scaffolds at the repo root beside `_legacy/`. React 19 + Inertia 3 starter kit applied. Tailwind 4 + shadcn/ui wired to the Gotham token layer.
 - `.env.example` populated with the keys the plan calls for (no secrets).
-- Docker Compose for local dev: php-fpm, mysql 8, mailpit. Runs from a `docker-compose.yml` at the repo root.
-- Local `.env` set up; `php artisan migrate` works against the Docker MySQL; local dev server serves a themed "hello Gotham" landing page.
+- Local `.env` set up; `php artisan migrate` works against the local MySQL; `php artisan serve` serves a themed "hello Gotham" landing page.
 - Vitest + Pest + Playwright installed and green on the trivial starter tests.
 - GitHub Actions CI: build + test on push. **Deploy job stubbed** — we'll wire the deploy pipeline when the hosting audit for the target server is done.
 - Storybook (or Ladle) up with the first three shadcn primitives restyled to Gotham tokens: Button, Input, Card.
 - Storybook / Playwright visual-regression baseline snapshot committed.
-- End-of-phase gate: `docker compose up`, browse to `http://localhost`, see the themed hero, and `pest` + `npm test` both green.
+- End-of-phase gate: `php artisan serve --port=8000`, browse to `http://localhost:8000`, see the themed hero, and `pest` + `npm test` both green.
 
 **Phase 1 — Identity + Wallet + Ledger (2 weeks)**
 Auth, MFA, admin provisioning, wallet, hash-chained append-only ledger with invariant checks, admin audit log. Full test coverage on money paths — including race-condition tests.
