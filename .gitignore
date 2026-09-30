@@ -27,6 +27,10 @@ pnpm-debug.log*
 /storage/pail
 /storage/app/public/*
 !/storage/app/public/.gitkeep
+# KYC documents land here from Phase 2 (plan Section 4). Identity papers must
+# never reach a commit — see Maveren audit H-3 and its PII inventory.
+/storage/app/private/*
+!/storage/app/private/.gitkeep
 /storage/framework/cache/data/*
 !/storage/framework/cache/data/.gitkeep
 /storage/framework/sessions/*
