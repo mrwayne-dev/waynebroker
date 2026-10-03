@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Roles first: anything that assigns one needs the row to exist.
+        $this->call(RoleSeeder::class);
+
         // User::factory(10)->create();
 
         User::factory()->create([
