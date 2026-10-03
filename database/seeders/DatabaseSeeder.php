@@ -15,8 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Roles first: anything that assigns one needs the row to exist.
-        $this->call(RoleSeeder::class);
+        // Roles are not seeded: the role vocabulary ships as a migration, so
+        // every environment that has the schema has the names too.
 
         // User::factory(10)->create();
 

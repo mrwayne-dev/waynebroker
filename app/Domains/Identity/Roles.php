@@ -13,9 +13,10 @@ namespace App\Domains\Identity;
  * withdrawals queued behind a screen only one person could open. A typo in a
  * string literal cost the platform a working review queue.
  *
- * Nothing in this application may name a role by literal. RoleSeeder reads
- * these to populate the roles table, and RolesReferenceRealRoleTest reads them
- * to prove no gate has drifted away from the vocabulary.
+ * Nothing in this application may name a role by literal. The role vocabulary
+ * migration reads these to populate the roles table, and
+ * RolesReferenceRealRoleTest reads them to prove no gate has drifted away from
+ * the vocabulary.
  */
 final class Roles
 {

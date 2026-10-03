@@ -1,7 +1,6 @@
 <?php
 
 use App\Domains\Identity\Roles;
-use Database\Seeders\RoleSeeder;
 use Spatie\Permission\Models\Role;
 use Symfony\Component\Finder\Finder;
 
@@ -112,16 +111,9 @@ test('every role named in source is a real role', function () {
     )));
 });
 
-test('the seeder creates exactly the role vocabulary', function () {
-    (new RoleSeeder)->run();
-
+test('the migrations create exactly the role vocabulary', function () {
+    // Nothing in this test, and nothing in Pest.php, creates a role. The rows
+    // are here because the migrations ran, which is the whole claim.
     expect(Role::query()->pluck('name')->sort()->values()->all())
         ->toBe(collect(Roles::all())->sort()->values()->all());
-});
-
-test('seeding twice leaves one row per role', function () {
-    (new RoleSeeder)->run();
-    (new RoleSeeder)->run();
-
-    expect(Role::query()->count())->toBe(count(Roles::all()));
 });
