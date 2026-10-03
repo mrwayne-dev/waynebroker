@@ -18,10 +18,12 @@ says so explicitly.
 | [0004](ADR-0004-typography-space-grotesk-inter-jetbrains.md) | Space Grotesk (display) + Inter (body) + JetBrains Mono (numeric) | Accepted — token naming superseded by [0006](ADR-0006-font-token-naming-alignment.md) | Plan Section 15.2 "Inter Display" specification |
 | [0005](ADR-0005-dark-only-theme.md) | Dark-only theme; appearance switcher removed | Accepted | The starter kit's built-in light/dark toggle |
 | [0006](ADR-0006-font-token-naming-alignment.md) | Font token naming aligns with Tailwind 4 conventions | Accepted | [ADR-0004](ADR-0004-typography-space-grotesk-inter-jetbrains.md)'s `--font-body` naming (partial) |
+| [0007](ADR-0007-unified-users-table-with-roles.md) | Unified users table with role-based admin identity | Accepted | Plan Section 6's separate `admins` table |
 
 0001-0005 are dated 2026-09-23 and record decisions taken during Phase 0.
 0006 is dated 2026-09-30 and corrects a naming detail in 0004; the font
-assignments 0004 made are untouched and still in force.
+assignments 0004 made are untouched and still in force. 0007 is dated
+2026-10-03 and is the first decision taken during Phase 1.
 
 ## How these work
 
