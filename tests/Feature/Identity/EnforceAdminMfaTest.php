@@ -2,7 +2,6 @@
 
 use App\Domains\Identity\Roles;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -13,8 +12,6 @@ use Illuminate\Support\Facades\Route;
  * the surface cannot arrive unguarded.
  */
 beforeEach(function () {
-    (new RoleSeeder)->run();
-
     Route::middleware(['web', 'auth'])->get('admin/things', fn () => response('ok'))
         ->name('admin.things');
 });

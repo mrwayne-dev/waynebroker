@@ -1,5 +1,6 @@
 <?php
 
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,6 +17,11 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    // Roles are infrastructure, not fixtures: registration assigns one, and
+    // every role gate reads one. Seeding them here mirrors a deployed
+    // environment, where RoleSeeder has run, instead of making each test
+    // remember to create the rows its subject depends on.
+    ->beforeEach(fn () => $this->seed(RoleSeeder::class))
     ->in('Feature');
 
 /*
