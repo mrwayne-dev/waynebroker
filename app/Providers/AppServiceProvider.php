@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Domains\Wallet\Observers\UserObserver as WalletUserObserver;
 use App\Listeners\StampSessionVersion;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Date;
@@ -32,6 +34,12 @@ class AppServiceProvider extends ServiceProvider
         // that silently stops being applied disables revocation without
         // breaking anything visible.
         Event::listen(Login::class, StampSessionVersion::class);
+
+        // Explicit for the same reason, and because the alternative is the
+        // #[ObservedBy] attribute on User, which would put a Wallet dependency
+        // in the Identity model. Registration is the only wallet creation
+        // trigger, so it is worth being able to read that fact in one place.
+        User::observe(WalletUserObserver::class);
     }
 
     /**

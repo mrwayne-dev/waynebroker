@@ -3,13 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
@@ -17,6 +14,11 @@ class DatabaseSeeder extends Seeder
     {
         // Roles are not seeded: the role vocabulary ships as a migration, so
         // every environment that has the schema has the names too.
+        //
+        // WithoutModelEvents is deliberately not used here. It would suppress
+        // UserObserver, and a seeded user with no wallet is a shape the
+        // application is built to never see — exactly the state Maveren's lazy
+        // creation existed to paper over.
 
         // User::factory(10)->create();
 

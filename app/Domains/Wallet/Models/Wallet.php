@@ -50,6 +50,23 @@ class Wallet extends Model
         ];
     }
 
+    /**
+     * The only path that creates a wallet (Maveren M-3).
+     *
+     * firstOrCreate rather than create, so a caller never has to ask whether
+     * the wallet is already there and never has a reason to write its own
+     * lookup-then-insert. Laravel routes this through createOrFirst, which
+     * catches the unique violation and re-reads, so two concurrent calls
+     * produce one wallet and one winner rather than an exception a caller has
+     * to know about. The unique index is what makes that safe; the lazy
+     * creation Maveren did was unsafe precisely because nothing underneath it
+     * refused the second row.
+     */
+    public static function createForUser(User $user): self
+    {
+        return static::firstOrCreate(['user_id' => $user->id]);
+    }
+
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {

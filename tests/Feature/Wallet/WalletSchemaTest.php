@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\DB;
  */
 function walletFor(?User $user = null): Wallet
 {
-    return Wallet::create(['user_id' => ($user ?? User::factory()->create())->id]);
+    // Creating a user creates their wallet, so this reads the one the
+    // application made rather than inventing a second one the unique index
+    // would refuse anyway.
+    return Wallet::query()->where('user_id', ($user ?? User::factory()->create())->id)->sole();
 }
 
 test('a new wallet starts empty', function () {
