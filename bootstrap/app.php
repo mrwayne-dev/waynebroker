@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnforceAdminMfa;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RecordAdminWrites;
@@ -26,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
             // cannot forget to audit itself. Maveren's H-1 was a logging
             // function every call site had to remember, and none did.
             RecordAdminWrites::class,
+            // Same reasoning, and it must run after the audit recorder so the
+            // redirect it issues is itself recorded.
+            EnforceAdminMfa::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
