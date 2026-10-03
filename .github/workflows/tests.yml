@@ -72,6 +72,32 @@ jobs:
           DB_PASSWORD: ci-waynebroker-Ahqu5aiPh9ohTh2i
         run: composer ci:check
 
+      - name: Run Vitest
+        run: npm test
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts starts `php artisan serve` itself through its
+      # webServer block, and reuseExistingServer is false under CI. That server
+      # inherits this step's environment, which is why the database lives here:
+      # on .env.example alone it would boot against SQLite :memory:, where each
+      # connection gets an empty database and the first session write 500s
+      # before any assertion runs. The migrate is explicit rather than inherited
+      # from the Pest run, so this step does not depend on what another step
+      # happened to leave behind.
+      - name: Run Playwright
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: waynebroker_testing
+          DB_USERNAME: waynebroker
+          DB_PASSWORD: ci-waynebroker-Ahqu5aiPh9ohTh2i
+        run: |
+          php artisan migrate --force
+          npx playwright test
+
   # Intentionally does nothing yet: populated when hosting audit is done.
   #
   # The target is a shared cPanel/LiteSpeed account on a different physical
