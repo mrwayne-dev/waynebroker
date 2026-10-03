@@ -1,0 +1,29 @@
+{
+    "note": "The display contract for USD amounts, read by both App\\Support\\Money\\Usd (tests/Feature/Support/MoneyTest.php) and the Money component (tests/js/money.test.tsx). Maveren formatted money in eleven places with four different results, including a client toFixed that disagreed with the server by a cent on numbers ending in 5. One file both sides read is how the two implementations are stopped from drifting apart. Cases stay inside JavaScript's safe integer range so both sides can express them; PHP-only magnitudes are asserted in the PHP test.",
+    "cases": [
+        { "cents": 0, "plain": "0.00", "withSymbol": "$0.00" },
+        { "cents": 1, "plain": "0.01", "withSymbol": "$0.01" },
+        { "cents": 9, "plain": "0.09", "withSymbol": "$0.09" },
+        { "cents": 99, "plain": "0.99", "withSymbol": "$0.99" },
+        { "cents": 100, "plain": "1.00", "withSymbol": "$1.00" },
+        { "cents": 999, "plain": "9.99", "withSymbol": "$9.99" },
+        { "cents": 1000, "plain": "10.00", "withSymbol": "$10.00" },
+        { "cents": 99999, "plain": "999.99", "withSymbol": "$999.99" },
+        { "cents": 100000, "plain": "1,000.00", "withSymbol": "$1,000.00" },
+        { "cents": 123456, "plain": "1,234.56", "withSymbol": "$1,234.56" },
+        {
+            "cents": 100000000,
+            "plain": "1,000,000.00",
+            "withSymbol": "$1,000,000.00"
+        },
+        {
+            "cents": 100000000000,
+            "plain": "1,000,000,000.00",
+            "withSymbol": "$1,000,000,000.00"
+        },
+        { "cents": -1, "plain": "-0.01", "withSymbol": "-$0.01" },
+        { "cents": -123456, "plain": "-1,234.56", "withSymbol": "-$1,234.56" },
+        { "cents": 1005, "plain": "10.05", "withSymbol": "$10.05" },
+        { "cents": 1015, "plain": "10.15", "withSymbol": "$10.15" }
+    ]
+}
