@@ -56,12 +56,21 @@ jobs:
         with:
           node-version: '22'
 
-      # Deliberately not given the MySQL environment. `composer setup` runs its
-      # own `artisan migrate` against whatever .env.example says, which is still
-      # SQLite; the test suite is what needs MySQL, and it gets it below. Giving
-      # this step the live connection would migrate the test database twice over
-      # and hide which step actually depends on the service.
+      # `composer setup` runs its own `artisan migrate` from .env.example, so
+      # this step is the fresh-clone smoke test: a clone, a key, the schema, a
+      # build. It used to run without the MySQL environment, on the theory that
+      # only the suite needed the service and that keeping them apart showed
+      # which step depended on it. That was wrong in a way that cost four red
+      # runs: .env.example pointed at SQLite :memory:, so this step was
+      # migrating a second engine nothing else used, and the wallets migration's
+      # CHECK constraints — which SQLite's ALTER TABLE cannot add — failed here
+      # while the whole MySQL suite was green. .env.example now says MySQL, and
+      # this step gets the credentials for it, so a migration that cannot run on
+      # the real engine fails on the step whose job is to find that out.
       - name: Setup Application
+        env:
+          DB_DATABASE: waynebroker_testing
+          DB_PASSWORD: ci-waynebroker-Ahqu5aiPh9ohTh2i
         run: composer setup
 
       - name: Run CI Checks
