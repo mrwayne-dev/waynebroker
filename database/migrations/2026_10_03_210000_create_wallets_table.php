@@ -8,11 +8,12 @@ use Illuminate\Support\Facades\Schema;
 /**
  * The one USD balance per member (plan Section 6).
  *
- * Money is BIGINT minor units throughout. Maveren's `users.balance` was
- * DECIMAL(15,2) read into PHP floats, which is finding M-19: every arithmetic
- * step there went through a binary float and back, and the audit found
- * fractions of a cent accumulating in the difference between the balance and
- * the sum of its transactions. Integers do not have that failure mode.
+ * Money is BIGINT minor units throughout. Maveren's `wallets.balance` was
+ * DECIMAL(12,2) and the PHP side cast every amount to float before binding it,
+ * which is finding M-19. Sub-cent inputs passed validation (`amount > 0`) and
+ * were rounded by MySQL on insert, so a request for 0.001 stored 0.00 — the
+ * audit marks that consequence [INFERRED]. Integers do not have the failure
+ * mode: there is no amount a member can send that this column rounds.
  *
  * balance_cents is GROSS: it is the member's whole asset. reserved_cents is a
  * hold sitting inside it, not an amount beside it, so an open position's margin

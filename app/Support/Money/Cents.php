@@ -10,12 +10,12 @@ use TypeError;
 /**
  * An amount of money, in minor units, that cannot be a float.
  *
- * Retires Maveren audit finding M-19. There, `users.balance` was DECIMAL(15,2)
- * and every amount passed through PHP floats on the way in and out:
- * `$balance - $amount` in api/backend/withdraw.php, `number_format($row['balance'], 2)`
- * on display, `floatval($_POST['amount'])` at the boundary. The audit found
- * fractions of a cent accumulating between a balance and the sum of its own
- * transactions, and no way to say which number was right.
+ * Retires Maveren audit finding M-19. There, money was DECIMAL(12,2) on wallets
+ * and transactions and DECIMAL(15,2) on investments and plans, and the PHP side
+ * cast every amount to float — `(float) $data['amount']` — and bound the float.
+ * Validation only asked for `amount > 0`, so a sub-cent amount was accepted and
+ * MySQL rounded it on insert; the audit's example is a request for 0.001 storing
+ * 0.00, which it marks [INFERRED].
  *
  * The constructor is private and `from` takes `mixed` rather than `int`. That
  * looks like a loss of type safety and is the opposite. `declare(strict_types=1)`

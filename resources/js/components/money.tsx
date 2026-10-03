@@ -3,12 +3,12 @@ import { cn } from '@/lib/utils';
 /**
  * The client half of the money contract.
  *
- * Maveren's dashboard formatted balances with toFixed(2) on a value it had
- * divided by 100, which disagreed with the server by a cent on amounts ending
- * in 5 — the audit's M-19 has the screenshot. Here the integer cents arrive
- * from the server unchanged and the split into major and minor units is integer
- * arithmetic, so the two implementations cannot drift. The shared cases in
- * tests/fixtures/money-formatting.json are what hold them together.
+ * The integer cents arrive from the server unchanged and the split into major
+ * and minor units is integer arithmetic, so there is no point at which a
+ * division by 100 could lose a digit. Two implementations of the same format
+ * can still drift apart, which is what the shared cases in
+ * tests/fixtures/money-formatting.json exist to catch; both this suite and the
+ * PHP one read that file.
  */
 type MoneyProps = {
     /** The amount in minor units, exactly as the server sent it. */

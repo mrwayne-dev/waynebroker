@@ -8,10 +8,11 @@ import Money, { formatCents } from '@/components/money';
 /**
  * The client half of Maveren M-19.
  *
- * The contract file is read from disk rather than duplicated, and the PHP suite
- * reads the same one. Maveren's dashboard disagreed with its own server by a
- * cent on amounts ending in 5 because each side had its own formatting code;
- * two tests over one file is what prevents that quietly recurring.
+ * The contract file is imported rather than duplicated, and the PHP suite reads
+ * the same one. Two implementations of one format drifting apart is not a
+ * Maveren finding — the audit does not cover display formatting — it is the
+ * hazard this project creates for itself by having a PHP formatter and a
+ * TypeScript one. Two tests over one file is what holds them together.
  */
 describe('formatCents', () => {
     it('has cases to check', () => {

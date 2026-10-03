@@ -6,11 +6,10 @@ use App\Support\Money\Usd;
 /**
  * Retires Maveren audit finding M-19.
  *
- * Maveren stored money as DECIMAL(15,2) and handled it as PHP floats at every
- * step: floatval() at the request boundary, float subtraction in the withdrawal
- * path, number_format() on display in eleven places with four different
- * results. The audit found fractions of a cent accumulating between a balance
- * and the sum of its own transactions and could not establish which was right.
+ * Maveren stored money as DECIMAL(12,2) on wallets and transactions and cast
+ * every amount to float on the PHP side before binding it. Validation asked
+ * only for `amount > 0`, so a sub-cent amount was accepted and rounded by MySQL
+ * on insert — the audit's example is 0.001 storing 0.00, marked [INFERRED].
  *
  * Cents is the type that makes the float unrepresentable, and Usd is the one
  * place a number becomes a string.

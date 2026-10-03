@@ -7,13 +7,13 @@ use Illuminate\Database\QueryException;
 /**
  * Retires Maveren audit finding M-3.
  *
- * Maveren had no uniqueness on the wallet owner. api/backend/wallet.php created
- * a wallet row whenever it could not find one, and three code paths could reach
- * that branch, so a member who hit two of them inside the same request window
- * ended up with two wallets. Every subsequent read used whichever row the query
- * returned first, which meant the balance a member saw depended on row order.
- * The audit found two such accounts and could not establish which balance was
- * the real one.
+ * Maveren's `wallets.user_id` had no UNIQUE constraint — only the non-unique
+ * `idx_user_wallet` — and three endpoints auto-created a wallet when a lookup
+ * missed: api/backend/dashboard.php:92 and :131, and api/backend/invest.php:382.
+ * The audit's reading, which it marks [INFERRED] rather than observed, is that
+ * two concurrent first-loads could each create a row. What it does establish is
+ * the consequence: getUserWallet() at api/backend/wallet.php:116-120 then reads
+ * an arbitrary one, so the balance a member saw would depend on row order.
  *
  * Both halves are covered: the database refuses a second row, and there is one
  * path that creates the first one.

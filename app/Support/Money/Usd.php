@@ -7,10 +7,11 @@ namespace App\Support\Money;
 /**
  * Turns cents into the one string a member reads.
  *
- * Formatting happens here and nowhere else, at display, once. Maveren formatted
- * in eleven places with four different results — number_format in some, string
- * concatenation in others, and a JavaScript toFixed on the dashboard that
- * disagreed with the server by a cent on numbers ending in 5.
+ * Formatting happens here and nowhere else, at display, once. That is a rule
+ * this project sets rather than a Maveren finding: the audit documents M-19 as a
+ * storage and arithmetic problem and says nothing about where amounts were
+ * turned into strings. One formatter is how the client and server are kept from
+ * disagreeing, which the shared contract in tests/fixtures asserts.
  *
  * The arithmetic is integer and string only. number_format() would be the
  * obvious way to group the thousands and it takes a float, which puts the whole
