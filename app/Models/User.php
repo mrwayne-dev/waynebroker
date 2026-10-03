@@ -21,6 +21,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string $password
+ * @property int $session_version
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
@@ -45,6 +46,10 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            // Integer on purpose: MySQL hands a BIGINT back as a string under
+            // emulated prepares, and CheckSessionVersion compares identically.
+            // A string here would fail every comparison and log everyone out.
+            'session_version' => 'integer',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }

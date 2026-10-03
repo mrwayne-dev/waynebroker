@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckSessionVersion;
 use App\Http\Middleware\EnforceAdminMfa;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -30,6 +31,10 @@ return Application::configure(basePath: dirname(__DIR__))
             // Same reasoning, and it must run after the audit recorder so the
             // redirect it issues is itself recorded.
             EnforceAdminMfa::class,
+            // Ends sessions issued under a superseded password. Group-wide so
+            // that no authenticated surface can be reached by a revoked
+            // session, whichever route it asks for.
+            CheckSessionVersion::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

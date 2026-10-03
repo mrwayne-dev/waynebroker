@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Domains\Identity\SessionVersion;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
@@ -57,9 +58,16 @@ class SecurityController extends Controller
      */
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {
-        $request->authenticatedUser()->update([
+        $user = $request->authenticatedUser();
+
+        $user->update([
             'password' => $request->password,
         ]);
+
+        // Every other session this account holds dies on its next request.
+        // The one making the change is re-stamped so the member is not thrown
+        // out by their own action.
+        SessionVersion::revokeOthers($request, $user);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 

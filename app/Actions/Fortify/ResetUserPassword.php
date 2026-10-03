@@ -22,8 +22,13 @@ class ResetUserPassword implements ResetsUserPasswords
             'password' => $this->passwordRules(),
         ])->validate();
 
+        // A reset is the one action taken precisely because a password may be
+        // in someone else's hands, so every existing session goes — including
+        // any the attacker is holding. Nothing is preserved here: whoever just
+        // reset signs in again with the new password.
         $user->forceFill([
             'password' => $input['password'],
+            'session_version' => $user->session_version + 1,
         ])->save();
     }
 }
