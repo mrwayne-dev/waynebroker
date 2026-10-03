@@ -6,10 +6,10 @@
 
 # ── PHP / Composer ────────────────────────────────────────
 vendor/
-composer.lock
-# (composer.lock IS committed for applications; we un-ignore it
-#  once Laravel is scaffolded. Kept ignored while _legacy/ still
-#  holds Maveren's outdated lock.)
+# composer.lock is tracked: this is an application, not a library, so CI and a
+# workstation must install the same resolved set. Only Maveren's stale lock
+# under _legacy/ stays out — that tree is read-only reference.
+_legacy/composer.lock
 
 # ── Node / Vite ───────────────────────────────────────────
 node_modules/
