@@ -56,6 +56,21 @@ jobs:
         with:
           node-version: '22'
 
+      # The ledger_entries append-only triggers (Checkpoint 5) are the first
+      # triggers in the schema. MySQL refuses CREATE TRIGGER from a non-SUPER
+      # user while binary logging is on unless the server trusts function and
+      # trigger creators, and the app deliberately connects as the least-
+      # privileged `waynebroker` user (plan Section 13), which has no SUPER. The
+      # mysql:8.0 service runs with binary logging on by default, so set the
+      # trust flag once as root — a server-level setting the app's own user is
+      # not allowed to change — before any migration runs. Done over PDO because
+      # pdo_mysql is guaranteed present from Setup PHP, whereas a mysql client on
+      # the runner is not.
+      - name: Allow trigger creation under binary logging
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-aeTh8oog1Chai9oo
+        run: php -r "(new PDO('mysql:host=127.0.0.1;port=3306', 'root', getenv('MYSQL_ROOT_PASSWORD')))->exec('SET GLOBAL log_bin_trust_function_creators = 1');"
+
       # `composer setup` runs its own `artisan migrate` from .env.example, so
       # this step is the fresh-clone smoke test: a clone, a key, the schema, a
       # build. It used to run without the MySQL environment, on the theory that
