@@ -356,7 +356,7 @@ Core principles that were violated in Maveren and are enforced here:
 
 `roles`, `permissions`, `role_permissions`, `user_roles`, `admin_roles` — spatie/laravel-permission with strict role naming: `super_admin`, `finance_admin`, `support_admin`, `content_admin`, `member`.
 
-`wallets` — `id`, `user_id` UNIQUE, `balance_cents` bigint, `reserved_cents` bigint, `hash_head` (chain head), timestamps. Trigger prevents `balance_cents < 0`.
+`wallets` — `id`, `user_id` UNIQUE, `balance_cents` bigint, `reserved_cents` bigint, `hash_head` (chain head), `version` bigint (optimistic-lock token, R6), timestamps. Three named `CHECK` constraints hold the balance model: `balance_cents >= 0`, `reserved_cents >= 0`, `reserved_cents <= balance_cents`.
 
 `ledger_entries` — `id`, `wallet_id`, `direction` enum(credit,debit), `amount_cents`, `kind` (deposit, withdrawal, roi_payout, principal_release, adjustment, agent_pnl, bonus, correction), `reference_type`, `reference_id`, `metadata` jsonb, `previous_hash`, `hash`, `created_at`. No `updated_at`. Only `INSERT` grant to the app role.
 
