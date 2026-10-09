@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature\Wallet;
 
 use App\Domains\Wallet\Exceptions\InsufficientFundsException;
+use App\Domains\Wallet\LedgerService;
 use App\Domains\Wallet\Models\Wallet;
 use App\Models\User;
+use App\Support\Money\Cents;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Tests\Support\NaiveWithdrawal;
 use Tests\TestCase;
 
 /**
@@ -46,10 +47,10 @@ use Tests\TestCase;
  *   3. The LOSER performs its withdrawal inside its stale-snapshot transaction.
  *
  * A non-locking read (NaiveWithdrawal) sees the snapshot's 100, passes its
- * guard, and writes — a second successful withdrawal, the lost update. This
- * commit uses NaiveWithdrawal, so the test is RED: both withdrawals succeed.
- * When LedgerService lands it is repointed there and the locking read makes the
- * loser read the committed 0 and refuse — green.
+ * guard, and writes — a second successful withdrawal, the lost update. A
+ * locking read (LedgerService::debit) ignores the snapshot, reads the
+ * committed 0, and the guard refuses it. The only thing that changes between
+ * the red run and the green run is which withdrawal the loser performs.
  *
  * innodb_lock_wait_timeout is pinned to 1s on both connections so that if a
  * future change ever made these operations block on each other, the test fails
@@ -92,8 +93,9 @@ final class ConcurrentWithdrawalRaceTest extends TestCase
 
         // Seed the committed starting state the way it would exist in
         // production, by hand: one credit entry and a wallet balance of 100.
-        // No service is used here on purpose — LedgerService does not exist yet,
-        // and the setup must not depend on the thing under test.
+        // No service is used here on purpose — in the red version of this test
+        // LedgerService does not exist yet, and the setup must not depend on the
+        // thing under test.
         $head = hash('sha256', 'opening|'.$this->wallet->id);
 
         DB::table('ledger_entries')->insert([
@@ -190,6 +192,121 @@ final class ConcurrentWithdrawalRaceTest extends TestCase
     }
 
     /**
+     * Broader, genuinely-parallel concurrency via real forked processes.
+     *
+     * @group slow
+     *
+     * Local-only. pcntl is not in the CI setup-php extensions, so this is
+     * skipped there; the deterministic test above is what runs in CI. Where
+     * pcntl exists, this fires N real processes at one wallet at once — no
+     * snapshot trickery, actual OS-level parallelism — and asserts the lock lets
+     * through exactly as many withdrawals as the balance can cover and no more.
+     * Each child reconnects PDO first, because a connection inherited across
+     * fork() is shared state two processes must not use at once.
+     */
+    public function test_many_parallel_withdrawals_debit_exactly_what_the_balance_covers(): void
+    {
+        if (! function_exists('pcntl_fork')) {
+            $this->markTestSkipped('pcntl is not available; this is a local-only concurrency test.');
+        }
+
+        if (getenv('CI')) {
+            $this->markTestSkipped('Skipped under CI: pcntl is not in the CI setup-php config.');
+        }
+
+        $children = 25;
+        $amount = 100;
+        $coverable = 10;                 // how many withdrawals the balance allows
+        $balance = $amount * $coverable; // 1000
+
+        $this->reseed($balance);
+        $startingVersion = (int) DB::table('wallets')->where('id', $this->wallet->id)->value('version');
+
+        // Drop the parent's connections so children do not share a live socket.
+        DB::disconnect('mysql');
+        DB::disconnect(self::RACER);
+
+        $pids = [];
+        for ($i = 0; $i < $children; $i++) {
+            $pid = pcntl_fork();
+
+            if ($pid === -1) {
+                $this->fail('Could not fork a child process.');
+            }
+
+            if ($pid === 0) {
+                // Child. Reconnect to get its own PDO, then attempt the debit and
+                // hard-exit with a status that encodes the outcome — never
+                // falling back into the test framework.
+                DB::purge('mysql');
+
+                try {
+                    app(LedgerService::class)
+                        ->debit($this->wallet, Cents::from($amount), 'withdrawal');
+                    exit(0); // succeeded
+                } catch (InsufficientFundsException) {
+                    exit(1); // refused by the guard
+                } catch (\Throwable) {
+                    exit(2); // anything else is a failure of the test's assumptions
+                }
+            }
+
+            $pids[] = $pid;
+        }
+
+        $succeeded = 0;
+        $refused = 0;
+        $other = 0;
+        foreach ($pids as $pid) {
+            pcntl_waitpid($pid, $status);
+            match (pcntl_wexitstatus($status)) {
+                0 => $succeeded++,
+                1 => $refused++,
+                default => $other++,
+            };
+        }
+
+        DB::purge('mysql');
+
+        $this->assertSame(0, $other, 'No child may fail other than by InsufficientFundsException.');
+        $this->assertSame($coverable, $succeeded, 'Exactly as many withdrawals as the balance covers must succeed.');
+        $this->assertSame($children - $coverable, $refused, 'Every uncoverable withdrawal must be refused.');
+
+        $this->assertSame(0, (int) DB::table('wallets')->where('id', $this->wallet->id)->value('balance_cents'), 'Balance must end at 0, never negative.');
+        $this->assertSame($coverable, DB::table('ledger_entries')->where('wallet_id', $this->wallet->id)->where('direction', 'debit')->count(), 'One debit entry per successful withdrawal.');
+        $this->assertSame($startingVersion + $coverable, (int) DB::table('wallets')->where('id', $this->wallet->id)->value('version'), 'version must advance once per committed debit.');
+    }
+
+    /**
+     * Reset to a single committed credit of the given balance.
+     */
+    private function reseed(int $balance): void
+    {
+        $this->resetTables();
+
+        $this->user = User::factory()->create();
+        $this->wallet = Wallet::query()->where('user_id', $this->user->id)->sole();
+
+        $head = hash('sha256', 'opening|'.$this->wallet->id);
+
+        DB::table('ledger_entries')->insert([
+            'wallet_id' => $this->wallet->id,
+            'direction' => 'credit',
+            'amount_cents' => $balance,
+            'kind' => 'deposit',
+            'previous_hash' => '',
+            'hash' => $head,
+            'created_at' => now(),
+        ]);
+
+        DB::table('wallets')->where('id', $this->wallet->id)->update([
+            'balance_cents' => $balance,
+            'hash_head' => $head,
+            'version' => 1,
+        ]);
+    }
+
+    /**
      * Run a withdrawal on the named connection and report the outcome.
      *
      * The connection is made the default for the duration of the call so the
@@ -205,9 +322,7 @@ final class ConcurrentWithdrawalRaceTest extends TestCase
         DB::setDefaultConnection($connection);
 
         try {
-            // The naive read-then-write that reproduces C-1. The next commit but
-            // one swaps this for LedgerService::debit and the test turns green.
-            (new NaiveWithdrawal)->withdraw($this->wallet, $amount);
+            app(LedgerService::class)->debit($this->wallet, Cents::from($amount), 'withdrawal');
 
             return ['succeeded' => true, 'insufficientFunds' => false];
         } catch (InsufficientFundsException) {
