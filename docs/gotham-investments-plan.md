@@ -83,6 +83,35 @@ to one.
 
 ---
 
+## R6 — Phase 1 Checkpoint 4 reconciliations
+
+R6 corrects three descriptions in the plan that Phase 1 proved
+wrong by building the thing.
+
+- **Balance model.** Lines 314 and 797 say the invariant is
+  `balance == SUM(entries) - SUM(reservations)` (net). The
+  implemented model is gross: `balance_cents` is the total asset,
+  `reserved_cents` is a hold inside it. The invariant is
+  `SUM(credit entries) - SUM(debit entries) == balance_cents`
+  exactly. The debit guard is `balance - reserved >= amount`.
+  `CHECK (reserved_cents <= balance_cents)` enforces the hold
+  cannot exceed the balance. See ADR-0007-adjacent code in
+  Checkpoint 4; a dedicated ADR is not needed because the
+  invariant is now the only one the service enforces.
+- **wallets.version column.** Not in the Section 6 sketch. Added
+  as an optimistic-concurrency token for any future API that
+  returns a Wallet to a client. Cheap now, hard to backfill.
+- **Role creation lives in a migration, not a seeder.** Section 7
+  implies seed-time. The real decision is schema-time: role rows
+  travel with migrations so a missed seed step cannot break
+  registration in production. Idempotent via Spatie's
+  `Role::findOrCreate`.
+
+Code is authoritative where it diverges from this document; this
+R6 pass closes the specific gaps Phase 1 Checkpoint 4 opened.
+
+---
+
 ## 0. How to read this document
 
 This is a scoping and architecture plan, not a task list yet. Every section closes with a "Decisions needed" block. Read top-to-bottom once, mark disagreements in the margin, then we condense the accepted plan into the Claude Code kickoff prompt.
@@ -311,7 +340,7 @@ Each context lives under `app/Domains/<Context>` with its own `Models`, `Service
 Core principles that were violated in Maveren and are enforced here:
 
 1. **Money is stored as integer minor units.** `bigint` cents (or satoshis for crypto). No floats anywhere in the code path. Money conversion happens only at display.
-2. **The wallet balance is derived from the ledger.** `wallets.balance` is a materialized cache updated inside the same transaction as the ledger insert. A background invariant check reconciles `wallet.balance == SUM(entries) - SUM(reservations)` on a schedule and pages ops on drift.
+2. **The wallet balance is derived from the ledger.** `wallets.balance` is a materialized cache updated inside the same transaction as the ledger insert. A background invariant check reconciles `SUM(credit entries) - SUM(debit entries) == balance_cents` on a schedule and pages ops on drift. The balance is gross: `reserved_cents` is a hold inside it and is not subtracted from the invariant (R6).
 3. **Ledger is append-only.** `ledger_entries` has no `UPDATE` grant; corrections are recorded as new offsetting entries with an audit reason. Every entry carries a `previous_hash` and a `hash` of its own row, chained per wallet, so tampering is detectable.
 4. **Concurrent writes go through row locks or optimistic CAS.** No read-modify-write across transaction boundaries anywhere.
 5. **KYC PII columns are encrypted at rest** (`encrypted:` cast on `id_number`, `dob`, `full_name`).
@@ -794,7 +823,7 @@ Cost of this design: ~30 requests per minute per active member per open tab. Clo
 - **Deposits**: NOWPayments crypto invoices (kept from Maveren, hardened per Section 13) and manual transfers to published addresses. Both flows work end-to-end so a demo can show a real deposit landing in the wallet. If we want a zero-money demo path, an admin can also credit a wallet via an audited adjustment entry (Section 13, H-2 fix).
 - **Withdrawals**: request → admin approval → recorded outbound reference. External payout stays off-platform.
 - **Custody note**: for the portfolio narrative, the README states plainly that this is a demonstration and any deposits are treated as demo balances unless the operator explicitly holds them. Nothing about the code prevents real operation; it just isn't the point of the project.
-- **Reconciliation**: the invariant job runs — `wallets.balance == SUM(ledger_entries) - reserved` — because it is the single best-looking piece of correctness plumbing in a financial-app portfolio. Drift pages the admin dashboard, not a real on-call rotation.
+- **Reconciliation**: the invariant job runs — `SUM(credit entries) - SUM(debit entries) == wallets.balance_cents`, with `reserved_cents` a hold inside the balance rather than a subtrahend (R6) — because it is the single best-looking piece of correctness plumbing in a financial-app portfolio. Drift pages the admin dashboard, not a real on-call rotation.
 
 **Decisions needed on Section 17:**
 - Keep NOWPayments live in this build, or stub the payments provider entirely (an interface with a `FakeProvider` that mints invoices for demo)? Recommend keeping the real integration but shipping the fake provider too, gated by `.env`. Best of both worlds for a portfolio piece.
